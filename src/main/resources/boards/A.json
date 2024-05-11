@@ -1,0 +1,32 @@
+{
+  "width": 3,
+  "height": 10,
+  "spaces": [
+    {
+      "actions": [
+        {
+          "CLASSNAME": "dk.dtu.compute.se.pisd.roborally.controller.ConveyorBelt",
+          "INSTANCE": {
+            "heading": "EAST",
+            "type": "GREEN"
+          }
+        }
+      ],
+      "x": 2,
+      "y": 0
+    },
+    {
+      "actions": [
+        {
+          "CLASSNAME": "dk.dtu.compute.se.pisd.roborally.controller.ConveyorBelt",
+          "INSTANCE": {
+            "heading": "EAST",
+            "type": "GREEN"
+          }
+        }
+      ],
+      "x": 2,
+      "y": 9
+    }
+  ]
+}
