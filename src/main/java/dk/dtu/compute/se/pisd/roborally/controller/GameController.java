@@ -406,4 +406,52 @@ public class GameController {
         }
     }
 
+    /**
+     * @author Amalie Bojsen
+     * Creating the laser, so that it can be called on after execution of the program
+     * Uses the players position, and heading
+     */
+    public void shootLaser(Player player) {
+        Heading heading = player.getHeading();
+        Space laser = player.getSpace();
+        int move = 0;
+        boolean end = false;
+
+        switch (heading) {
+            case NORTH:
+                move = -1;
+                break;
+            case SOUTH:
+                move = 1;
+                break;
+            case EAST:
+                move = 1;
+                break;
+            case WEST:
+                move = -1;
+                break;
+        }
+
+
+        while(end == false) {
+            //skal tjekke om der er en væg, ved dog ikke lige hvad der ligger bag det lige nu
+            if (end == false) {
+                //move in one of the four directions
+                if (heading == heading.NORTH || heading == heading.SOUTH) {
+                    laser = board.getSpace(laser.x, (laser.y + move));
+                }
+                if (heading == heading.EAST || heading == heading.WEST) {
+                    laser = board.getSpace((laser.x + move), laser.y);
+                }
+                //check for player in the way, and deal damage if they are there
+            }
+            if (laser == null) {
+                end = true;
+            }
+        }
+
+
+
+    }
+
 }

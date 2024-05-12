@@ -23,6 +23,7 @@ package dk.dtu.compute.se.pisd.roborally.model;
 
 import dk.dtu.compute.se.pisd.designpatterns.observer.Subject;
 import dk.dtu.compute.se.pisd.roborally.controller.FieldAction;
+import dk.dtu.compute.se.pisd.roborally.controller.GameController;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -55,6 +56,28 @@ public class Board extends Subject {
     private int step = 0;
 
     private boolean stepMode;
+
+    private Laser laser;
+
+    private Board board;
+
+    private GameController controller;
+
+    public Laser getLaser() {
+        return laser;
+    }
+
+    public void setLaser(Laser laser) {
+
+        this.laser = laser;
+    }
+
+    // Activates the players lasers - needs to be called somewhere
+    private void activatePlayerLaser(){
+        for(int i = 0; i < board.getPlayersNumber(); i++){
+            controller.shootLaser(board.getPlayer(i));
+        }
+    }
 
     public Board(int width, int height) {
         this.width = width;
