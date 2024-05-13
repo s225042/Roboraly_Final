@@ -83,6 +83,7 @@ public class LoadBoard {
                 loadPlayer(result, template.players.get(i));
             }
             result.setCurrentPlayer(result.getPlayer(template.current));
+            result.setCounter(template.counter);
             reader.close();
 
 			return result;
@@ -166,6 +167,7 @@ public class LoadBoard {
         template.height = board.height;
         template.phase = board.getPhase();
         template.current = board.getPlayerNumber(board.getCurrentPlayer());
+        template.counter = board.getCounter();
 
         for (int i=0; i<board.width; i++) {
             for (int j=0; j<board.height; j++) {

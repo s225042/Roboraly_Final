@@ -54,6 +54,8 @@ public class Board extends Subject {
 
     private int step = 0;
 
+    private int counter = 0;
+
     private boolean stepMode;
 
     public Board(int width, int height) {
@@ -89,6 +91,12 @@ public class Board extends Subject {
 
     public int getHeight() {
         return height;
+    }
+
+    public int getCounter() {return counter;}
+
+    public void setCounter(int counter){
+        this.counter = counter;
     }
 
     public Space getSpace(int x, int y) {
@@ -128,6 +136,7 @@ public class Board extends Subject {
     public void setCurrentPlayer(Player player) {
         if (player != this.current && players.contains(player)) {
             this.current = player;
+            counter ++;
             notifyChange();
         }
     }
@@ -227,6 +236,9 @@ public class Board extends Subject {
 
     public String getStatusMessage() {
 
-        return "";
+        return "Phase: " + getPhase().name() +
+                ", Player = " + getCurrentPlayer().getName() +
+                ", Step: " + getStep() +
+                ", Counter;" + (counter-1);
     }
 }
