@@ -129,10 +129,11 @@ public class GameController {
                 throw new ImpossibleMoveException(player, space, heading);
             }
         }
-        ConveyorBelt belt = space.getConveyorBelt();
-        if (belt!= null) {
-            Heading beltHeading = belt.getHeading();
-            for (int i = 0; i < belt.getMovement(); i++) {
+        FieldAction fieldAction = space.getFieldAction();
+        if (fieldAction instanceof ConveyorBelt) {
+            ConveyorBelt conveyorBelt = (ConveyorBelt) fieldAction;
+            Heading beltHeading = conveyorBelt.getHeading();
+            for (int i = 0; i < conveyorBelt.getMovement(); i++) {
                 space = board.getNeighbour(space, beltHeading);
                 if (space == null) {
                     break;
@@ -306,11 +307,12 @@ public class GameController {
 
             // Check if the player is on a conveyor belt
             Space space = player.getSpace();
-            ConveyorBelt belt = space.getConveyorBelt();
-            if (belt != null) {
+            FieldAction fieldAction = space.getFieldAction();
+            if (fieldAction instanceof ConveyorBelt) {
                 // Move the player along the conveyor belt
                 // Use the conveyor belt's heading to determine the direction
-                Heading beltHeading = belt.getHeading();
+                ConveyorBelt conveyorBelt = (ConveyorBelt) fieldAction;
+                Heading beltHeading = conveyorBelt.getHeading();
                 this.moveForwardInDirection(player, beltHeading);
             }
         }

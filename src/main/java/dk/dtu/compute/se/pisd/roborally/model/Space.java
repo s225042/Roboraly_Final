@@ -119,17 +119,20 @@ public class Space extends Subject {
      * This class is used to add a wall to the space.
      * @return belt
      */
-    public ConveyorBelt getConveyorBelt() {
+    public FieldAction getFieldAction() {
 
-        ConveyorBelt belt = null;
+        FieldAction fieldAction = null;
 
         for (FieldAction action : this.actions) {
-            if (action instanceof ConveyorBelt && belt == null) {
-                belt = (ConveyorBelt) action;
+            if (action instanceof ConveyorBelt && fieldAction == null) {
+                fieldAction = (ConveyorBelt) action;
+            }
+            if (action instanceof  Checkpoint && fieldAction == null){
+                fieldAction = (Checkpoint) action;
             }
         }
 
-        return belt;
+        return fieldAction;
 
     }
 

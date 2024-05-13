@@ -99,8 +99,9 @@ public class SpaceView extends StackPane implements ViewObserver {
      */
 
     private void updateBelt(){
-        ConveyorBelt belt = space.getConveyorBelt();
-        if (belt != null) {
+        FieldAction fieldAction = space.getFieldAction();
+        if (fieldAction instanceof ConveyorBelt) {
+            ConveyorBelt belt = (ConveyorBelt) fieldAction;
             Polygon arrow = new Polygon(
                     0.0, 0.0,
                     30.0, 60.0,
