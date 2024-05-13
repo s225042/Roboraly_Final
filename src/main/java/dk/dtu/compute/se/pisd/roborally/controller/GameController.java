@@ -28,7 +28,6 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.Alert.AlertType;
 
 import java.util.Optional;
-import java.util.Random;
 
 /**
  * ...
@@ -116,19 +115,14 @@ public class GameController {
         if (other!= null){
             Space target = board.getNeighbour(space, heading);
             if (target!= null) {
-                // XXX Note that there might be additional problems with
-                //     infinite recursion here (in some special cases)!
-                //     We will come back to that!
                 moveToSpace(other, target, heading);
-
-                // Note that we do NOT embed the above statement in a try catch block, since
-                // the thrown exception is supposed to be passed on to the caller
-
                 assert target.getPlayer() == null : target; // make sure target is free now
             } else {
                 throw new ImpossibleMoveException(player, space, heading);
             }
         }
+
+        // Handle conveyor belts
         ConveyorBelt belt = space.getConveyorBelt();
         if (belt!= null) {
             Heading beltHeading = belt.getHeading();
@@ -139,8 +133,16 @@ public class GameController {
                 }
             }
         }
+
+        // Handle gear actions
+        Gear gear = space.getGear();
+        if (gear != null) {
+            gear.doAction(this, space);
+        }
+
         player.setSpace(space);
     }
+
 
     public void moveCurrentPlayerToSpace(Space space) {
         // TODO: Import or Implement this method. This method is only for debugging purposes. Not useful for the game.
@@ -262,6 +264,7 @@ public class GameController {
     }
 
     private void executeCommand(@NotNull Player player, Command command) {
+        Gear gear = null;
         if (player != null && player.board == board && command != null) {
             // XXX This is a very simplistic way of dealing with some basic cards and
             //     their execution. This should eventually be done in a more elegant way
@@ -313,6 +316,11 @@ public class GameController {
                 Heading beltHeading = belt.getHeading();
                 this.moveForwardInDirection(player, beltHeading);
             }
+
+            gear = space.getGear();
+        }
+        if (gear != null) {
+            gear.doAction(this, player.getSpace());
         }
     }
 

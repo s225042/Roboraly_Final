@@ -24,17 +24,17 @@ package dk.dtu.compute.se.pisd.roborally.view;
 import dk.dtu.compute.se.pisd.designpatterns.observer.Subject;
 import dk.dtu.compute.se.pisd.roborally.controller.ConveyorBelt;
 import dk.dtu.compute.se.pisd.roborally.controller.FieldAction;
+import dk.dtu.compute.se.pisd.roborally.controller.Gear;
 import dk.dtu.compute.se.pisd.roborally.model.Heading;
 import dk.dtu.compute.se.pisd.roborally.model.Player;
 import dk.dtu.compute.se.pisd.roborally.model.Space;
-import javafx.scene.canvas.Canvas;
-import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Polygon;
 import javafx.scene.shape.Rectangle;
-import javafx.scene.shape.StrokeLineCap;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.List;
 
 /**
  * ...
@@ -151,6 +151,29 @@ public class SpaceView extends StackPane implements ViewObserver {
         }
     }
 
+    private void updateGear() {
+        List<FieldAction> actions = space.getActions();
+        for (FieldAction action : actions) {
+            if (action instanceof Gear) {
+                Gear gear = (Gear) action;
+                Polygon gearPolygon = new Polygon(
+                        0.0, 0.0,
+                        30.0, 30.0,
+                        0.0, 60.0,
+                        30.0, 90.0,
+                        60.0, 60.0,
+                        30.0, 30.0
+                );
+                gearPolygon.setFill(Color.GRAY);
+                // Assuming getHeading() is a method in Gear that returns the gear's heading
+                gearPolygon.setRotate((90 * gear.getHeading().ordinal()) % 360);
+                this.getChildren().add(gearPolygon);
+            }
+        }
+    }
+
+
+
 
     @Override
     public void updateView(Subject subject) {
@@ -158,6 +181,7 @@ public class SpaceView extends StackPane implements ViewObserver {
             this.getChildren().clear();
             updateBelt();
             updateWalls();
+            updateGear();
             updatePlayer();
 
         }
