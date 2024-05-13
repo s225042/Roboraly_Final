@@ -23,10 +23,7 @@ package dk.dtu.compute.se.pisd.roborally.view;
 
 import dk.dtu.compute.se.pisd.designpatterns.observer.Subject;
 import dk.dtu.compute.se.pisd.roborally.controller.GameController;
-import dk.dtu.compute.se.pisd.roborally.model.CommandCard;
-import dk.dtu.compute.se.pisd.roborally.model.CommandCardField;
-import dk.dtu.compute.se.pisd.roborally.model.Phase;
-import dk.dtu.compute.se.pisd.roborally.model.Player;
+import dk.dtu.compute.se.pisd.roborally.model.*;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -143,7 +140,7 @@ public class CardFieldView extends GridPane implements ViewObserver {
     @Override
     public void updateView(Subject subject) {
         if (subject == field && subject != null) {
-            CommandCard card = field.getCard();
+            CommandCard card =  field.getCard();
             if (card != null && field.isVisible()) {
                 label.setText(card.getName());
             } else {
@@ -151,6 +148,7 @@ public class CardFieldView extends GridPane implements ViewObserver {
             }
         }
     }
+
 
     private class OnDragDetectedHandler implements EventHandler<MouseEvent> {
 

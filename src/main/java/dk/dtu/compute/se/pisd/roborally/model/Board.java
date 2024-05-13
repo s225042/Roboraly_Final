@@ -229,4 +229,19 @@ public class Board extends Subject {
 
         return "";
     }
+    /**
+     * Retrieves the starting point for the player.
+     *
+     * @return The Space object representing the player's starting point, or null if not found.
+     * @author Aisha Farah (S235123)
+     */
+    public Space getPlayerStartingPoint() {
+        for (int x = 0; x < width; x++) {
+            for (int y = 0; y < height; y++) {
+                Space space = spaces[x][y];
+
+            }
+        }
+        return null; // Player's starting point not found
+    }
 }
