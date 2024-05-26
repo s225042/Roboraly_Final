@@ -238,6 +238,10 @@ public class GameController {
         }
     }
 
+    /**
+     * @author Rebecca Moss, s225042@dtu.dk
+     */
+
     private void spaceActions(){
         // Check if the player is on a conveyor belt
         for (Player player: board.getPlayers()) {
