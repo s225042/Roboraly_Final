@@ -62,7 +62,7 @@ public class ConveyorBelt extends FieldAction {
 
     @Override
     public boolean doAction(@NotNull GameController gameController, @NotNull Space space) {
-        if (space == null || gameController == null) return false;
+        if (space == null) return false;
 
         Player player = space.getPlayer();
         if (player == null) return false;  // No player to move
@@ -89,7 +89,7 @@ public class ConveyorBelt extends FieldAction {
 
             // Check if the new position is within the bounds of the board
             if (x >= 0 && x < board.getWidth() && y >= 0 && y < board.getHeight()) {
-                space = board.getSpace(x, y);
+                gameController.board.getSpace(x,y).setPlayer(player);
                 if (space == null) return false;  // Invalid space, stop moving
             } else {
                 return false;  // Out of bounds, stop moving

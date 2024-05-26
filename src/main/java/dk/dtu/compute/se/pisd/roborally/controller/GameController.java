@@ -201,6 +201,7 @@ public class GameController {
     private void continuePrograms() {
         do {
             executeNextStep();
+            spaceActions();
         } while (board.getPhase() == Phase.ACTIVATION && !board.isStepMode());
     }
 
@@ -234,6 +235,24 @@ public class GameController {
         } else {
             // this should not happen
             assert false;
+        }
+    }
+
+    private void spaceActions(){
+        // Check if the player is on a conveyor belt
+        for (Player player: board.getPlayers()) {
+            Space space = player.getSpace();
+            FieldAction fieldAction = space.getFieldAction();
+            if (fieldAction instanceof ConveyorBelt) {
+                // Move the player along the conveyor belt
+                // Use the conveyor belt's heading to determine the direction
+                ConveyorBelt conveyorBelt = (ConveyorBelt) fieldAction;
+                conveyorBelt.doAction(this, space);
+            }
+            if (fieldAction instanceof Checkpoint) {
+                Checkpoint chekpoint = (Checkpoint) fieldAction;
+                chekpoint.doAction(this, space);
+            }
         }
     }
 
@@ -303,17 +322,6 @@ public class GameController {
                     this.fastFastForward(player);
                 default:
                     // DO NOTHING (for now)
-            }
-
-            // Check if the player is on a conveyor belt
-            Space space = player.getSpace();
-            FieldAction fieldAction = space.getFieldAction();
-            if (fieldAction instanceof ConveyorBelt) {
-                // Move the player along the conveyor belt
-                // Use the conveyor belt's heading to determine the direction
-                ConveyorBelt conveyorBelt = (ConveyorBelt) fieldAction;
-                Heading beltHeading = conveyorBelt.getHeading();
-                this.moveForwardInDirection(player, beltHeading);
             }
         }
     }

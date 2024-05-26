@@ -24,6 +24,7 @@ package dk.dtu.compute.se.pisd.roborally.view;
 import dk.dtu.compute.se.pisd.designpatterns.observer.Subject;
 import dk.dtu.compute.se.pisd.roborally.controller.ConveyorBelt;
 import dk.dtu.compute.se.pisd.roborally.controller.FieldAction;
+import dk.dtu.compute.se.pisd.roborally.model.Checkpoint;
 import dk.dtu.compute.se.pisd.roborally.model.Heading;
 import dk.dtu.compute.se.pisd.roborally.model.Player;
 import dk.dtu.compute.se.pisd.roborally.model.Space;
@@ -111,6 +112,12 @@ public class SpaceView extends StackPane implements ViewObserver {
             arrow.setRotate((90 * belt.getHeading().ordinal()) % 360);
 
             this.getChildren().add(arrow);
+        }
+        if (fieldAction instanceof Checkpoint){
+            Checkpoint point = (Checkpoint) fieldAction;
+            Rectangle square = new Rectangle(0, 0, 20, 20); // Creates a 20x20 square
+            square.setFill(Color.RED); // Set the color of the square
+            this.getChildren().add(square);
         }
     }
 
