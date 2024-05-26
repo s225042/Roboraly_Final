@@ -119,7 +119,7 @@ public class LoadBoard {
                 bordResult.addPlayer(player);
             }
         }
-
+        player.setCheckpoint(template.checkpointTokens);
         loadCommandCards(player, template.commandCards);
         loadProgrammingCards(player, template.programmingCards);
     }

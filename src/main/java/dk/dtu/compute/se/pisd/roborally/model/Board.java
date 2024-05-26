@@ -238,6 +238,7 @@ public class Board extends Subject {
 
         return "Phase: " + getPhase().name() +
                 ", Player = " + getCurrentPlayer().getName() +
+                ", checkpoint tokens = " + getCurrentPlayer().getCheckpoint() +
                 ", Step: " + getStep() +
                 ", Counter;" + (counter-1);
     }
