@@ -253,10 +253,15 @@ public class GameController {
                 ConveyorBelt conveyorBelt = (ConveyorBelt) fieldAction;
                 conveyorBelt.doAction(this, space);
             }
-            if (fieldAction instanceof Checkpoint) {
+            else if (fieldAction instanceof Checkpoint) {
                 Checkpoint chekpoint = (Checkpoint) fieldAction;
                 chekpoint.doAction(this, space);
             }
+            else if (fieldAction instanceof Gear){
+                Gear gear = (Gear) fieldAction;
+                gear.doAction(this, space);
+            }
+
         }
     }
 
