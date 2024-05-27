@@ -76,8 +76,11 @@ public class LoadBoard {
 			    if (space != null) {
                     space.getActions().addAll(spaceTemplate.actions);
                     space.getWalls().addAll(spaceTemplate.walls);
+
                 }
             }
+            result.setMaxNumberofChekpoints();
+
             result.setPhase(template.phase);
             for (int i = 0; i<template.players.size(); i++) {
                 loadPlayer(result, template.players.get(i));

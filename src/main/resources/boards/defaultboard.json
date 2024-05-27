@@ -158,10 +158,9 @@
       ],
       "actions": [
         {
-          "CLASSNAME": "dk.dtu.compute.se.pisd.roborally.controller.ConveyorBelt",
+          "CLASSNAME": "dk.dtu.compute.se.pisd.roborally.model.Checkpoint",
           "INSTANCE": {
-            "heading": "WEST",
-            "type": "GREEN"
+            "checkpointNr": 1
           }
         }
       ],
@@ -174,10 +173,9 @@
       ],
       "actions": [
         {
-          "CLASSNAME": "dk.dtu.compute.se.pisd.roborally.controller.ConveyorBelt",
+          "CLASSNAME": "dk.dtu.compute.se.pisd.roborally.model.Checkpoint",
           "INSTANCE": {
-            "heading": "NORTH",
-            "type": "GREEN"
+            "checkpointNr": 2
           }
         }
       ],

@@ -130,10 +130,11 @@ public class Space extends Subject {
             if (action instanceof  Checkpoint && fieldAction == null){
                 fieldAction = (Checkpoint) action;
             }
+            if (action instanceof Gear && fieldAction == null){
+                fieldAction = (Gear) action;
+            }
         }
-
         return fieldAction;
-
     }
 
 }

@@ -56,6 +56,8 @@ public class Board extends Subject {
 
     private int counter = 0;
 
+    private int maxNumberofChekpoints;
+
     private boolean stepMode;
 
     public Board(int width, int height) {
@@ -97,6 +99,27 @@ public class Board extends Subject {
 
     public void setCounter(int counter){
         this.counter = counter;
+    }
+
+    /**
+     * @author Rebecca Moss, s225042@dtu.dk
+     * @return int
+     */
+    public int getMaxNumberofChekpoints(){return maxNumberofChekpoints;}
+
+    public void setMaxNumberofChekpoints(){
+        for (int x = 0; x < width; x++) {
+            for(int y = 0; y < height; y++) {
+                Space space =  getSpace(x, y);
+                spaces[x][y] = space;
+                if(space.getFieldAction() instanceof Checkpoint){
+                    Checkpoint chekpoint = (Checkpoint) space.getFieldAction();
+                    if(chekpoint.getCheckpointNr()> maxNumberofChekpoints){
+                        maxNumberofChekpoints = chekpoint.getCheckpointNr();
+                    }
+                }
+            }
+        }
     }
 
     public Space getSpace(int x, int y) {
