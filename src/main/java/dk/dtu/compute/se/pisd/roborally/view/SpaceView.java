@@ -62,11 +62,60 @@ public class SpaceView extends StackPane implements ViewObserver {
         this.setPrefHeight(SPACE_HEIGHT);
         this.setMinHeight(SPACE_HEIGHT);
         this.setMaxHeight(SPACE_HEIGHT);
+        String imagePath = null;
 
-       if ((space.x + space.y) % 2 == 0) {
-            this.setStyle("-fx-background-color: white;");
+       if (space.getFieldAction() instanceof ConveyorBelt) {
+           ConveyorBelt belt = (ConveyorBelt) space.getFieldAction();
+           if (belt.getType() == ConveyorBelt.BeltType.GREEN){
+               imagePath = getClass().getResource("/images/green.png").toExternalForm();
+           }else{
+               imagePath = getClass().getResource("/images/blue.png").toExternalForm();
+           }
+           this.setRotate((90 * belt.getHeading().ordinal()) % 360);
+
+        }
+       else if(space.getFieldAction() instanceof  Checkpoint){
+           Checkpoint checkpoint = (Checkpoint) space.getFieldAction();
+           switch (checkpoint.getCheckpointNr()){
+               case 1: {
+                   imagePath = getClass().getResource("/images/1.png").toExternalForm();
+                   break;
+               }
+               case 2:
+                   imagePath = getClass().getResource("/images/2.png").toExternalForm();
+                   break;
+               case 3:
+                   imagePath = getClass().getResource("/images/3.png").toExternalForm();
+                   break;
+               case 4:
+                   imagePath = getClass().getResource("/images/4.png").toExternalForm();
+                   break;
+               case 5:
+                   imagePath = getClass().getResource("/images/5.png").toExternalForm();
+                   break;
+               case 6:
+                   imagePath = getClass().getResource("/images/6.png").toExternalForm();
+                   break;
+               case 7:
+                   imagePath = getClass().getResource("/images/7.png").toExternalForm();
+                   break;
+               case 8:
+                   imagePath = getClass().getResource("/images/8.png").toExternalForm();
+                   break;
+           }
+       }
+       else {
+           imagePath = getClass().getResource("/images/empty.png").toExternalForm();
+        }
+        if (imagePath == null || imagePath.isEmpty()) {
+            System.err.println("Image path could not be resolved.");
         } else {
-            this.setStyle("-fx-background-color: black;");
+            this.setStyle(
+                    "-fx-background-image: url('" + imagePath + "');" +
+                            "-fx-background-size: " + SPACE_WIDTH + " " + SPACE_HEIGHT + ";" +
+                            "-fx-background-position: center;"
+            );
+
         }
 
         // updatePlayer();
@@ -90,34 +139,6 @@ public class SpaceView extends StackPane implements ViewObserver {
 
             arrow.setRotate((90 * player.getHeading().ordinal()) % 360);
             this.getChildren().add(arrow);
-        }
-    }
-
-    /**
-     * @author s235112 Tobias Kolstrup Vittrup
-     * This function makes the belts visible on the board.
-     * The belts are represented by arrows that point in the direction of the belt.
-     */
-
-    private void updateBelt(){
-        FieldAction fieldAction = space.getFieldAction();
-        if (fieldAction instanceof ConveyorBelt) {
-            ConveyorBelt belt = (ConveyorBelt) fieldAction;
-            Polygon arrow = new Polygon(
-                    0.0, 0.0,
-                    30.0, 60.0,
-                    60.0, 0.0
-            );
-            arrow.setFill(belt.getType() == ConveyorBelt.BeltType.GREEN ? Color.GREEN : Color.BLUE);
-            arrow.setRotate((90 * belt.getHeading().ordinal()) % 360);
-
-            this.getChildren().add(arrow);
-        }
-        if (fieldAction instanceof Checkpoint){
-            Checkpoint point = (Checkpoint) fieldAction;
-            Rectangle square = new Rectangle(0, 0, 20, 20); // Creates a 20x20 square
-            square.setFill(Color.RED); // Set the color of the square
-            this.getChildren().add(square);
         }
     }
 
@@ -153,6 +174,8 @@ public class SpaceView extends StackPane implements ViewObserver {
                         break;
                 }
 
+
+
                 wallRect.setFill(Color.ORANGE);
                 this.getChildren().add(wallRect); // Assuming 'this' is a container like Group or Pane
             }
@@ -164,7 +187,6 @@ public class SpaceView extends StackPane implements ViewObserver {
     public void updateView(Subject subject) {
         if (subject == this.space) {
             this.getChildren().clear();
-            updateBelt();
             updateWalls();
             updatePlayer();
 
