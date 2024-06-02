@@ -201,8 +201,8 @@ public class GameController {
     private void continuePrograms() {
         do {
             executeNextStep();
-            spaceActions();
         } while (board.getPhase() == Phase.ACTIVATION && !board.isStepMode());
+        spaceActions();
     }
 
     private void executeNextStep() {
