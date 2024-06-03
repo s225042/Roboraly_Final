@@ -30,6 +30,8 @@ import dk.dtu.compute.se.pisd.roborally.model.Player;
 import dk.dtu.compute.se.pisd.roborally.model.Space;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Polygon;
@@ -151,33 +153,37 @@ public class SpaceView extends StackPane implements ViewObserver {
         Space space = this.space;
         if (space != null && !space.getWalls().isEmpty()) {
             for (Heading wall : space.getWalls()) {
-                Rectangle wallRect = new Rectangle(70, 5); // Rectangle dimensions
+                String imagePath = getClass().getResource("/images/wall.png").toExternalForm();
+                Image wallImage = new Image(imagePath);
+                ImageView wallImageView = new ImageView(wallImage);
+
+                // Set size for the wall image
+                wallImageView.setFitWidth(5); // Wall thickness
+                wallImageView.setFitHeight(SPACE_HEIGHT); // Full height of the space
 
                 // Adjust position based on wall orientation and tile size
                 switch (wall) {
                     case EAST:
-                        wallRect.setTranslateX(45.0); // Align with right side of the tile
-                        wallRect.setTranslateY((90*wall.ordinal()) % 360); // Center vertically in the tile
+                        wallImageView.setTranslateX(SPACE_WIDTH/2); // Align with the right side of the tile
+                        wallImageView.setTranslateY(0); // No vertical translation needed for EAST
+                        wallImageView.setFitHeight(SPACE_HEIGHT); // Full height of the space
                         break;
 
                     case SOUTH:
-                        wallRect.setTranslateY(32.5); // Align with bottom of the tile
+                        wallImageView.setTranslateX(SPACE_WIDTH + SPACE_WIDTH/1.8);
                         break;
 
                     case WEST:
-                        wallRect.setTranslateX(-45.0); // Align with left side of the tile
-                        wallRect.setTranslateY((90*wall.ordinal()) % 360); // Center vertically in the tile
+                        wallImageView.setTranslateX(- SPACE_WIDTH/2); // Align with the left side of the tile
+                        wallImageView.setTranslateY(0); // No vertical translation needed for WEST
+                        wallImageView.setFitHeight(SPACE_HEIGHT); // Full height of the space
                         break;
 
                     case NORTH:
-                        wallRect.setTranslateY(-32.5); // Align with top of the tile
+                        wallImageView.setTranslateX(SPACE_WIDTH - SPACE_WIDTH/1.8);
                         break;
                 }
-
-
-
-                wallRect.setFill(Color.ORANGE);
-                this.getChildren().add(wallRect); // Assuming 'this' is a container like Group or Pane
+                this.getChildren().add(wallImageView); // Assuming 'this' is a container like Group or Pane
             }
         }
     }
