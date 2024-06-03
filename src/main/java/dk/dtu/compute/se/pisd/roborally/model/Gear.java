@@ -13,16 +13,25 @@ import dk.dtu.compute.se.pisd.roborally.controller.GameController;
  */
 
 public class Gear extends FieldAction {
-    public Direction direction;
-
-    public void setDirection(Direction direction) {
-
-        this.direction = direction;
+    public enum GearType {
+        LEFT,  // Moves the robot one space
+        RIGHT    // Moves the robot two spaces
     }
 
+    public void setType(GearType type) {
 
-    public Gear(Direction direction) {
-        this.direction = direction;
+        this.type = type;
+    }
+
+    private GearType type;
+
+
+    public Gear(GearType type) {
+        this.type = type;
+    }
+
+    public GearType getType(){
+        return type;
     }
 
     /**
@@ -37,7 +46,7 @@ public class Gear extends FieldAction {
     public boolean doAction(GameController gC, Space space) {
         Player player = space.getPlayer();
 
-        switch (direction) {
+        switch (type) {
 
 
             case LEFT:

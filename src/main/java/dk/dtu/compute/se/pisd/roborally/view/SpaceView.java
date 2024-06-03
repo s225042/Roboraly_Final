@@ -24,10 +24,7 @@ package dk.dtu.compute.se.pisd.roborally.view;
 import dk.dtu.compute.se.pisd.designpatterns.observer.Subject;
 import dk.dtu.compute.se.pisd.roborally.controller.ConveyorBelt;
 import dk.dtu.compute.se.pisd.roborally.controller.FieldAction;
-import dk.dtu.compute.se.pisd.roborally.model.Checkpoint;
-import dk.dtu.compute.se.pisd.roborally.model.Heading;
-import dk.dtu.compute.se.pisd.roborally.model.Player;
-import dk.dtu.compute.se.pisd.roborally.model.Space;
+import dk.dtu.compute.se.pisd.roborally.model.*;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
@@ -52,6 +49,10 @@ public class SpaceView extends StackPane implements ViewObserver {
 
     public final Space space;
 
+    /**
+     * @author s225042 Rebecca Moss
+     * @param space
+     */
 
     public SpaceView(@NotNull Space space) {
         this.space = space;
@@ -105,8 +106,15 @@ public class SpaceView extends StackPane implements ViewObserver {
                    imagePath = getClass().getResource("/images/8.png").toExternalForm();
                    break;
            }
-       }
-       else {
+       } else if (space.getFieldAction() instanceof Gear) {
+           Gear gear= (Gear) space.getFieldAction();
+           if (gear.getType() == Gear.GearType.LEFT){
+               imagePath = getClass().getResource("/images/gearLeft.png").toExternalForm();
+           }else{
+               imagePath = getClass().getResource("/images/gearRight.png").toExternalForm();
+           }
+
+       } else {
            imagePath = getClass().getResource("/images/empty.png").toExternalForm();
         }
         if (imagePath == null || imagePath.isEmpty()) {
@@ -146,6 +154,7 @@ public class SpaceView extends StackPane implements ViewObserver {
 
     /**
      * @author s235112 Tobias Kolstrup Vittrup
+     * @author s225042 Rebecca Moss
      * This function makes the walls visible on the board.
      */
 
