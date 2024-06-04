@@ -67,37 +67,24 @@ public class ConveyorBelt extends FieldAction {
         Player player = space.getPlayer();
         if (player == null) return false;  // No player to move
 
-        int x = space.getX();
-        int y = space.getY();
-        Board board = space.getBoard();
+        Board board = gameController.board;
 
-        for (int i = 0; i < movement; i++) {
-            switch (heading) {
-                case NORTH:
-                    y--;
-                    break;
-                case SOUTH:
-                    y++;
-                    break;
-                case EAST:
-                    x++;
-                    break;
-                case WEST:
-                    x--;
-                    break;
+        if (player.board == board) {
+            Space target;
+
+            if(type == BeltType.GREEN){
+                target = board.getNeighbour(space, heading);
+            }else {
+                target = board.getNeighbour(board.getNeighbour(space, heading), heading);
             }
-
-            // Check if the new position is within the bounds of the board
-            if (x >= 0 && x < board.getWidth() && y >= 0 && y < board.getHeight()) {
-                gameController.board.getSpace(x,y).setPlayer(player);
-                if (space == null) return false;  // Invalid space, stop moving
-            } else {
-                return false;  // Out of bounds, stop moving
+            if (target != null) {
+                try {
+                    gameController.moveToSpace(player, target, heading);
+                } catch (GameController.ImpossibleMoveException e) {
+                    // Handle impossible move exception
+                }
             }
         }
-
-        // Move the player to the new position
-        player.setSpace(space);
 
         return true;
     }
