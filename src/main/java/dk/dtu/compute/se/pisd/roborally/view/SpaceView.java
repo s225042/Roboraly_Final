@@ -74,7 +74,21 @@ public class SpaceView extends StackPane implements ViewObserver {
            }else{
                imagePath = getClass().getResource("/images/blue.png").toExternalForm();
            }
-           this.setRotate((90 * belt.getHeading().ordinal()) % 360);
+
+           switch (belt.getHeading()) {
+               case NORTH:
+                   this.setRotate(0);
+                   break;
+               case EAST:
+                   this.setRotate(90);
+                   break;
+               case SOUTH:
+                   this.setRotate(180);
+                   break;
+               case WEST:
+                   this.setRotate(270);
+                   break;
+           }
 
         }
        else if(space.getFieldAction() instanceof  Checkpoint){
