@@ -200,12 +200,13 @@ public class GameController {
 
     private void continuePrograms() {
         do {
-            executeNextStep();
+            if(executeNextStep()){
+                spaceActions();
+            }
         } while (board.getPhase() == Phase.ACTIVATION && !board.isStepMode());
-        spaceActions();
     }
 
-    private void executeNextStep() {
+    private boolean executeNextStep() {
         Player currentPlayer = board.getCurrentPlayer();
         if (board.getPhase() == Phase.ACTIVATION && currentPlayer != null) {
             int step = board.getStep();
@@ -218,6 +219,7 @@ public class GameController {
                 int nextPlayerNumber = board.getPlayerNumber(currentPlayer) + 1;
                 if (nextPlayerNumber < board.getPlayersNumber()) {
                     board.setCurrentPlayer(board.getPlayer(nextPlayerNumber));
+                    return false; //not alle players have finche this step.
                 } else {
                     step++;
                     if (step < Player.NO_REGISTERS) {
@@ -227,14 +229,15 @@ public class GameController {
                     } else {
                         startProgrammingPhase();
                     }
+                    return true; //all players hawe finch the curent step
                 }
             } else {
                 // this should not happen
-                assert false;
+                return false;
             }
         } else {
             // this should not happen
-            assert false;
+            return false;
         }
     }
 
