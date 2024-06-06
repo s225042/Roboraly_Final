@@ -65,68 +65,9 @@ public class SpaceView extends StackPane implements ViewObserver {
         this.setPrefHeight(SPACE_HEIGHT);
         this.setMinHeight(SPACE_HEIGHT);
         this.setMaxHeight(SPACE_HEIGHT);
-        String imagePath = null;
 
-       if (space.getFieldAction() instanceof ConveyorBelt) {
-           ConveyorBelt belt = (ConveyorBelt) space.getFieldAction();
-           if (belt.getType() == ConveyorBelt.BeltType.GREEN){
-               imagePath = getClass().getResource("/images/green.png").toExternalForm();
-           }else{
-               imagePath = getClass().getResource("/images/blue.png").toExternalForm();
-           }
-           this.setRotate((90 * belt.getHeading().ordinal()) % 360);
+        this.setStyle("-fx-background-color: white;");
 
-        }
-       else if(space.getFieldAction() instanceof  Checkpoint){
-           Checkpoint checkpoint = (Checkpoint) space.getFieldAction();
-           switch (checkpoint.getCheckpointNr()){
-               case 1: {
-                   imagePath = getClass().getResource("/images/1.png").toExternalForm();
-                   break;
-               }
-               case 2:
-                   imagePath = getClass().getResource("/images/2.png").toExternalForm();
-                   break;
-               case 3:
-                   imagePath = getClass().getResource("/images/3.png").toExternalForm();
-                   break;
-               case 4:
-                   imagePath = getClass().getResource("/images/4.png").toExternalForm();
-                   break;
-               case 5:
-                   imagePath = getClass().getResource("/images/5.png").toExternalForm();
-                   break;
-               case 6:
-                   imagePath = getClass().getResource("/images/6.png").toExternalForm();
-                   break;
-               case 7:
-                   imagePath = getClass().getResource("/images/7.png").toExternalForm();
-                   break;
-               case 8:
-                   imagePath = getClass().getResource("/images/8.png").toExternalForm();
-                   break;
-           }
-       } else if (space.getFieldAction() instanceof Gear) {
-           Gear gear= (Gear) space.getFieldAction();
-           if (gear.getType() == Gear.GearType.LEFT){
-               imagePath = getClass().getResource("/images/gearLeft.png").toExternalForm();
-           }else{
-               imagePath = getClass().getResource("/images/gearRight.png").toExternalForm();
-           }
-
-       } else {
-           imagePath = getClass().getResource("/images/empty.png").toExternalForm();
-        }
-        if (imagePath == null || imagePath.isEmpty()) {
-            System.err.println("Image path could not be resolved.");
-        } else {
-            this.setStyle(
-                    "-fx-background-image: url('" + imagePath + "');" +
-                            "-fx-background-size: " + SPACE_WIDTH + " " + SPACE_HEIGHT + ";" +
-                            "-fx-background-position: center;"
-            );
-
-        }
 
         // updatePlayer();
 
@@ -155,6 +96,89 @@ public class SpaceView extends StackPane implements ViewObserver {
     /**
      * @author s235112 Tobias Kolstrup Vittrup
      * @author s225042 Rebecca Moss
+     * This function makes the belts visible on the board.
+     * The belts are represented by arrows that point in the direction of the belt.
+     */
+
+    private void updateFieldactions(){
+        String imagePath = null;
+        ImageView imageView = new ImageView();
+
+        if (space.getFieldAction() instanceof ConveyorBelt) {
+            ConveyorBelt belt = (ConveyorBelt) space.getFieldAction();
+            if (belt.getType() == ConveyorBelt.BeltType.GREEN) {
+                imagePath = getClass().getResource("/images/green.png").toExternalForm();
+            } else {
+                imagePath = getClass().getResource("/images/blue.png").toExternalForm();
+            }
+
+            switch (belt.getHeading()) {
+                case NORTH:
+                    imageView.setRotate(0);
+                    break;
+                case EAST:
+                    imageView.setRotate(90);
+                    break;
+                case SOUTH:
+                    imageView.setRotate(180);
+                    break;
+                case WEST:
+                    imageView.setRotate(270);
+                    break;
+            }
+        } else if (space.getFieldAction() instanceof Checkpoint) {
+            Checkpoint checkpoint = (Checkpoint) space.getFieldAction();
+            switch (checkpoint.getCheckpointNr()) {
+                case 1:
+                    imagePath = getClass().getResource("/images/1.png").toExternalForm();
+                    break;
+                case 2:
+                    imagePath = getClass().getResource("/images/2.png").toExternalForm();
+                    break;
+                case 3:
+                    imagePath = getClass().getResource("/images/3.png").toExternalForm();
+                    break;
+                case 4:
+                    imagePath = getClass().getResource("/images/4.png").toExternalForm();
+                    break;
+                case 5:
+                    imagePath = getClass().getResource("/images/5.png").toExternalForm();
+                    break;
+                case 6:
+                    imagePath = getClass().getResource("/images/6.png").toExternalForm();
+                    break;
+                case 7:
+                    imagePath = getClass().getResource("/images/7.png").toExternalForm();
+                    break;
+                case 8:
+                    imagePath = getClass().getResource("/images/8.png").toExternalForm();
+                    break;
+            }
+        } else if (space.getFieldAction() instanceof Gear) {
+            Gear gear = (Gear) space.getFieldAction();
+            if (gear.getType() == Gear.GearType.LEFT) {
+                imagePath = getClass().getResource("/images/gearLeft.png").toExternalForm();
+            } else {
+                imagePath = getClass().getResource("/images/gearRight.png").toExternalForm();
+            }
+        } else {
+            imagePath = getClass().getResource("/images/empty.png").toExternalForm();
+        }
+
+        if (imagePath == null || imagePath.isEmpty()) {
+            System.err.println("Image path could not be resolved.");
+        } else {
+            Image image = new Image(imagePath);
+            imageView.setImage(image);
+            imageView.setFitWidth(SPACE_WIDTH);
+            imageView.setFitHeight(SPACE_HEIGHT);
+            this.getChildren().add(imageView);
+        }
+    }
+
+    /**
+     * @author s235112 Tobias Kolstrup Vittrup
+     * @author s225042 Rebecca Moss
      * This function makes the walls visible on the board.
      */
 
@@ -166,33 +190,34 @@ public class SpaceView extends StackPane implements ViewObserver {
                 Image wallImage = new Image(imagePath);
                 ImageView wallImageView = new ImageView(wallImage);
 
-                // Set size for the wall image
-                wallImageView.setFitWidth(5); // Wall thickness
-                wallImageView.setFitHeight(SPACE_HEIGHT); // Full height of the space
+                //wall size
+                wallImageView.setFitWidth(5);
+                wallImageView.setFitHeight(SPACE_HEIGHT);
 
-                // Adjust position based on wall orientation and tile size
                 switch (wall) {
                     case EAST:
-                        wallImageView.setTranslateX(SPACE_WIDTH/2); // Align with the right side of the tile
-                        wallImageView.setTranslateY(0); // No vertical translation needed for EAST
-                        wallImageView.setFitHeight(SPACE_HEIGHT); // Full height of the space
+                        wallImageView.setTranslateX(SPACE_WIDTH / 2 - wallImageView.getFitWidth() / 2);
+                        wallImageView.setTranslateY(0);
                         break;
 
                     case SOUTH:
-                        wallImageView.setTranslateX(SPACE_WIDTH + SPACE_WIDTH/1.8);
+                        wallImageView.setRotate(90);
+                        wallImageView.setTranslateX(SPACE_WIDTH / 2 - wallImageView.getFitHeight() / 2); // Adjusted for rotation
+                        wallImageView.setTranslateY(SPACE_HEIGHT / 2 - wallImageView.getFitWidth() / 2); // Align with the top side of the tile
                         break;
 
                     case WEST:
-                        wallImageView.setTranslateX(- SPACE_WIDTH/2); // Align with the left side of the tile
-                        wallImageView.setTranslateY(0); // No vertical translation needed for WEST
-                        wallImageView.setFitHeight(SPACE_HEIGHT); // Full height of the space
+                        wallImageView.setTranslateX(-SPACE_WIDTH / 2 + wallImageView.getFitWidth() / 2);
+                        wallImageView.setTranslateY(0);
                         break;
 
                     case NORTH:
-                        wallImageView.setTranslateX(SPACE_WIDTH - SPACE_WIDTH/1.8);
+                        wallImageView.setRotate(90);
+                        wallImageView.setTranslateX(-SPACE_WIDTH / 2 + wallImageView.getFitHeight() / 2);
+                        wallImageView.setTranslateY(-SPACE_HEIGHT / 2 + wallImageView.getFitWidth() / 2);
                         break;
                 }
-                this.getChildren().add(wallImageView); // Assuming 'this' is a container like Group or Pane
+                this.getChildren().add(wallImageView);
             }
         }
     }
@@ -202,6 +227,7 @@ public class SpaceView extends StackPane implements ViewObserver {
     public void updateView(Subject subject) {
         if (subject == this.space) {
             this.getChildren().clear();
+            updateFieldactions();
             updateWalls();
             updatePlayer();
 
