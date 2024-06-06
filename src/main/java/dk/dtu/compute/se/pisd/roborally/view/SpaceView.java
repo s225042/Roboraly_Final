@@ -78,7 +78,39 @@ public class SpaceView extends StackPane implements ViewObserver {
 
     private void updatePlayer() {
         Player player = space.getPlayer();
-        if (player != null) {
+        String imagePath = null;
+        ImageView imageView = new ImageView();
+
+        if (player != null){
+            switch (player.getColor()){
+                case "red":
+                    imagePath = getClass().getResource("/images/r6.png").toExternalForm();
+                    break;
+                case "green":
+                    imagePath = getClass().getResource("/images/r5.png").toExternalForm();
+                    break;
+                case "blue":
+                    imagePath = getClass().getResource("/images/r2.png").toExternalForm();
+                    break;
+                case "orange":
+                    imagePath = getClass().getResource("/images/r4.png").toExternalForm();
+                    break;
+                case "grey":
+                    imagePath = getClass().getResource("/images/r1.png").toExternalForm();
+                    break;
+                case  "magenta":
+                    imagePath = getClass().getResource("/images/r3.png").toExternalForm();
+                    break;
+            }
+            Image image = new Image(imagePath);
+            imageView.setImage(image);
+            imageView.setFitWidth(SPACE_WIDTH);
+            imageView.setFitHeight(SPACE_HEIGHT);
+
+            this.getChildren().add(imageView);
+        }
+
+        /*if (player != null) {
             Polygon arrow = new Polygon(0.0, 0.0,
                     20.0, 40.0,
                     40.0, 0.0);
@@ -90,7 +122,7 @@ public class SpaceView extends StackPane implements ViewObserver {
 
             arrow.setRotate((90 * player.getHeading().ordinal()) % 360);
             this.getChildren().add(arrow);
-        }
+        }*/
     }
 
     /**
