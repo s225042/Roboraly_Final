@@ -76,6 +76,9 @@ public class SpaceView extends StackPane implements ViewObserver {
         update(space);
     }
 
+    /**
+     * @author s225042 Rebecca Moss
+     */
     private void updatePlayer() {
         Player player = space.getPlayer();
         String imagePath = null;
@@ -110,19 +113,6 @@ public class SpaceView extends StackPane implements ViewObserver {
             this.getChildren().add(imageView);
         }
 
-        /*if (player != null) {
-            Polygon arrow = new Polygon(0.0, 0.0,
-                    20.0, 40.0,
-                    40.0, 0.0);
-            try {
-                arrow.setFill(Color.valueOf(player.getColor()));
-            } catch (Exception e) {
-                arrow.setFill(Color.MEDIUMPURPLE);
-            }
-
-            arrow.setRotate((90 * player.getHeading().ordinal()) % 360);
-            this.getChildren().add(arrow);
-        }*/
     }
 
     /**
