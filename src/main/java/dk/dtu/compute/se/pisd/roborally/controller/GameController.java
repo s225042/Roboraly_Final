@@ -39,25 +39,24 @@ import java.util.Random;
 public class GameController {
 
     final public Board board;
+    public boolean won = false;
 
     public GameController(Board board) {
         this.board = board;
     }
 
-
-
     public void moveForward(@NotNull Player player) {
-        if (player.board == board) {
+        if (!won && player.board == board) { // Check if game is won before moving
             Space space = player.getSpace();
             Heading heading = player.getHeading();
 
             Space target = board.getNeighbour(space, heading);
-            if (target!= null) {
+            if (target != null) {
                 try {
                     moveToSpace(player, target, heading);
                 } catch (ImpossibleMoveException e) {
-                    // we don't do anything here  for now; we just catch the
-                    // exception so that we do no pass it on to the caller
+                    // we don't do anything here for now; we just catch the
+                    // exception so that we do not pass it on to the caller
                     // (which would be very bad style).
                 }
             }
@@ -65,45 +64,39 @@ public class GameController {
     }
 
     public void leftOrRight(Player player) {
-        Alert alert = new Alert(AlertType.CONFIRMATION);
-        alert.setTitle("Choose Direction");
-        alert.setHeaderText("Direction Choice");
-        alert.setContentText("Choose your direction:");
+        if (!won) {
+            Alert alert = new Alert(AlertType.CONFIRMATION);
+            alert.setTitle("Choose Direction");
+            alert.setHeaderText("Direction Choice");
+            alert.setContentText("Choose your direction:");
 
-        ButtonType buttonLeft = new ButtonType("Left");
-        ButtonType buttonRight = new ButtonType("Right");
+            ButtonType buttonLeft = new ButtonType("Left");
+            ButtonType buttonRight = new ButtonType("Right");
 
-        alert.getButtonTypes().setAll(buttonLeft, buttonRight);
+            alert.getButtonTypes().setAll(buttonLeft, buttonRight);
 
-        Optional<ButtonType> result = alert.showAndWait();
-        if (result.isPresent() && result.get() == buttonLeft) {
-            turnLeft(player);
-        } else if (result.isPresent() && result.get() == buttonRight) {
-            turnRight(player);
+            Optional<ButtonType> result = alert.showAndWait();
+            if (result.isPresent() && result.get() == buttonLeft) {
+                turnLeft(player);
+            } else if (result.isPresent() && result.get() == buttonRight) {
+                turnRight(player);
+            }
         }
     }
 
-    /**
-     * Move the player two steps forward.
-     * @param player
-     */
-
-    // TODO Assignment A3
     public void fastForward(@NotNull Player player) {
         moveForward(player);
         moveForward(player);
     }
 
-    // TODO Assignment A3
     public void turnRight(@NotNull Player player) {
         player.setHeading(player.getHeading().prev());
     }
 
-    // TODO Assignment A3
     public void turnLeft(@NotNull Player player) {
         player.setHeading(player.getHeading().next());
     }
-// method to move forward 3 times
+
     public void fastFastForward(@NotNull Player player) {
         moveForward(player);
         moveForward(player);
@@ -113,15 +106,15 @@ public class GameController {
     void moveToSpace(@NotNull Player player, @NotNull Space space, @NotNull Heading heading) throws ImpossibleMoveException {
         assert board.getNeighbour(player.getSpace(), heading) == space; // make sure the move to here is possible in principle
         Player other = space.getPlayer();
-        if (other!= null){
+        if (other != null) {
             Space target = board.getNeighbour(space, heading);
-            if (target!= null) {
+            if (target != null) {
                 // XXX Note that there might be additional problems with
                 //     infinite recursion here (in some special cases)!
                 //     We will come back to that!
                 moveToSpace(other, target, heading);
 
-                // Note that we do NOT embed the above statement in a try catch block, since
+                // Note that we do NOT embed the above statement in a try-catch block, since
                 // the thrown exception is supposed to be passed on to the caller
 
                 assert target.getPlayer() == null : target; // make sure target is free now
@@ -144,19 +137,16 @@ public class GameController {
     }
 
     public void moveCurrentPlayerToSpace(Space space) {
-        // TODO: Import or Implement this method. This method is only for debugging purposes. Not useful for the game.
-        if(space.getPlayer() == null){
-            Player curent;
+        if (!won && space.getPlayer() == null) {
+            Player current;
             space.setPlayer(space.board.getCurrentPlayer());
-            int playerNumber = space.board.getPlayerNumber(space.board.getCurrentPlayer())+1;
-            if(playerNumber >= space.board.getPlayersNumber()){
-                curent = space.board.getPlayer(0);
+            int playerNumber = space.board.getPlayerNumber(space.board.getCurrentPlayer()) + 1;
+            if (playerNumber >= space.board.getPlayersNumber()) {
+                current = space.board.getPlayer(0);
+            } else {
+                current = space.board.getPlayer(playerNumber);
             }
-            else {
-                curent = space.board.getPlayer(playerNumber);
-            }
-            space.board.setCurrentPlayer(curent);
-
+            space.board.setCurrentPlayer(current);
         }
     }
 
@@ -199,14 +189,18 @@ public class GameController {
     }
 
     private void continuePrograms() {
-        do {
-            if(executeNextStep()){
+        while (!won && board.getPhase() == Phase.ACTIVATION && !board.isStepMode()) {
+            if (executeNextStep()) {
                 spaceActions();
             }
-        } while (board.getPhase() == Phase.ACTIVATION && !board.isStepMode());
+        }
     }
 
     private boolean executeNextStep() {
+        if (won) {
+            return false;
+        }
+
         Player currentPlayer = board.getCurrentPlayer();
         if (board.getPhase() == Phase.ACTIVATION && currentPlayer != null) {
             int step = board.getStep();
@@ -219,7 +213,7 @@ public class GameController {
                 int nextPlayerNumber = board.getPlayerNumber(currentPlayer) + 1;
                 if (nextPlayerNumber < board.getPlayersNumber()) {
                     board.setCurrentPlayer(board.getPlayer(nextPlayerNumber));
-                    return false; //not alle players have finche this step.
+                    return false; //not all players have finished this step.
                 } else {
                     step++;
                     if (step < Player.NO_REGISTERS) {
@@ -229,7 +223,7 @@ public class GameController {
                     } else {
                         startProgrammingPhase();
                     }
-                    return true; //all players hawe finch the curent step
+                    return true; //all players have finished the current step
                 }
             } else {
                 // this should not happen
@@ -241,63 +235,55 @@ public class GameController {
         }
     }
 
-    /**
-     * @author Rebecca Moss, s225042@dtu.dk
-     */
+    private void spaceActions() {
+        for (Player player : board.getPlayers()) {
+            if (won) {
+                break;
+            }
 
-    private void spaceActions(){
-        // Check if the player is on a conveyor belt
-        for (Player player: board.getPlayers()) {
             Space space = player.getSpace();
             FieldAction fieldAction = space.getFieldAction();
             if (fieldAction instanceof ConveyorBelt) {
-                // Move the player along the conveyor belt
-                // Use the conveyor belt's heading to determine the direction
                 ConveyorBelt conveyorBelt = (ConveyorBelt) fieldAction;
                 conveyorBelt.doAction(this, space);
-            }
-            else if (fieldAction instanceof Checkpoint) {
-                Checkpoint chekpoint = (Checkpoint) fieldAction;
-                chekpoint.doAction(this, space);
-            }
-            else if (fieldAction instanceof Gear){
+            } else if (fieldAction instanceof Checkpoint) {
+                Checkpoint checkpoint = (Checkpoint) fieldAction;
+                checkpoint.doAction(this, space);
+            } else if (fieldAction instanceof Gear) {
                 Gear gear = (Gear) fieldAction;
                 gear.doAction(this, space);
             }
-
         }
     }
 
-    // U-Turn method
     private void uTurn(@NotNull Player player) {
-        player.setHeading(player.getHeading().next().next());  // Rotate 180 degrees
+        player.setHeading(player.getHeading().next().next());
     }
 
-    // Method to move the player one space back without changing direction
     private void backUp(@NotNull Player player) {
-        Space currentSpace = player.getSpace();
-        Heading oppositeHeading = player.getHeading().prev().prev(); // 180 degrees to move back
-        Space targetSpace = board.getNeighbour(currentSpace, oppositeHeading);
+        if (!won) {
+            Space currentSpace = player.getSpace();
+            Heading oppositeHeading = player.getHeading().prev().prev();
+            Space targetSpace = board.getNeighbour(currentSpace, oppositeHeading);
 
-        if (targetSpace != null && !targetSpace.getWalls().contains(oppositeHeading)) {
-            try {
-                moveToSpace(player, targetSpace, oppositeHeading);
-            } catch (ImpossibleMoveException e) {
-                // Handle exception if the move is not possible
+            if (targetSpace != null && !targetSpace.getWalls().contains(oppositeHeading)) {
+                try {
+                    moveToSpace(player, targetSpace, oppositeHeading);
+                } catch (ImpossibleMoveException e) {
+                    // Handle exception if the move is not possible
+                }
             }
         }
     }
 
-    // Method to add one energy cube to the player's mat
     private void powerUp(@NotNull Player player) {
-        player.addEnergyCube();  // Increment the energy cubes
+        if (!won) {
+            player.addEnergyCube();
+        }
     }
 
     private void executeCommand(@NotNull Player player, Command command) {
-        if (player != null && player.board == board && command != null) {
-            // XXX This is a very simplistic way of dealing with some basic cards and
-            //     their execution. This should eventually be done in a more elegant way
-            //     (this concerns the way cards are modelled as well as the way they are executed).
+        if (!won && player != null && player.board == board && command != null) {
             if (command != Command.AGAIN) {
                 player.setLastCommand(command);
             }
@@ -332,6 +318,7 @@ public class GameController {
                     break;
                 case FAST_FAST_FORWARD:
                     this.fastFastForward(player);
+                    break;
                 default:
                     // DO NOTHING (for now)
             }
@@ -339,10 +326,8 @@ public class GameController {
     }
 
     private void moveForwardInDirection(Player player, Heading heading) {
-        // Similar to the moveForward method, but moves the player in the specified heading
-        if (player.board == board) {
+        if (!won && player.board == board) {
             Space space = player.getSpace();
-
             Space target = board.getNeighbour(space, heading);
             if (target != null) {
                 try {
@@ -355,26 +340,28 @@ public class GameController {
     }
 
     private void executeAgain(@NotNull Player player) {
-        Command lastCommand = player.getLastCommand();
-        if (lastCommand != null) {
-            executeCommand(player, lastCommand);
-        } else {
-            System.out.println("No previous command to repeat or not allowed!");
+        if (!won) {
+            Command lastCommand = player.getLastCommand();
+            if (lastCommand != null) {
+                executeCommand(player, lastCommand);
+            } else {
+                System.out.println("No previous command to repeat or not allowed!");
+            }
         }
     }
 
     public boolean moveCards(@NotNull CommandCardField source, @NotNull CommandCardField target) {
-        CommandCard sourceCard = source.getCard();
-        CommandCard targetCard = target.getCard();
-        if (sourceCard != null && targetCard == null) {
-            target.setCard(sourceCard);
-            source.setCard(null);
-            return true;
-        } else {
-            return false;
+        if (!won) {
+            CommandCard sourceCard = source.getCard();
+            CommandCard targetCard = target.getCard();
+            if (sourceCard != null && targetCard == null) {
+                target.setCard(sourceCard);
+                source.setCard(null);
+                return true;
+            }
         }
+        return false;
     }
-
 
     public void startProgrammingPhase() {
         board.setPhase(Phase.PROGRAMMING);
@@ -404,15 +391,9 @@ public class GameController {
         return new CommandCard(commands[random]);
     }
 
-    /**
-     * A method called when no corresponding controller operation is implemented yet. This
-     * should eventually be removed.
-     */
     public void notImplemented() {
-        // XXX just for now to indicate that the actual method is not yet implemented
         assert false;
     }
-
 
     class ImpossibleMoveException extends Exception {
 
@@ -428,4 +409,13 @@ public class GameController {
         }
     }
 
+    public void showWinningMessage(Player player) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Game Over");
+        alert.setHeaderText("Congratulations!");
+        alert.setContentText(player.getName() + " has won the game!");
+        this.won = true;
+
+        alert.showAndWait();
+    }
 }

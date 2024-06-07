@@ -28,12 +28,15 @@ public class Checkpoint extends FieldAction {
      */
     @Override
     public boolean doAction(GameController gameController, Space space) {
+        if(gameController.won){
+            return false;
+        }
         int checkpoint = space.getPlayer().getCheckpoint();
         if(checkpointNr == checkpoint +1){
             space.getPlayer().setCheckpoint(checkpoint + 1);
         }
         if (checkpointNr == gameController.board.getMaxNumberofChekpoints()) {
-            System.out.println("Player" +space.getPlayer() +"has won the game");
+            gameController.showWinningMessage(space.getPlayer());
         }
         return true;
     }
