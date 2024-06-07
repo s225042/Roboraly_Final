@@ -189,11 +189,10 @@ public class GameController {
     }
 
     private void continuePrograms() {
-        while (!won && board.getPhase() == Phase.ACTIVATION && !board.isStepMode()) {
-            if (executeNextStep()) {
-                spaceActions();
-            }
-        }
+        do {
+            executeNextStep();
+        } while (board.getPhase() == Phase.ACTIVATION && !board.isStepMode());
+        spaceActions();
     }
 
     private boolean executeNextStep() {
