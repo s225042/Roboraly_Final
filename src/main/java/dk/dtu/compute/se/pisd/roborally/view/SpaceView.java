@@ -213,6 +213,30 @@ public class SpaceView extends StackPane implements ViewObserver {
     }
 
     /**
+     * @author s225042 Rebecca Moss
+     * This function makes the Lase visibel becos it wil be on many filds wher ther ar other filactions i mackes sens to macke a methed for it self.
+     */
+    private void updateLaser() {
+        if (space.getFieldAction() instanceof Laise) {
+
+            String imagePath = getClass().getResource("/images/laser.png").toExternalForm();
+            Image image = new Image(imagePath);
+            ImageView imageView = new ImageView(image);
+
+            imageView.setFitWidth(SPACE_WIDTH);
+            imageView.setFitHeight(5);
+
+            Laise laise = (Laise) space.getFieldAction();
+            if (laise.getHeading() == Heading.SOUTH || laise.getHeading() == Heading.NORTH) {
+                imageView.setRotate(90);
+            }
+
+            this.getChildren().add(imageView);
+        }
+    }
+
+
+    /**
      * @author s235112 Tobias Kolstrup Vittrup
      * @author s225042 Rebecca Moss
      * This function makes the walls visible on the board.
@@ -264,6 +288,7 @@ public class SpaceView extends StackPane implements ViewObserver {
         if (subject == this.space) {
             this.getChildren().clear();
             updateFieldactions();
+            updateLaser();
             updateWalls();
             updatePlayer();
 

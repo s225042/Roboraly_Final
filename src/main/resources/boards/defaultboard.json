@@ -129,6 +129,13 @@
             "heading": "SOUTH",
             "type": "GREEN"
           }
+        },
+        {
+          "CLASSNAME": "dk.dtu.compute.se.pisd.roborally.model.Laise",
+          "INSTANCE": {
+            "heading": "WEST",
+            "isStartingPoint": true
+          }
         }
       ],
       "x": 3,
