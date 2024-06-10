@@ -32,10 +32,30 @@ public enum Heading {
     SOUTH, WEST, NORTH, EAST;
 
     public Heading next() {
-        return values()[(this.ordinal() + 1) % values().length];
+        if (this == SOUTH) {
+            return WEST;
+        } else if (this == WEST) {
+            return NORTH;
+        } else if (this == EAST) {
+            return SOUTH;
+        } else {
+            return EAST;
+        }
     }
 
     public Heading prev() {
-        return values()[(this.ordinal() + values().length - 1) % values().length];
+        if (this == SOUTH) {
+            return EAST;
+        } else if (this == WEST) {
+            return SOUTH;
+        } else if (this == NORTH) {
+            return WEST;
+        } else {
+            return NORTH;
+        }
     }
+
+    //public Heading next() {return values()[(this.ordinal() + 1) % values().length];}
+
+    //public Heading prev() {return values()[(this.ordinal() + values().length - 1) % values().length];}
 }
