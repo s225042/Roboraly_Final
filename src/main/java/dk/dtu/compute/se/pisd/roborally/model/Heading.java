@@ -33,25 +33,25 @@ public enum Heading {
 
     public Heading next() {
         if (this == SOUTH) {
-            return WEST;
-        } else if (this == WEST) {
-            return NORTH;
-        } else if (this == EAST) {
-            return SOUTH;
-        } else {
             return EAST;
+        } else if (this == WEST) {
+            return SOUTH;
+        } else if (this == EAST) {
+            return NORTH;
+        } else {
+            return WEST;
         }
     }
 
     public Heading prev() {
         if (this == SOUTH) {
-            return EAST;
-        } else if (this == WEST) {
-            return SOUTH;
-        } else if (this == NORTH) {
             return WEST;
-        } else {
+        } else if (this == WEST) {
             return NORTH;
+        } else if (this == NORTH) {
+            return EAST;
+        } else {
+            return SOUTH;
         }
     }
 
