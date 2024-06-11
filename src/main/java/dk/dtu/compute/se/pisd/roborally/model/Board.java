@@ -60,7 +60,13 @@ public class Board extends Subject {
 
     private boolean stepMode;
 
-    public Board(int width, int height) {
+    private final Antenna antenna;
+
+    private List<Player> playersOrder = new ArrayList<>();
+
+
+
+    public Board(int width, int height, int antennaX, int antennaY) {
         this.width = width;
         this.height = height;
         spaces = new Space[width][height];
@@ -70,9 +76,14 @@ public class Board extends Subject {
                 spaces[x][y] = space;
             }
         }
+        this.antenna = new Antenna(this, antennaX, antennaY);
         this.stepMode = false;
     }
 
+
+public Antenna getAntenna() {
+        return antenna;
+    }
     public Integer getGameId() {
         return gameId;
     }
@@ -132,19 +143,20 @@ public class Board extends Subject {
     }
 
     public int getPlayersNumber() {
-        return players.size();
+        return playersOrder.size();
     }
 
     public void addPlayer(@NotNull Player player) {
         if (player.board == this && !players.contains(player)) {
             players.add(player);
+            playersOrder.add(player);
             notifyChange();
         }
     }
 
     public Player getPlayer(int i) {
-        if (i >= 0 && i < players.size()) {
-            return players.get(i);
+        if (i >= 0 && i < playersOrder.size()) {
+            return playersOrder.get(i);
         } else {
             return null;
         }
@@ -173,6 +185,11 @@ public class Board extends Subject {
             this.phase = phase;
             notifyChange();
         }
+    }
+
+
+    public void setPlayerOrder(List<Player> playersOrder) {
+        this.playersOrder = playersOrder;
     }
 
     public int getStep() {
@@ -207,6 +224,12 @@ public class Board extends Subject {
 
     public List<Player> getPlayers() {
         return players;
+    }
+
+
+
+    public List <Player> getPlayerOrder() {
+        return playersOrder;
     }
 
     /**
