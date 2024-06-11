@@ -38,6 +38,8 @@ public class Space extends Subject {
 
     private Player player;
 
+    private Antenna antenna;
+
     private List<Heading> walls = new ArrayList<>();
     private List<FieldAction> actions = new ArrayList<>();
 
@@ -87,6 +89,10 @@ public class Space extends Subject {
 
     public List<Heading> getWalls() {
         return walls;
+    }
+
+    public Antenna getAntenna() {
+        return antenna;
     }
 
 

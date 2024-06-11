@@ -245,6 +245,23 @@ public class SpaceView extends StackPane implements ViewObserver {
     }
 
 
+    public void updateAntenna() {
+        Space space = this.space;
+        if (space != null && space.getAntenna() != null) {
+            String imagePath = getClass().getResource("/images/antenna.png").toExternalForm();
+            Image antennaImage = new Image(imagePath);
+            ImageView antennaImageView = new ImageView(antennaImage);
+
+            //antenna size
+            antennaImageView.setFitWidth(SPACE_WIDTH);
+            antennaImageView.setFitHeight(SPACE_HEIGHT);
+
+
+            this.getChildren().add(antennaImageView);
+        }
+
+    }
+
     @Override
     public void updateView(Subject subject) {
         if (subject == this.space) {
@@ -252,6 +269,7 @@ public class SpaceView extends StackPane implements ViewObserver {
             updateFieldactions();
             updateWalls();
             updatePlayer();
+            updateAntenna();
 
         }
     }

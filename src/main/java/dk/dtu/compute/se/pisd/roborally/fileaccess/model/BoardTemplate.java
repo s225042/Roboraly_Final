@@ -50,4 +50,8 @@ public class BoardTemplate {
 
     public List<PlayerTemplate> players = new ArrayList<>();
 
+    public int antennaX;
+
+    public int antennaY;
+
 }

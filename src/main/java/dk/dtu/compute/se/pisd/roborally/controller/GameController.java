@@ -27,8 +27,7 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Alert.AlertType;
 
-import java.util.Optional;
-import java.util.Random;
+import java.util.*;
 
 /**
  * ...
@@ -45,6 +44,12 @@ public class GameController {
     }
 
 
+
+    public void determinePlayerOrder(){
+        List<Player> players = new ArrayList<>(board.getPlayers());
+        players.sort(Comparator.comparingInt(player -> board.getAntenna().calculateDistance(player)));
+        board.setPlayerOrder(players);
+    }
 
     public void moveForward(@NotNull Player player) {
         if (player.board == board) {
@@ -162,8 +167,7 @@ public class GameController {
 
     private void makeProgramFieldsVisible(int register) {
         if (register >= 0 && register < Player.NO_REGISTERS) {
-            for (int i = 0; i < board.getPlayersNumber(); i++) {
-                Player player = board.getPlayer(i);
+            for (Player player : board.getPlayerOrder()) {
                 CommandCardField field = player.getProgramField(register);
                 field.setVisible(true);
             }
@@ -171,8 +175,7 @@ public class GameController {
     }
 
     private void makeProgramFieldsInvisible() {
-        for (int i = 0; i < board.getPlayersNumber(); i++) {
-            Player player = board.getPlayer(i);
+        for (Player player : board.getPlayerOrder()) {
             for (int j = 0; j < Player.NO_REGISTERS; j++) {
                 CommandCardField field = player.getProgramField(j);
                 field.setVisible(false);
@@ -182,6 +185,7 @@ public class GameController {
 
     public void finishProgrammingPhase() {
         makeProgramFieldsInvisible();
+        determinePlayerOrder();
         makeProgramFieldsVisible(0);
         board.setPhase(Phase.ACTIVATION);
         board.setCurrentPlayer(board.getPlayer(0));
