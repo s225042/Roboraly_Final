@@ -46,6 +46,10 @@ public class Gear extends FieldAction {
     public boolean doAction(GameController gC, Space space) {
         Player player = space.getPlayer();
 
+        if (player == null){
+            return true;
+        }
+
         switch (type) {
 
 

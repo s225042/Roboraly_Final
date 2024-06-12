@@ -31,7 +31,12 @@ public class Checkpoint extends FieldAction {
         if(gameController.won){
             return false;
         }
-        int checkpoint = space.getPlayer().getCheckpoint();
+        Player player = space.getPlayer();
+        if (player == null){
+            return true;
+        }
+
+        int checkpoint = player.getCheckpoint();
         if(checkpointNr == checkpoint +1){
             space.getPlayer().setCheckpoint(checkpoint + 1);
         }

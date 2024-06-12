@@ -234,8 +234,34 @@ public class GameController {
         }
     }
 
+    /**
+     * s225042, Rebecca Moss
+     * This is the actions that hapens after eatch turn is taken for arl players
+     */
     private void spaceActions() {
-        for (Player player : board.getPlayers()) {
+
+        for (Space space: board.getSpaceBLueConveyor()){
+            ConveyorBelt conveyorBelt = (ConveyorBelt) space.getFieldAction();
+            conveyorBelt.doAction(this, space);
+        }
+        for (Space space: board.getSpacesGreanConveyor()){
+            ConveyorBelt conveyorBelt = (ConveyorBelt) space.getFieldAction();
+            conveyorBelt.doAction(this, space);
+        }
+        for (Space space: board.getSpacesGears()){
+            Gear gear = (Gear) space.getFieldAction();
+            gear.doAction(this, space);
+        }
+        for (Space space: board.getLaisers()){
+            Laise laise = (Laise) space.getFieldAction();
+            laise.doAction(this, space);
+        }
+        for (Space space: board.getChekpoints()){
+            Checkpoint checkpoint = (Checkpoint) space.getFieldAction();
+            checkpoint.doAction(this, space);
+        }
+
+       /* for (Player player : board.getPlayers()) {
             if (won) {
                 break;
             }
@@ -252,7 +278,7 @@ public class GameController {
                 Gear gear = (Gear) fieldAction;
                 gear.doAction(this, space);
             }
-        }
+        }*/
     }
 
     private void uTurn(@NotNull Player player) {
