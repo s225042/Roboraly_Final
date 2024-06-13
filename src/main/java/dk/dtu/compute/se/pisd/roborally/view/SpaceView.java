@@ -47,11 +47,14 @@ public class SpaceView extends StackPane implements ViewObserver {
     final public static int SPACE_HEIGHT = 60; // 75;
     final public static int SPACE_WIDTH = 60; // 75;
 
+    final public static int energyCube_Width = 30;
+    final public static int energyCube_Height= 30;
+
     public final Space space;
 
     /**
-     * @author s225042 Rebecca Moss
      * @param space
+     * @author s225042 Rebecca Moss
      */
 
     public SpaceView(@NotNull Space space) {
@@ -84,8 +87,8 @@ public class SpaceView extends StackPane implements ViewObserver {
         String imagePath = null;
         ImageView imageView = new ImageView();
 
-        if (player != null){
-            switch (player.getColor()){
+        if (player != null) {
+            switch (player.getColor()) {
                 case "red":
                     imagePath = getClass().getResource("/images/r6.png").toExternalForm();
                     break;
@@ -101,7 +104,7 @@ public class SpaceView extends StackPane implements ViewObserver {
                 case "grey":
                     imagePath = getClass().getResource("/images/r1.png").toExternalForm();
                     break;
-                case  "magenta":
+                case "magenta":
                     imagePath = getClass().getResource("/images/r3.png").toExternalForm();
                     break;
             }
@@ -109,7 +112,7 @@ public class SpaceView extends StackPane implements ViewObserver {
             imageView.setImage(image);
             imageView.setFitWidth(SPACE_WIDTH);
             imageView.setFitHeight(SPACE_HEIGHT);
-            switch (player.getHeading()){
+            switch (player.getHeading()) {
                 case NORTH:
                     imageView.setRotate(180);
                     break;
@@ -136,7 +139,7 @@ public class SpaceView extends StackPane implements ViewObserver {
      * The belts are represented by arrows that point in the direction of the belt.
      */
 
-    private void updateFieldactions(){
+    private void updateFieldactions() {
         String imagePath = null;
         ImageView imageView = new ImageView();
 
@@ -258,9 +261,9 @@ public class SpaceView extends StackPane implements ViewObserver {
         }
     }
 
-    public void updateAntenna(){
+    public void updateAntenna() {
         Space space = this.space;
-        if(space != null && space.getAntenna() != null){
+        if (space != null && space.getAntenna() != null) {
             Antenna antenna = space.getAntenna();
             String imagePath = getClass().getResource("/images/antenna.png").toExternalForm();
             Image antennaImage = new Image(imagePath);
@@ -281,7 +284,18 @@ public class SpaceView extends StackPane implements ViewObserver {
             updateWalls();
             updatePlayer();
             updateAntenna();
-
+            updatePowerUp(); // Ensure this is called
         }
     }
+
+    private void updatePowerUp() {
+        if (space.hasPowerUp()) {
+            ImageView powerUpImageView = new ImageView(space.getPowerUpImage());
+            powerUpImageView.setFitWidth(energyCube_Width);
+            powerUpImageView.setFitHeight(energyCube_Height);
+            this.getChildren().add(powerUpImageView);
+        }
+    }
+
 }
+

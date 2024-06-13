@@ -24,7 +24,9 @@ package dk.dtu.compute.se.pisd.roborally.model;
 import dk.dtu.compute.se.pisd.designpatterns.observer.Subject;
 import dk.dtu.compute.se.pisd.roborally.controller.ConveyorBelt;
 import dk.dtu.compute.se.pisd.roborally.controller.FieldAction;
+import javafx.scene.image.Image;
 
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -47,6 +49,9 @@ public class Space extends Subject {
 
     public final int x;
     public final int y;
+
+    private boolean hasPowerUp;
+    private Image powerUpImage;
 
     public int getX() {
         return x;
@@ -143,4 +148,25 @@ public class Space extends Subject {
         return fieldAction;
     }
 
+
+
+
+
+    public boolean hasPowerUp() {
+        return hasPowerUp;
+    }
+
+    public void setHasPowerUp(boolean hasPowerUp) {
+        this.hasPowerUp = hasPowerUp;
+        notifyChange();  // Notify change when power-up status changes
+    }
+
+    public Image getPowerUpImage() {
+        return powerUpImage;
+    }
+
+    public void setPowerUpImage(Image powerUpImage) {
+        this.powerUpImage = powerUpImage;
+        notifyChange();  // Notify change when power-up image changes
+    }
 }

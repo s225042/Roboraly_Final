@@ -80,6 +80,10 @@ public class Board extends Subject {
         this.stepMode = false;
     }
 
+    public void updateBoardView() {
+        notifyChange();
+    }
+
 
 public Antenna getAntenna() {
         return antenna;

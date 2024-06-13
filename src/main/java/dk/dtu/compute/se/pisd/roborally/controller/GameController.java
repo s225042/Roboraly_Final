@@ -26,8 +26,11 @@ import org.jetbrains.annotations.NotNull;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Alert.AlertType;
+import javafx.scene.image.Image;
 
+import java.awt.*;
 import java.util.*;
+import java.util.List;
 
 /**
  * ...
@@ -37,11 +40,25 @@ import java.util.*;
  */
 public class GameController {
 
+    private Image energyCube;
     final public Board board;
     public boolean won = false;
 
     public GameController(Board board) {
         this.board = board;
+        loadEnergyCubeImage();
+    }
+
+    private void loadEnergyCubeImage() {
+        try {
+            // Load the image from the resources directory
+            energyCube = new Image(getClass().getResource("/images/energyCube.png").toExternalForm());
+            System.out.println("Image loaded successfully: " + energyCube.getUrl());
+        } catch (Exception e) {
+            System.err.println("Error loading image: " + e.getMessage());
+            e.printStackTrace();
+            // Handle error
+        }
     }
 
 
@@ -288,9 +305,18 @@ public class GameController {
         }
     }
 
+    private void updateSpaceViewWithPowerUp(@NotNull Player player) {
+        Space playerSpace = player.getSpace();
+        if (playerSpace != null) {
+            playerSpace.setHasPowerUp(true);
+            playerSpace.setPowerUpImage(energyCube);
+        }
+    }
+
     private void powerUp(@NotNull Player player) {
         if (!won) {
             player.addEnergyCube();
+            updateSpaceViewWithPowerUp(player);
         }
     }
 
