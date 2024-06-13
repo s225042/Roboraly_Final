@@ -3,6 +3,8 @@
   "height": 8,
   "antennaX": 1,
     "antennaY": 3,
+  "rebootX": 3,
+  "rebootY": 6,
   "spaces": [
     {
       "walls": [

@@ -64,7 +64,8 @@ public class Board extends Subject {
 
     private List<Player> playersOrder = new ArrayList<>();
 
-
+    private Space rebootSpace; // Assuming there is a single reboot space
+    private Heading rebootDirection; // Direction indicated by the arrow on the reboot token
 
     public Board(int width, int height, int antennaX, int antennaY) {
         this.width = width;
@@ -81,7 +82,7 @@ public class Board extends Subject {
     }
 
 
-public Antenna getAntenna() {
+    public Antenna getAntenna() {
         return antenna;
     }
     public Integer getGameId() {
@@ -287,5 +288,13 @@ public Antenna getAntenna() {
                 ", checkpoint tokens = " + getCurrentPlayer().getCheckpoint() +
                 ", Step: " + getStep() +
                 ", Counter;" + (counter-1);
+    }
+
+    public Space getRebootSpace() {
+        return rebootSpace;
+    }
+
+    public void setRebootSpace(int x, int y) {
+        this.rebootSpace = getSpace(x, y);
     }
 }

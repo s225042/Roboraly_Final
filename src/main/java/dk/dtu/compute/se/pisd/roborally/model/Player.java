@@ -1,37 +1,13 @@
-/*
- *  This file is part of the initial project provided for the
- *  course "Project in Software Development (02362)" held at
- *  DTU Compute at the Technical University of Denmark.
- *
- *  Copyright (C) 2019, 2020: Ekkart Kindler, ekki@dtu.dk
- *
- *  This software is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; version 2 of the License.
- *
- *  This project is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with this project; if not, write to the Free Software
- *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
- *
- */
 package dk.dtu.compute.se.pisd.roborally.model;
 
 import dk.dtu.compute.se.pisd.designpatterns.observer.Subject;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.LinkedList;
+import java.util.Queue;
+
 import static dk.dtu.compute.se.pisd.roborally.model.Heading.SOUTH;
 
-/**
- * ...
- *
- * @author Ekkart Kindler, ekki@dtu.dk
- *
- */
 public class Player extends Subject {
 
     final public static int NO_REGISTERS = 5;
@@ -52,6 +28,11 @@ public class Player extends Subject {
     private int energyCubes = 0;  // Initialize energy cubes to zero
 
     private int checkpoint = 0;
+
+    private int spamCount = 0; // to count the number of SPAM cards
+
+    private static Queue<Player> rebootQueue = new LinkedList<>();
+
 
     public Player(@NotNull Board board, String color, @NotNull String name) {
         this.board = board;
@@ -101,7 +82,7 @@ public class Player extends Subject {
         return space;
     }
 
-    public void setCheckpoint(int checkpoint){
+    public void setCheckpoint(int checkpoint) {
         this.checkpoint = checkpoint;
     }
 
@@ -143,7 +124,9 @@ public class Player extends Subject {
         return this.energyCubes;
     }
 
-    public int getCheckpoint(){return this.checkpoint;}
+    public int getCheckpoint() {
+        return this.checkpoint;
+    }
 
     public void setLastCommand(Command command) {
         this.lastCommand = command;
@@ -161,4 +144,75 @@ public class Player extends Subject {
         return cards[i];
     }
 
+    public void addSpamCard() {
+        this.spamCount++;
+        notifyChange(); // Notify observers that the player's SPAM card count has changed
+    }
+
+    public void resetSpamCards() {
+        this.spamCount = 0;
+        notifyChange();
+    }
+
+    public int getSpamCount() {
+        return this.spamCount;
+    }
+
+    // Additional methods...
+
+
+    private void discardProgrammingCards() {
+        for (int i = 0; i < NO_REGISTERS; i++) {
+            program[i].setCard(null);
+            program[i].setVisible(false);
+        }
+        for (int i = 0; i < NO_CARDS; i++) {
+            cards[i].setCard(null);
+            cards[i].setVisible(false);
+        }
+    }
+
+    private Space findUnoccupiedAdjacentSpace(Space space) {
+        for (Heading heading : Heading.values()) {
+            Space adjacentSpace = board.getNeighbour(space, heading);
+            if (adjacentSpace != null && adjacentSpace.getPlayer() == null) {
+                return adjacentSpace;
+            }
+        }
+        return null;
+    }
+
+    public void reboot() {
+        // Take two SPAM damage cards and place them in your discard pile
+        addSpamCard();
+        addSpamCard();
+
+        // Discard programming cards
+        discardProgrammingCards();
+
+        // Place robot on the reboot token
+        moveToRebootToken();
+    }
+
+    private void moveToRebootToken() {
+        Space rebootSpace = board.getRebootSpace();
+        if (rebootSpace != null) {
+            if (rebootSpace.getPlayer() == null) {
+                setSpace(rebootSpace);
+                setHeading(Heading.NORTH); // Default facing direction
+            } else {
+                Space adjacentSpace = findUnoccupiedAdjacentSpace(rebootSpace);
+                if (adjacentSpace != null) {
+                    setSpace(adjacentSpace);
+                    setHeading(Heading.NORTH); // Default facing direction
+                } else {
+                    // Handle case where no adjacent space is free
+                    throw new IllegalStateException("No unoccupied adjacent space near the reboot token.");
+                }
+            }
+        } else {
+            // Handle case where reboot space is not set
+            throw new IllegalStateException("Reboot space not set on the board.");
+        }
+    }
 }

@@ -53,4 +53,7 @@ public class BoardTemplate {
     public int antennaX;
 
     public int antennaY;
+
+    public int rebootX;
+    public int rebootY;
 }

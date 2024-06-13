@@ -1,24 +1,3 @@
-/*
- *  This file is part of the initial project provided for the
- *  course "Project in Software Development (02362)" held at
- *  DTU Compute at the Technical University of Denmark.
- *
- *  Copyright (C) 2019, 2020: Ekkart Kindler, ekki@dtu.dk
- *
- *  This software is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; version 2 of the License.
- *
- *  This project is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with this project; if not, write to the Free Software
- *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
- *
- */
 package dk.dtu.compute.se.pisd.roborally.controller;
 
 import dk.dtu.compute.se.pisd.roborally.model.*;
@@ -39,20 +18,19 @@ public class GameController {
 
     final public Board board;
     public boolean won = false;
+    private Queue<Player> rebootQueue = new LinkedList<>();
 
     public GameController(Board board) {
         this.board = board;
     }
 
-
     public void determinePlayerOrder(){
-            List<Player> players = new ArrayList<>(board.getPlayers());
-            players.sort(Comparator.comparingInt(player -> board.getAntenna().calculateDistance(player)));
-            board.setPlayerOrder(players);
-        }
+        List<Player> players = new ArrayList<>(board.getPlayers());
+        players.sort(Comparator.comparingInt(player -> board.getAntenna().calculateDistance(player)));
+        board.setPlayerOrder(players);
+    }
 
-
-        public void moveForward(@NotNull Player player) {
+    public void moveForward(@NotNull Player player) {
         if (!won && player.board == board) { // Check if game is won before moving
             Space space = player.getSpace();
             Heading heading = player.getHeading();
@@ -62,10 +40,11 @@ public class GameController {
                 try {
                     moveToSpace(player, target, heading);
                 } catch (ImpossibleMoveException e) {
-                    // we don't do anything here for now; we just catch the
-                    // exception so that we do not pass it on to the caller
-                    // (which would be very bad style).
+                    // Handle the exception appropriately
                 }
+            } else {
+                // Reboot the player if moving out of bounds
+                rebootPlayer(player);
             }
         }
     }
@@ -112,34 +91,49 @@ public class GameController {
 
     void moveToSpace(@NotNull Player player, @NotNull Space space, @NotNull Heading heading) throws ImpossibleMoveException {
         assert board.getNeighbour(player.getSpace(), heading) == space; // make sure the move to here is possible in principle
+
+        // Check if the space is within board boundaries
+        if (space.getX() < 0 || space.getX() >= board.getWidth() || space.getY() < 0 || space.getY() >= board.getHeight()) {
+            // Space is out of bounds, trigger a reboot
+            rebootPlayer(player);
+            return;
+        }
+
         Player other = space.getPlayer();
         if (other != null) {
             Space target = board.getNeighbour(space, heading);
             if (target != null) {
-                // XXX Note that there might be additional problems with
-                //     infinite recursion here (in some special cases)!
-                //     We will come back to that!
+                // Check if the target space is within board boundaries
+                if (target.getX() < 0 || target.getX() >= board.getWidth() || target.getY() < 0 || target.getY() >= board.getHeight()) {
+                    // Target space is out of bounds, trigger a reboot for the other player
+                    rebootPlayer(other);
+                    return;
+                }
+
+                // Recursive call to move the other player
                 moveToSpace(other, target, heading);
 
-                // Note that we do NOT embed the above statement in a try-catch block, since
-                // the thrown exception is supposed to be passed on to the caller
-
-                assert target.getPlayer() == null : target; // make sure target is free now
+                // Ensure the target is free now
+                assert target.getPlayer() == null : target;
             } else {
                 throw new ImpossibleMoveException(player, space, heading);
             }
         }
+
+        // Handle the field action if the space is valid
         FieldAction fieldAction = space.getFieldAction();
         if (fieldAction instanceof ConveyorBelt) {
             ConveyorBelt conveyorBelt = (ConveyorBelt) fieldAction;
             Heading beltHeading = conveyorBelt.getHeading();
             for (int i = 0; i < conveyorBelt.getMovement(); i++) {
                 space = board.getNeighbour(space, beltHeading);
-                if (space == null) {
-                    break;
+                if (space == null || space.getX() < 0 || space.getX() >= board.getWidth() || space.getY() < 0 || space.getY() >= board.getHeight()) {
+                    rebootPlayer(player);
+                    return;
                 }
             }
         }
+
         player.setSpace(space);
     }
 
@@ -186,7 +180,6 @@ public class GameController {
         board.setStep(0);
     }
 
-
     public void executePrograms() {
         board.setStepMode(false);
         continuePrograms();
@@ -203,7 +196,6 @@ public class GameController {
         } while (board.getPhase() == Phase.ACTIVATION && !board.isStepMode());
         spaceActions();
     }
-
 
     private boolean executeNextStep() {
         if (won) {
@@ -245,8 +237,6 @@ public class GameController {
         }
     }
 
-
-
     private void spaceActions() {
         for (Player player : board.getPlayers()) {
             if (won) {
@@ -272,7 +262,7 @@ public class GameController {
         player.setHeading(player.getHeading().next().next());
     }
 
-    private void backUp(@NotNull Player player) {
+    public void backUp(@NotNull Player player) {
         if (!won) {
             Space currentSpace = player.getSpace();
             Heading oppositeHeading = player.getHeading().prev().prev();
@@ -282,8 +272,11 @@ public class GameController {
                 try {
                     moveToSpace(player, targetSpace, oppositeHeading);
                 } catch (ImpossibleMoveException e) {
-                    // Handle exception if the move is not possible
+                    // Handle the exception appropriately
                 }
+            } else {
+                // Reboot the player if moving out of bounds
+                rebootPlayer(player);
             }
         }
     }
@@ -429,5 +422,10 @@ public class GameController {
         this.won = true;
 
         alert.showAndWait();
+    }
+
+    // Reboot player
+    public void rebootPlayer(@NotNull Player player) {
+        player.reboot();
     }
 }
