@@ -52,7 +52,7 @@ public class GameController {
             Heading heading = player.getHeading();
 
             Space target = board.getNeighbour(space, heading);
-            if (target!= null) {
+            if (target != null) {
                 try {
                     moveToSpace(player, target, heading);
                 } catch (ImpossibleMoveException e) {

@@ -140,9 +140,12 @@ public class CardFieldView extends GridPane implements ViewObserver {
     @Override
     public void updateView(Subject subject) {
         if (subject == field && subject != null) {
-            CommandCard card =  field.getCard();
+            CommandCard card = field.getCard();
+            DamageCard damageCard = field.getDamageCard();
             if (card != null && field.isVisible()) {
                 label.setText(card.getName());
+            } else if (damageCard != null && field.isVisible()) {
+                label.setText(damageCard.getDamageType().getDisplayName());
             } else {
                 label.setText("");
             }
@@ -151,15 +154,13 @@ public class CardFieldView extends GridPane implements ViewObserver {
 
 
     private class OnDragDetectedHandler implements EventHandler<MouseEvent> {
-
         @Override
         public void handle(MouseEvent event) {
             Object t = event.getTarget();
             if (t instanceof CardFieldView) {
                 CardFieldView source = (CardFieldView) t;
                 CommandCardField cardField = source.field;
-                if (cardField != null &&
-                        cardField.getCard() != null &&
+                if (cardField != null && (cardField.getCard() != null || cardField.getDamageCard() != null) &&
                         cardField.player != null &&
                         cardField.player.board != null &&
                         cardField.player.board.getPhase().equals(Phase.PROGRAMMING)) {
@@ -176,7 +177,6 @@ public class CardFieldView extends GridPane implements ViewObserver {
             }
             event.consume();
         }
-
     }
 
     private class OnDragOverHandler implements EventHandler<DragEvent> {
