@@ -133,6 +133,9 @@ public class Space extends Subject {
             if (action instanceof Gear && fieldAction == null){
                 fieldAction = (Gear) action;
             }
+            if (action instanceof Laiser && fieldAction == null){
+                fieldAction = (Laiser) action;
+            }
         }
         return fieldAction;
     }

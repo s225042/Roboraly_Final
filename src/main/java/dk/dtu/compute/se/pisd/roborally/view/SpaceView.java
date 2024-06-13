@@ -217,23 +217,34 @@ public class SpaceView extends StackPane implements ViewObserver {
      * This function makes the Lase visibel becos it wil be on many filds wher ther ar other filactions i mackes sens to macke a methed for it self.
      */
     private void updateLaser() {
-        if (space.getFieldAction() instanceof Laise) {
+        if (space.getFieldAction() instanceof Laiser) {
+            Space currentSpace = space;
+            Space nextSpace = space;
+            Laiser laise = (Laiser) space.getFieldAction();
 
-            String imagePath = getClass().getResource("/images/laser.png").toExternalForm();
-            Image image = new Image(imagePath);
-            ImageView imageView = new ImageView(image);
+            while (!space.getWalls().contains(laise.getHeading())) {
+                String imagePath = getClass().getResource("/images/laser.png").toExternalForm();
+                Image image = new Image(imagePath);
+                ImageView imageView = new ImageView(image);
 
-            imageView.setFitWidth(SPACE_WIDTH);
-            imageView.setFitHeight(5);
+                imageView.setFitWidth(SPACE_WIDTH);
+                imageView.setFitHeight(5);
 
-            Laise laise = (Laise) space.getFieldAction();
-            if (laise.getHeading() == Heading.SOUTH || laise.getHeading() == Heading.NORTH) {
-                imageView.setRotate(90);
+                if (laise.getHeading() == Heading.SOUTH || laise.getHeading() == Heading.NORTH) {
+                    imageView.setRotate(90);
+                }
+
+                this.getChildren().add(imageView);
+
+                nextSpace = currentSpace.board.getNeighbour(currentSpace, laise.getHeading());
+                if (nextSpace == null) {
+                    break; // Exit if there is no neighbor in the given heading
+                }
+                currentSpace = nextSpace;
             }
-
-            this.getChildren().add(imageView);
         }
     }
+
 
 
     /**

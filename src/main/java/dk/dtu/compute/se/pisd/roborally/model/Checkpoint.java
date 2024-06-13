@@ -40,7 +40,7 @@ public class Checkpoint extends FieldAction {
         if(checkpointNr == checkpoint +1){
             space.getPlayer().setCheckpoint(checkpoint + 1);
         }
-        if (checkpointNr == gameController.board.getMaxNumberofChekpoints()) {
+        if (checkpoint == gameController.board.getMaxNumberofChekpoints()) {
             gameController.showWinningMessage(space.getPlayer());
         }
         return true;

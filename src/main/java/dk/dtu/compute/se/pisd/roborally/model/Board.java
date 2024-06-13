@@ -138,7 +138,7 @@ public class Board extends Subject {
                     spacesGears.add(space);
                 }
 
-                if (space.getFieldAction() instanceof Laise){
+                if (space.getFieldAction() instanceof Laiser){
                     laisers.add(space);
                 }
 

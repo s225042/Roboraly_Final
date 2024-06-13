@@ -236,7 +236,7 @@ public class GameController {
 
     /**
      * s225042, Rebecca Moss
-     * This is the actions that hapens after eatch turn is taken for arl players
+     * This is the actions that hapens after eatch turn is taken for the spaces
      */
     private void spaceActions() {
 
@@ -253,8 +253,8 @@ public class GameController {
             gear.doAction(this, space);
         }
         for (Space space: board.getLaisers()){
-            Laise laise = (Laise) space.getFieldAction();
-            laise.doAction(this, space);
+            Laiser laiser = (Laiser) space.getFieldAction();
+            laiser.doAction(this, space);
         }
         for (Space space: board.getChekpoints()){
             Checkpoint checkpoint = (Checkpoint) space.getFieldAction();

@@ -129,16 +129,24 @@
             "heading": "SOUTH",
             "type": "GREEN"
           }
-        },
-        {
-          "CLASSNAME": "dk.dtu.compute.se.pisd.roborally.model.Laise",
-          "INSTANCE": {
-            "heading": "WEST",
-            "isStartingPoint": true
-          }
         }
       ],
       "x": 3,
+      "y": 3
+    },
+    {
+      "walls": [
+        "NORTH"
+      ],
+      "actions": [
+        {
+          "CLASSNAME": "dk.dtu.compute.se.pisd.roborally.model.Laiser",
+          "INSTANCE": {
+            "heading": "SOUTH"
+          }
+        }
+      ],
+      "x": 6,
       "y": 3
     },
     {
@@ -173,7 +181,7 @@
     },
     {
       "walls": [
-        "NORTH"
+        "SOUTH"
       ],
       "actions": [
         {

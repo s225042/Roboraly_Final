@@ -3,22 +3,18 @@ package dk.dtu.compute.se.pisd.roborally.model;
 import dk.dtu.compute.se.pisd.roborally.controller.FieldAction;
 import dk.dtu.compute.se.pisd.roborally.controller.GameController;
 
-public class Laise extends FieldAction {
+public class Laiser extends FieldAction {
 
-    private Heading heading;
+    private final Heading heading;
 
-    private boolean startingPoint;
-
-    public Laise(Heading heading, boolean startingPoint){
+    public Laiser(Heading heading){
         this.heading = heading;
-        this.startingPoint = startingPoint;
     }
 
     public Heading getHeading() {
         return heading;
     }
 
-    public boolean isStartingPoint(){ return startingPoint;}
 
     @Override
     public boolean doAction(GameController gameController, Space space) {
@@ -26,8 +22,11 @@ public class Laise extends FieldAction {
         while (!space.getWalls().contains(heading)) {
             if (currentSpace.getPlayer() != null) {
                 //space.getPlayer(). shold give the plyer a dameg card whe dmeg card is implermentet
+                System.out.println("dameg");
                 break;
+
             } else {
+
                 Space nextSpace = currentSpace.board.getNeighbour(currentSpace, heading);
                 if (nextSpace == null) {
                     break; // Exit if there is no neighbor in the given heading
