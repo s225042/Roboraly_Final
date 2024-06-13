@@ -38,6 +38,8 @@ public class Space extends Subject {
 
     private Player player;
 
+    private Antenna antenna;
+
     private List<Heading> walls = new ArrayList<>();
     private List<FieldAction> actions = new ArrayList<>();
 
@@ -63,6 +65,10 @@ public class Space extends Subject {
         this.x = x;
         this.y = y;
         player = null;
+    }
+
+    public Antenna getAntenna() {
+        return antenna;
     }
 
     public Player getPlayer() {
@@ -119,18 +125,22 @@ public class Space extends Subject {
      * This class is used to add a wall to the space.
      * @return belt
      */
-    public ConveyorBelt getConveyorBelt() {
+    public FieldAction getFieldAction() {
 
-        ConveyorBelt belt = null;
+        FieldAction fieldAction = null;
 
         for (FieldAction action : this.actions) {
-            if (action instanceof ConveyorBelt && belt == null) {
-                belt = (ConveyorBelt) action;
+            if (action instanceof ConveyorBelt && fieldAction == null) {
+                fieldAction = (ConveyorBelt) action;
+            }
+            if (action instanceof  Checkpoint && fieldAction == null){
+                fieldAction = (Checkpoint) action;
+            }
+            if (action instanceof Gear && fieldAction == null){
+                fieldAction = (Gear) action;
             }
         }
-
-        return belt;
-
+        return fieldAction;
     }
 
 }

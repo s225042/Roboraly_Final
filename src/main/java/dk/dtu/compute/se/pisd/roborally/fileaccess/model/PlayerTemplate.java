@@ -18,6 +18,8 @@ public class PlayerTemplate {
 
     public int x;
     public int y;
+
+    public int checkpointTokens;
     public List<CommandCardFieldTemplate> programmingCards = new ArrayList<>();
     public List<CommandCardFieldTemplate> commandCards = new ArrayList<>();
 
@@ -27,6 +29,7 @@ public class PlayerTemplate {
         this.heading = player.getHeading();
         this.x = player.getSpace().x;
         this.y = player.getSpace().y;
+        this.y = player.getCheckpoint();
 
         for (int i = 0; i<Player.NO_REGISTERS; i++){
             this.programmingCards.add(new CommandCardFieldTemplate(player.getProgramField(i)));

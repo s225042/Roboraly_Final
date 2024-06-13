@@ -55,6 +55,8 @@ public class Player extends Subject {
     private int energyCubes = 0;  // Initialize energy cubes to zero
     private List<DamageCard> programmingDeck;
 
+    private int checkpoint = 0;
+
     public Player(@NotNull Board board, String color, @NotNull String name) {
         this.board = board;
         this.name = name;
@@ -103,6 +105,10 @@ public class Player extends Subject {
         return space;
     }
 
+    public void setCheckpoint(int checkpoint){
+        this.checkpoint = checkpoint;
+    }
+
     public void setSpace(Space space) {
         Space oldSpace = this.space;
         if (space != oldSpace &&
@@ -140,6 +146,8 @@ public class Player extends Subject {
     public int getEnergyCubes() {
         return this.energyCubes;
     }
+
+    public int getCheckpoint(){return this.checkpoint;}
 
     public void setLastCommand(Command command) {
         this.lastCommand = command;

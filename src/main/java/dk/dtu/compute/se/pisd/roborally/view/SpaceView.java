@@ -24,11 +24,11 @@ package dk.dtu.compute.se.pisd.roborally.view;
 import dk.dtu.compute.se.pisd.designpatterns.observer.Subject;
 import dk.dtu.compute.se.pisd.roborally.controller.ConveyorBelt;
 import dk.dtu.compute.se.pisd.roborally.controller.FieldAction;
-import dk.dtu.compute.se.pisd.roborally.model.Heading;
-import dk.dtu.compute.se.pisd.roborally.model.Player;
-import dk.dtu.compute.se.pisd.roborally.model.Space;
+import dk.dtu.compute.se.pisd.roborally.model.*;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Polygon;
@@ -49,6 +49,10 @@ public class SpaceView extends StackPane implements ViewObserver {
 
     public final Space space;
 
+    /**
+     * @author s225042 Rebecca Moss
+     * @param space
+     */
 
     public SpaceView(@NotNull Space space) {
         this.space = space;
@@ -62,11 +66,8 @@ public class SpaceView extends StackPane implements ViewObserver {
         this.setMinHeight(SPACE_HEIGHT);
         this.setMaxHeight(SPACE_HEIGHT);
 
-       if ((space.x + space.y) % 2 == 0) {
-            this.setStyle("-fx-background-color: white;");
-        } else {
-            this.setStyle("-fx-background-color: black;");
-        }
+        this.setStyle("-fx-background-color: white;");
+
 
         // updatePlayer();
 
@@ -75,46 +76,145 @@ public class SpaceView extends StackPane implements ViewObserver {
         update(space);
     }
 
+    /**
+     * @author s225042 Rebecca Moss
+     */
     private void updatePlayer() {
         Player player = space.getPlayer();
-        if (player != null) {
-            Polygon arrow = new Polygon(0.0, 0.0,
-                    20.0, 40.0,
-                    40.0, 0.0);
-            try {
-                arrow.setFill(Color.valueOf(player.getColor()));
-            } catch (Exception e) {
-                arrow.setFill(Color.MEDIUMPURPLE);
+        String imagePath = null;
+        ImageView imageView = new ImageView();
+
+        if (player != null){
+            switch (player.getColor()){
+                case "red":
+                    imagePath = getClass().getResource("/images/r6.png").toExternalForm();
+                    break;
+                case "green":
+                    imagePath = getClass().getResource("/images/r5.png").toExternalForm();
+                    break;
+                case "blue":
+                    imagePath = getClass().getResource("/images/r2.png").toExternalForm();
+                    break;
+                case "orange":
+                    imagePath = getClass().getResource("/images/r4.png").toExternalForm();
+                    break;
+                case "grey":
+                    imagePath = getClass().getResource("/images/r1.png").toExternalForm();
+                    break;
+                case  "magenta":
+                    imagePath = getClass().getResource("/images/r3.png").toExternalForm();
+                    break;
+            }
+            Image image = new Image(imagePath);
+            imageView.setImage(image);
+            imageView.setFitWidth(SPACE_WIDTH);
+            imageView.setFitHeight(SPACE_HEIGHT);
+            switch (player.getHeading()){
+                case NORTH:
+                    imageView.setRotate(180);
+                    break;
+                case SOUTH:
+                    imageView.setRotate(0);
+                    break;
+                case EAST:
+                    imageView.setRotate(270);
+                    break;
+                case WEST:
+                    imageView.setRotate(90);
+                    break;
             }
 
-            arrow.setRotate((90 * player.getHeading().ordinal()) % 360);
-            this.getChildren().add(arrow);
+            this.getChildren().add(imageView);
         }
+
     }
 
     /**
      * @author s235112 Tobias Kolstrup Vittrup
+     * @author s225042 Rebecca Moss
      * This function makes the belts visible on the board.
      * The belts are represented by arrows that point in the direction of the belt.
      */
 
-    private void updateBelt(){
-        ConveyorBelt belt = space.getConveyorBelt();
-        if (belt != null) {
-            Polygon arrow = new Polygon(
-                    0.0, 0.0,
-                    30.0, 60.0,
-                    60.0, 0.0
-            );
-            arrow.setFill(belt.getType() == ConveyorBelt.BeltType.GREEN ? Color.GREEN : Color.BLUE);
-            arrow.setRotate((90 * belt.getHeading().ordinal()) % 360);
+    private void updateFieldactions(){
+        String imagePath = null;
+        ImageView imageView = new ImageView();
 
-            this.getChildren().add(arrow);
+        if (space.getFieldAction() instanceof ConveyorBelt) {
+            ConveyorBelt belt = (ConveyorBelt) space.getFieldAction();
+            if (belt.getType() == ConveyorBelt.BeltType.GREEN) {
+                imagePath = getClass().getResource("/images/green.png").toExternalForm();
+            } else {
+                imagePath = getClass().getResource("/images/blue.png").toExternalForm();
+            }
+
+            switch (belt.getHeading()) {
+                case NORTH:
+                    imageView.setRotate(0);
+                    break;
+                case EAST:
+                    imageView.setRotate(90);
+                    break;
+                case SOUTH:
+                    imageView.setRotate(180);
+                    break;
+                case WEST:
+                    imageView.setRotate(270);
+                    break;
+            }
+        } else if (space.getFieldAction() instanceof Checkpoint) {
+            Checkpoint checkpoint = (Checkpoint) space.getFieldAction();
+            switch (checkpoint.getCheckpointNr()) {
+                case 1:
+                    imagePath = getClass().getResource("/images/1.png").toExternalForm();
+                    break;
+                case 2:
+                    imagePath = getClass().getResource("/images/2.png").toExternalForm();
+                    break;
+                case 3:
+                    imagePath = getClass().getResource("/images/3.png").toExternalForm();
+                    break;
+                case 4:
+                    imagePath = getClass().getResource("/images/4.png").toExternalForm();
+                    break;
+                case 5:
+                    imagePath = getClass().getResource("/images/5.png").toExternalForm();
+                    break;
+                case 6:
+                    imagePath = getClass().getResource("/images/6.png").toExternalForm();
+                    break;
+                case 7:
+                    imagePath = getClass().getResource("/images/7.png").toExternalForm();
+                    break;
+                case 8:
+                    imagePath = getClass().getResource("/images/8.png").toExternalForm();
+                    break;
+            }
+        } else if (space.getFieldAction() instanceof Gear) {
+            Gear gear = (Gear) space.getFieldAction();
+            if (gear.getType() == Gear.GearType.LEFT) {
+                imagePath = getClass().getResource("/images/gearLeft.png").toExternalForm();
+            } else {
+                imagePath = getClass().getResource("/images/gearRight.png").toExternalForm();
+            }
+        } else {
+            imagePath = getClass().getResource("/images/empty.png").toExternalForm();
+        }
+
+        if (imagePath == null || imagePath.isEmpty()) {
+            System.err.println("Image path could not be resolved.");
+        } else {
+            Image image = new Image(imagePath);
+            imageView.setImage(image);
+            imageView.setFitWidth(SPACE_WIDTH);
+            imageView.setFitHeight(SPACE_HEIGHT);
+            this.getChildren().add(imageView);
         }
     }
 
     /**
      * @author s235112 Tobias Kolstrup Vittrup
+     * @author s225042 Rebecca Moss
      * This function makes the walls visible on the board.
      */
 
@@ -122,43 +222,65 @@ public class SpaceView extends StackPane implements ViewObserver {
         Space space = this.space;
         if (space != null && !space.getWalls().isEmpty()) {
             for (Heading wall : space.getWalls()) {
-                Rectangle wallRect = new Rectangle(70, 5); // Rectangle dimensions
+                String imagePath = getClass().getResource("/images/wall.png").toExternalForm();
+                Image wallImage = new Image(imagePath);
+                ImageView wallImageView = new ImageView(wallImage);
 
-                // Adjust position based on wall orientation and tile size
+                //wall size
+                wallImageView.setFitWidth(5);
+                wallImageView.setFitHeight(SPACE_HEIGHT);
+
                 switch (wall) {
                     case EAST:
-                        wallRect.setTranslateX(45.0); // Align with right side of the tile
-                        wallRect.setTranslateY((90*wall.ordinal()) % 360); // Center vertically in the tile
+                        wallImageView.setTranslateX(SPACE_WIDTH / 2 - wallImageView.getFitWidth() / 2);
+                        wallImageView.setTranslateY(0);
                         break;
 
                     case SOUTH:
-                        wallRect.setTranslateY(32.5); // Align with bottom of the tile
+                        wallImageView.setRotate(90);
+                        wallImageView.setTranslateX(SPACE_WIDTH / 2 - wallImageView.getFitHeight() / 2); // Adjusted for rotation
+                        wallImageView.setTranslateY(SPACE_HEIGHT / 2 - wallImageView.getFitWidth() / 2); // Align with the top side of the tile
                         break;
 
                     case WEST:
-                        wallRect.setTranslateX(-45.0); // Align with left side of the tile
-                        wallRect.setTranslateY((90*wall.ordinal()) % 360); // Center vertically in the tile
+                        wallImageView.setTranslateX(-SPACE_WIDTH / 2 + wallImageView.getFitWidth() / 2);
+                        wallImageView.setTranslateY(0);
                         break;
 
                     case NORTH:
-                        wallRect.setTranslateY(-32.5); // Align with top of the tile
+                        wallImageView.setRotate(90);
+                        wallImageView.setTranslateX(-SPACE_WIDTH / 2 + wallImageView.getFitHeight() / 2);
+                        wallImageView.setTranslateY(-SPACE_HEIGHT / 2 + wallImageView.getFitWidth() / 2);
                         break;
                 }
-
-                wallRect.setFill(Color.ORANGE);
-                this.getChildren().add(wallRect); // Assuming 'this' is a container like Group or Pane
+                this.getChildren().add(wallImageView);
             }
         }
     }
 
+    public void updateAntenna(){
+        Space space = this.space;
+        if(space != null && space.getAntenna() != null){
+            Antenna antenna = space.getAntenna();
+            String imagePath = getClass().getResource("/images/antenna.png").toExternalForm();
+            Image antennaImage = new Image(imagePath);
+            ImageView antennaImageView = new ImageView(antennaImage);
+
+            antennaImageView.setFitWidth(SPACE_WIDTH);
+            antennaImageView.setFitHeight(SPACE_HEIGHT);
+
+            this.getChildren().add(antennaImageView);
+        }
+    }
 
     @Override
     public void updateView(Subject subject) {
         if (subject == this.space) {
             this.getChildren().clear();
-            updateBelt();
+            updateFieldactions();
             updateWalls();
             updatePlayer();
+            updateAntenna();
 
         }
     }

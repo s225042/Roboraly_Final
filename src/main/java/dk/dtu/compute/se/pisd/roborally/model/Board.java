@@ -54,9 +54,19 @@ public class Board extends Subject {
 
     private int step = 0;
 
+    private int counter = 0;
+
+    private int maxNumberofChekpoints;
+
     private boolean stepMode;
 
-    public Board(int width, int height) {
+    private final Antenna antenna;
+
+    private List<Player> playersOrder = new ArrayList<>();
+
+
+
+    public Board(int width, int height, int antennaX, int antennaY) {
         this.width = width;
         this.height = height;
         spaces = new Space[width][height];
@@ -66,9 +76,14 @@ public class Board extends Subject {
                 spaces[x][y] = space;
             }
         }
+        this.antenna = new Antenna(this, antennaX, antennaY);
         this.stepMode = false;
     }
 
+
+public Antenna getAntenna() {
+        return antenna;
+    }
     public Integer getGameId() {
         return gameId;
     }
@@ -91,6 +106,33 @@ public class Board extends Subject {
         return height;
     }
 
+    public int getCounter() {return counter;}
+
+    public void setCounter(int counter){
+        this.counter = counter;
+    }
+
+    /**
+     * @author Rebecca Moss, s225042@dtu.dk
+     * @return int
+     */
+    public int getMaxNumberofChekpoints(){return maxNumberofChekpoints;}
+
+    public void setMaxNumberofChekpoints(){
+        for (int x = 0; x < width; x++) {
+            for(int y = 0; y < height; y++) {
+                Space space =  getSpace(x, y);
+                spaces[x][y] = space;
+                if(space.getFieldAction() instanceof Checkpoint){
+                    Checkpoint chekpoint = (Checkpoint) space.getFieldAction();
+                    if(chekpoint.getCheckpointNr()> maxNumberofChekpoints){
+                        maxNumberofChekpoints = chekpoint.getCheckpointNr();
+                    }
+                }
+            }
+        }
+    }
+
     public Space getSpace(int x, int y) {
         if (x >= 0 && x < width &&
                 y >= 0 && y < height) {
@@ -101,19 +143,20 @@ public class Board extends Subject {
     }
 
     public int getPlayersNumber() {
-        return players.size();
+        return playersOrder.size();
     }
 
     public void addPlayer(@NotNull Player player) {
         if (player.board == this && !players.contains(player)) {
             players.add(player);
+            playersOrder.add(player);
             notifyChange();
         }
     }
 
     public Player getPlayer(int i) {
-        if (i >= 0 && i < players.size()) {
-            return players.get(i);
+        if (i >= 0 && i < playersOrder.size()) {
+            return playersOrder.get(i);
         } else {
             return null;
         }
@@ -128,6 +171,7 @@ public class Board extends Subject {
     public void setCurrentPlayer(Player player) {
         if (player != this.current && players.contains(player)) {
             this.current = player;
+            counter ++;
             notifyChange();
         }
     }
@@ -141,6 +185,11 @@ public class Board extends Subject {
             this.phase = phase;
             notifyChange();
         }
+    }
+
+
+    public void setPlayerOrder(List<Player> playersOrder) {
+        this.playersOrder = playersOrder;
     }
 
     public int getStep() {
@@ -177,6 +226,12 @@ public class Board extends Subject {
         return players;
     }
 
+
+
+    public List <Player> getPlayerOrder() {
+        return playersOrder;
+    }
+
     /**
      * Returns the neighbour of the given space of the board in the given heading.
      * The neighbour is returned only, if it can be reached from the given space
@@ -191,43 +246,47 @@ public class Board extends Subject {
         if (space.getWalls().contains(heading)) {
             return null;
         }
-        // TODO needs to be implemented based on the actual spaces
-        //      and obstacles and walls placed there. For now it,
-        //      just calculates the next space in the respective
-        //      direction in a cyclic way.
-
-        // XXX an other option (not for now) would be that null represents a hole
-        //     or the edge of the board in which the players can fall
 
         int x = space.x;
         int y = space.y;
+
         switch (heading) {
             case SOUTH:
-                y = (y + 1) % height;
+                y = y + 1;
                 break;
             case WEST:
-                x = (x + width - 1) % width;
+                x = x - 1;
                 break;
             case NORTH:
-                y = (y + height - 1) % height;
+                y = y - 1;
                 break;
             case EAST:
-                x = (x + 1) % width;
+                x = x + 1;
                 break;
         }
-        Heading reverse = Heading.values()[(heading.ordinal() + 2)% Heading.values().length];
-        Space result = getSpace(x, y);
-        if (result != null) {
-            if (result.getWalls().contains(reverse)) {
-                return null;
-            }
+
+        // Check if the new coordinates are out of bounds
+        if (x < 0 || x >= width || y < 0 || y >= height) {
+            return null;
         }
+
+        Heading reverse = Heading.values()[(heading.ordinal() + 2) % Heading.values().length];
+        Space result = getSpace(x, y);
+        if (result != null && result.getWalls().contains(reverse)) {
+            return null;
+        }
+
         return result;
     }
 
+
     public String getStatusMessage() {
 
-        return "";
+        return "Phase: " + getPhase().name() +
+                ", Player = " + getCurrentPlayer().getName() +
+                ", checkpoint tokens = " + getCurrentPlayer().getCheckpoint() +
+                ", Step: " + getStep() +
+                ", Counter;" + (counter-1);
     }
     /**
      * Retrieves the starting point for the player.

@@ -44,8 +44,13 @@ public class BoardTemplate {
 
     public int current;
 
+    public int counter;
+
     public List<SpaceTemplate> spaces = new ArrayList<>();
 
     public List<PlayerTemplate> players = new ArrayList<>();
 
+    public int antennaX;
+
+    public int antennaY;
 }
