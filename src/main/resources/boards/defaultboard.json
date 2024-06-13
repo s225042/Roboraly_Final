@@ -138,6 +138,21 @@
     },
     {
       "walls": [
+        "NORTH"
+      ],
+      "actions": [
+        {
+          "CLASSNAME": "dk.dtu.compute.se.pisd.roborally.model.Laiser",
+          "INSTANCE": {
+            "heading": "SOUTH"
+          }
+        }
+      ],
+      "x": 6,
+      "y": 3
+    },
+    {
+      "walls": [
         "SOUTH"
       ],
       "actions": [
@@ -167,9 +182,7 @@
       "y": 5
     },
     {
-      "walls": [
-        "NORTH"
-      ],
+      "walls": [],
       "actions": [
         {
           "CLASSNAME": "dk.dtu.compute.se.pisd.roborally.controller.ConveyorBelt",
@@ -181,6 +194,13 @@
       ],
       "x": 6,
       "y": 6
+    },
+    {
+    "walls": [
+      "SOUTH"
+    ],
+    "x": 6,
+    "y": 7
     },
     {
       "walls": [

@@ -22,6 +22,7 @@
 package dk.dtu.compute.se.pisd.roborally.model;
 
 import dk.dtu.compute.se.pisd.designpatterns.observer.Subject;
+import dk.dtu.compute.se.pisd.roborally.controller.ConveyorBelt;
 import dk.dtu.compute.se.pisd.roborally.controller.FieldAction;
 import org.jetbrains.annotations.NotNull;
 
@@ -47,6 +48,16 @@ public class Board extends Subject {
     private final Space[][] spaces;
 
     private final List<Player> players = new ArrayList<>();
+
+    private List<Space> spaceBLueConveyor = new ArrayList<>();
+
+    private List<Space> spacesGreanConveyor = new ArrayList<>();
+
+    private List<Space> spacesGears = new ArrayList<>();
+
+    private List<Space> laisers = new ArrayList<>();
+
+    private List<Space> chekpoints = new ArrayList<>();
 
     private Player current;
 
@@ -127,14 +138,31 @@ public Antenna getAntenna() {
             for(int y = 0; y < height; y++) {
                 Space space =  getSpace(x, y);
                 spaces[x][y] = space;
-                if(space.getFieldAction() instanceof Checkpoint){
-                    Checkpoint chekpoint = (Checkpoint) space.getFieldAction();
-                    if(chekpoint.getCheckpointNr()> maxNumberofChekpoints){
-                        maxNumberofChekpoints = chekpoint.getCheckpointNr();
+
+                if (space.getFieldAction() instanceof ConveyorBelt){
+                    ConveyorBelt conveyorBelt = (ConveyorBelt) space.getFieldAction();
+                    if(conveyorBelt.getType() == ConveyorBelt.BeltType.BLUE){
+                        spaceBLueConveyor.add(space);
                     }
+                    else {
+                        spacesGreanConveyor.add(space);
+                    }
+                }
+
+                if (space.getFieldAction() instanceof  Gear){
+                    spacesGears.add(space);
+                }
+
+                if (space.getFieldAction() instanceof Laiser){
+                    laisers.add(space);
+                }
+
+                if(space.getFieldAction() instanceof Checkpoint){
+                    chekpoints.add(space);
                 }
             }
         }
+        maxNumberofChekpoints = chekpoints.size();
     }
 
     public Space getSpace(int x, int y) {
@@ -234,6 +262,26 @@ public Antenna getAntenna() {
 
     public List <Player> getPlayerOrder() {
         return playersOrder;
+    }
+
+    public List<Space> getSpaceBLueConveyor(){
+        return spaceBLueConveyor;
+    }
+
+    public List<Space> getSpacesGreanConveyor(){
+        return spacesGreanConveyor;
+    }
+
+    public List<Space> getSpacesGears(){
+        return spacesGears;
+    }
+
+    public List<Space> getLaisers(){
+        return laisers;
+    }
+
+    public List<Space> getChekpoints(){
+        return chekpoints;
     }
 
     /**
