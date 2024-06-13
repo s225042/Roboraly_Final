@@ -25,6 +25,17 @@ public class Antenna extends Subject {
 
 }
 
+    /**
+     * Calculates the Manhattan distance between the antenna and the player's position.
+     *
+     * @param player The player whose distance is to be calculated.
+     * @return The Manhattan distance between the antenna and the player.
+     */
+    public int calculateDistance(Player player) {
+        int playerX = player.getSpace().getX();
+        int playerY = player.getSpace().getY();
+        return Math.abs(this.x - playerX) + Math.abs(this.y - playerY);
+    }
 
 
 }

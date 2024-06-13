@@ -1,6 +1,8 @@
 {
   "width": 8,
   "height": 8,
+  "antennaX": 1,
+    "antennaY": 3,
   "spaces": [
     {
       "walls": [
@@ -180,9 +182,7 @@
       "y": 5
     },
     {
-      "walls": [
-        "SOUTH"
-      ],
+      "walls": [],
       "actions": [
         {
           "CLASSNAME": "dk.dtu.compute.se.pisd.roborally.controller.ConveyorBelt",
@@ -194,6 +194,13 @@
       ],
       "x": 6,
       "y": 6
+    },
+    {
+    "walls": [
+      "SOUTH"
+    ],
+    "x": 6,
+    "y": 7
     },
     {
       "walls": [

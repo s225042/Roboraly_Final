@@ -27,8 +27,7 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Alert.AlertType;
 
-import java.util.Optional;
-import java.util.Random;
+import java.util.*;
 
 /**
  * ...
@@ -45,7 +44,15 @@ public class GameController {
         this.board = board;
     }
 
-    public void moveForward(@NotNull Player player) {
+
+    public void determinePlayerOrder(){
+            List<Player> players = new ArrayList<>(board.getPlayers());
+            players.sort(Comparator.comparingInt(player -> board.getAntenna().calculateDistance(player)));
+            board.setPlayerOrder(players);
+        }
+
+
+        public void moveForward(@NotNull Player player) {
         if (!won && player.board == board) { // Check if game is won before moving
             Space space = player.getSpace();
             Heading heading = player.getHeading();
@@ -152,8 +159,7 @@ public class GameController {
 
     private void makeProgramFieldsVisible(int register) {
         if (register >= 0 && register < Player.NO_REGISTERS) {
-            for (int i = 0; i < board.getPlayersNumber(); i++) {
-                Player player = board.getPlayer(i);
+            for (Player player : board.getPlayerOrder()) {
                 CommandCardField field = player.getProgramField(register);
                 field.setVisible(true);
             }
@@ -161,8 +167,7 @@ public class GameController {
     }
 
     private void makeProgramFieldsInvisible() {
-        for (int i = 0; i < board.getPlayersNumber(); i++) {
-            Player player = board.getPlayer(i);
+        for (Player player : board.getPlayerOrder()) {
             for (int j = 0; j < Player.NO_REGISTERS; j++) {
                 CommandCardField field = player.getProgramField(j);
                 field.setVisible(false);
@@ -172,11 +177,15 @@ public class GameController {
 
     public void finishProgrammingPhase() {
         makeProgramFieldsInvisible();
+        determinePlayerOrder();
         makeProgramFieldsVisible(0);
         board.setPhase(Phase.ACTIVATION);
-        board.setCurrentPlayer(board.getPlayer(0));
+        if (!board.getPlayerOrder().isEmpty()) {
+            board.setCurrentPlayer(board.getPlayerOrder().get(0));
+        }
         board.setStep(0);
     }
+
 
     public void executePrograms() {
         board.setStepMode(false);
@@ -195,6 +204,7 @@ public class GameController {
         spaceActions();
     }
 
+
     private boolean executeNextStep() {
         if (won) {
             return false;
@@ -209,27 +219,28 @@ public class GameController {
                     Command command = card.command;
                     executeCommand(currentPlayer, command);
                 }
-                int nextPlayerNumber = board.getPlayerNumber(currentPlayer) + 1;
-                if (nextPlayerNumber < board.getPlayersNumber()) {
-                    board.setCurrentPlayer(board.getPlayer(nextPlayerNumber));
-                    return false; //not all players have finished this step.
+
+                int nextPlayerIndex = (board.getPlayerOrder().indexOf(currentPlayer) + 1) % board.getPlayersNumber();
+                if (nextPlayerIndex != 0) {
+                    board.setCurrentPlayer(board.getPlayerOrder().get(nextPlayerIndex));
+                    return false; // Not all players have finished this step
                 } else {
                     step++;
                     if (step < Player.NO_REGISTERS) {
                         makeProgramFieldsVisible(step);
                         board.setStep(step);
-                        board.setCurrentPlayer(board.getPlayer(0));
+                        board.setCurrentPlayer(board.getPlayerOrder().get(0)); // Set the first player for the next step
                     } else {
                         startProgrammingPhase();
                     }
-                    return true; //all players have finished the current step
+                    return true; // All players have finished the current step
                 }
             } else {
-                // this should not happen
+                // This should not happen
                 return false;
             }
         } else {
-            // this should not happen
+            // This should not happen
             return false;
         }
     }
@@ -238,6 +249,8 @@ public class GameController {
      * s225042, Rebecca Moss
      * This is the actions that hapens after eatch turn is taken for the spaces
      */
+
+
     private void spaceActions() {
 
         for (Space space: board.getSpaceBLueConveyor()){
