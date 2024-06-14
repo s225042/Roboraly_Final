@@ -7,7 +7,7 @@ public class Laiser extends FieldAction {
 
     private final Heading heading;
 
-    public Laiser(Heading heading){
+    public Laiser(Heading heading) {
         this.heading = heading;
     }
 
@@ -22,8 +22,7 @@ public class Laiser extends FieldAction {
         while (!space.getWalls().contains(heading)) {
             if (currentSpace.getPlayer() != null) {
                 Player player = currentSpace.getPlayer();
-                gameController.applySpamDamage(player); // Ensure this is called
-                System.out.println("Player hit by laser, applying SPAM damage."); // Debugging line
+                gameController.applySpamDamage(player);
                 break;
             } else {
                 Space nextSpace = currentSpace.board.getNeighbour(currentSpace, heading);

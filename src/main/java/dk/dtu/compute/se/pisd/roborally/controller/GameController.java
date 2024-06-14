@@ -94,7 +94,8 @@ public class GameController {
     public void applySpamDamage(Player player) {
         CommandCard spamCard = drawDamageCard();
         player.takeDamage(spamCard);
-        System.out.println("SPAM damage card added to player's discard pile."); // Debugging line
+        showDamageMessage(player); // Show damage (spam card) message
+
     }
 
 
@@ -479,9 +480,10 @@ public class GameController {
         board.setCurrentPlayer(board.getPlayer(0));
         board.setStep(0);
 
-        for (Player player : board.getPlayers()) {
+        for (int i = 0; i < board.getPlayersNumber(); i++) {
+            Player player = board.getPlayer(i);
             if (player != null) {
-                player.initializeProgrammingDeck();
+                player.initializeProgrammingDeck(); // Ensure deck is initialized
                 for (int j = 0; j < Player.NO_REGISTERS; j++) {
                     CommandCardField field = player.getProgramField(j);
                     field.setCard(null);
@@ -534,6 +536,15 @@ public class GameController {
         alert.setContentText(player.getName() + " has won the game!");
         this.won = true;
 
+        alert.showAndWait();
+    }
+
+
+    private void showDamageMessage(Player player) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Damage Taken");
+        alert.setHeaderText("Robot hit by laser!");
+        alert.setContentText(player.getName() + " has drawn a SPAM card.");
         alert.showAndWait();
     }
 }

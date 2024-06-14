@@ -25,6 +25,7 @@ import dk.dtu.compute.se.pisd.designpatterns.observer.Subject;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static dk.dtu.compute.se.pisd.roborally.model.Heading.SOUTH;
 
@@ -53,6 +54,8 @@ public class Player extends Subject {
     private Command lastCommand;
     private List<CommandCard> discardPile = new ArrayList<>();
     private List<CommandCard> programmingDeck = new ArrayList<>();
+
+
 
     private int energyCubes = 0;  // Initialize energy cubes to zero
 
@@ -141,25 +144,30 @@ public class Player extends Subject {
     }
 
     public void initializeProgrammingDeck() {
-        Map<Command, Integer> deckComposition = new HashMap<>();
-        deckComposition.put(Command.FORWARD, 2);
-        deckComposition.put(Command.FAST_FORWARD, 2);
-        deckComposition.put(Command.OPTION_LEFT_RIGHT, 2);
-        deckComposition.put(Command.FAST_FAST_FORWARD, 2);
-        deckComposition.put(Command.U_TURN, 2);
-        deckComposition.put(Command.BACK_UP, 2);
-        deckComposition.put(Command.POWER_UP, 2);
-        deckComposition.put(Command.LEFT, 2);
-        deckComposition.put(Command.RIGHT, 2);
+        if (programmingDeck.isEmpty()) {
+            Map<Command, Integer> deckComposition = new HashMap<>();
+            deckComposition.put(Command.FORWARD, 2);
+            deckComposition.put(Command.FAST_FORWARD, 2);
+            deckComposition.put(Command.OPTION_LEFT_RIGHT, 2);
+            deckComposition.put(Command.FAST_FAST_FORWARD, 2);
+            deckComposition.put(Command.U_TURN, 2);
+            deckComposition.put(Command.BACK_UP, 2);
+            deckComposition.put(Command.POWER_UP, 2);
+            deckComposition.put(Command.LEFT, 2);
+            deckComposition.put(Command.RIGHT, 2);
 
-        for (Map.Entry<Command, Integer> entry : deckComposition.entrySet()) {
-            for (int i = 0; i < entry.getValue(); i++) {
-                programmingDeck.add(new CommandCard(entry.getKey()));
+            for (Map.Entry<Command, Integer> entry : deckComposition.entrySet()) {
+                for (int i = 0; i < entry.getValue(); i++) {
+                    programmingDeck.add(new CommandCard(entry.getKey()));
+                }
             }
-        }
 
-        Collections.shuffle(programmingDeck);
+            Collections.shuffle(programmingDeck);
+            System.out.println("Deck initialized: " + programmingDeck.stream().map(card -> card.command).collect(Collectors.toList()));
+
+        }
     }
+
     public void takeDamage(CommandCard damageCard) {
         discardPile.add(damageCard);
         notifyChange(); // Notify observers of the change
@@ -186,18 +194,23 @@ public class Player extends Subject {
                 shuffleDiscardPileIntoDeck();
             }
             if (!programmingDeck.isEmpty()) {
-                cards[i].setCard(programmingDeck.remove(programmingDeck.size() - 1));
+                CommandCard drawnCard = programmingDeck.remove(programmingDeck.size() - 1);
+                cards[i].setCard(drawnCard);
+                System.out.println("Player " + name + " drew: " + drawnCard.command);
             }
         }
-        notifyChange();
+        notifyChange(); // Notify that the player's cards have changed
     }
-
 
 
     public void addEnergyCube() {
         this.energyCubes++;
         notifyChange();  // Notify observers that the player's energy cube count has changed
     }
+
+
+
+
 
     public int getEnergyCubes() {
         return this.energyCubes;
