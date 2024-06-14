@@ -65,7 +65,7 @@ public class Board extends Subject {
     private List<Player> playersOrder = new ArrayList<>();
 
     private Space rebootSpace; // Assuming there is a single reboot space
-    private Heading rebootDirection = Heading.NORTH; // Default direction indicated by the arrow on the reboot token
+    private Heading rebootDirection; // Default direction indicated by the arrow on the reboot token
 
     public Board(int width, int height, int antennaX, int antennaY) {
         this.width = width;
@@ -78,7 +78,6 @@ public class Board extends Subject {
             }
         }
         this.antenna = new Antenna(this, antennaX, antennaY);
-        this.rebootDirection = Heading.NORTH; // Ensure rebootDirection is set to a default
         this.stepMode = false;
     }
 

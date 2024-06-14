@@ -59,6 +59,10 @@ public class LoadBoard {
             // Set the reboot token location
             result.setRebootSpace(template.rebootX, template.rebootY);
 
+            if (template.rebootDirection != null) {
+                result.setRebootDirection(Heading.valueOf(template.rebootDirection));
+            }
+
             result.setPhase(template.phase);
             for (int i = 0; i < template.players.size(); i++) {
                 loadPlayer(result, template.players.get(i));

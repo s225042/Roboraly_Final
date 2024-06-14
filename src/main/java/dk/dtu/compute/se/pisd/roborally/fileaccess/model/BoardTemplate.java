@@ -56,4 +56,6 @@ public class BoardTemplate {
 
     public int rebootX;
     public int rebootY;
+
+    public String rebootDirection;
 }

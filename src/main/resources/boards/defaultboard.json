@@ -5,6 +5,7 @@
     "antennaY": 3,
   "rebootX": 3,
   "rebootY": 6,
+  "rebootDirection": "WEST",
   "spaces": [
     {
       "walls": [

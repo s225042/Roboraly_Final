@@ -194,7 +194,7 @@ public class Player extends Subject {
 
             if (rebootSpace.getPlayer() == null) {
                 setSpace(rebootSpace);
-                setHeading(Heading.NORTH); // Default facing direction
+                setHeading(rebootDirection); // Set heading according to reboot direction
             } else {
                 // Recursive handling for moving the occupying player
                 moveOccupyingPlayer(rebootSpace, rebootDirection);
