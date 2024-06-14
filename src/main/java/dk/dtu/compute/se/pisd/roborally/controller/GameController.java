@@ -35,41 +35,16 @@ public class GameController {
             Space space = player.getSpace();
             Heading heading = player.getHeading();
 
-            // Calculate the target coordinates based on current position and heading
-            int targetX = space.getX();
-            int targetY = space.getY();
-
-            switch (heading) {
-                case SOUTH:
-                    targetY += 1;
-                    break;
-                case WEST:
-                    targetX -= 1;
-                    break;
-                case NORTH:
-                    targetY -= 1;
-                    break;
-                case EAST:
-                    targetX += 1;
-                    break;
-            }
-
-            // Check if the target coordinates are out of bounds
-            if (targetX < 0 || targetX >= board.getWidth() || targetY < 0 || targetY >= board.getHeight()) {
+            Space target = board.getNeighbour(space, heading);
+            if (target != null) {
+                try {
+                    moveToSpace(player, target, heading);
+                } catch (ImpossibleMoveException e) {
+                    // Handle the exception appropriately
+                }
+            } else {
                 // Reboot the player if moving out of bounds
                 rebootPlayer(player);
-            } else {
-                Space target = board.getNeighbour(space, heading);
-                if (target != null && target != space) { // Ensure target is different than current space
-                    try {
-                        moveToSpace(player, target, heading);
-                    } catch (ImpossibleMoveException e) {
-                        // Handle the exception appropriately
-                        // Here, do not reboot the player, as it's hitting a wall or other obstacle
-                    }
-                } else {
-                    // If target is the same as the current space, do nothing (hit a wall)
-                }
             }
         }
     }
@@ -142,9 +117,6 @@ public class GameController {
                     rebootPlayer(other);
                     return;
                 }
-
-                // Recursive call to move the other player
-                moveToSpace(other, target, heading);
 
                 // Ensure the target is free now
                 assert target.getPlayer() == null : target;
