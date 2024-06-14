@@ -244,10 +244,6 @@ public class Board extends Subject {
      * @return the space in the given direction; null if there is no (reachable) neighbour
      */
     public Space getNeighbour(@NotNull Space space, @NotNull Heading heading) {
-        if (space.getWalls().contains(heading)) {
-            return null;
-        }
-
         int x = space.x;
         int y = space.y;
 
@@ -271,14 +267,17 @@ public class Board extends Subject {
             return null;
         }
 
-        Heading reverse = Heading.values()[(heading.ordinal() + 2) % Heading.values().length];
         Space result = getSpace(x, y);
-        if (result != null && result.getWalls().contains(reverse)) {
-            return null;
+        if (result != null) {
+            Heading reverse = Heading.values()[(heading.ordinal() + 2) % Heading.values().length];
+            if (space.getWalls().contains(heading) || result.getWalls().contains(reverse)) {
+                return space; // Returning the current space if there's a wall in the way
+            }
         }
 
         return result;
     }
+
 
 
     public String getStatusMessage() {
