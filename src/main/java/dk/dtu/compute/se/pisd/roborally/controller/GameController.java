@@ -88,8 +88,13 @@ public class GameController {
 
     public void fastFastForward(@NotNull Player player) {
         moveForward(player);
-        moveForward(player);
-        moveForward(player);
+        if(player.getSpace() != board.getRebootSpace()) {
+            moveForward(player);
+        }
+        if(player.getSpace() != board.getRebootSpace()) {
+            moveForward(player);
+        }
+
     }
 
     void moveToSpace(@NotNull Player player, @NotNull Space space, @NotNull Heading heading) throws ImpossibleMoveException {
