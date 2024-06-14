@@ -199,7 +199,7 @@ public class Player extends Subject {
                 // Recursive handling for moving the occupying player
                 moveOccupyingPlayer(rebootSpace, rebootDirection);
                 setSpace(rebootSpace);
-                setHeading(Heading.NORTH); // Default facing direction
+                setHeading(rebootDirection); // Set heading according to reboot direction
             }
         } else {
             // Handle case where reboot space is not set
@@ -213,10 +213,14 @@ public class Player extends Subject {
             Space targetSpace = board.getNeighbour(space, heading);
             if (targetSpace != null && targetSpace.getPlayer() == null) {
                 occupyingPlayer.setSpace(targetSpace);
+                occupyingPlayer.setHeading(heading); // Ensure the occupying player is facing the correct direction
+
             } else if (targetSpace != null) {
                 // If the target space is also occupied, recursively handle this scenario
                 moveOccupyingPlayer(targetSpace, heading);
                 occupyingPlayer.setSpace(targetSpace);
+                occupyingPlayer.setHeading(heading); // Ensure the occupying player is facing the correct direction
+
             } else {
                 // Handle case where no target space is free or out of bounds
                 throw new IllegalStateException("No unoccupied adjacent space in the direction of the reboot token.");
