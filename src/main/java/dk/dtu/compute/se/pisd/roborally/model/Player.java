@@ -24,7 +24,7 @@ package dk.dtu.compute.se.pisd.roborally.model;
 import dk.dtu.compute.se.pisd.designpatterns.observer.Subject;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.List;
+import java.util.*;
 
 import static dk.dtu.compute.se.pisd.roborally.model.Heading.SOUTH;
 
@@ -51,9 +51,11 @@ public class Player extends Subject {
     private CommandCardField[] cards;
 
     private Command lastCommand;
-    private List<DamageCard> discardPile;
+    private List<CommandCard> discardPile = new ArrayList<>();
+    private List<CommandCard> programmingDeck = new ArrayList<>();
+
     private int energyCubes = 0;  // Initialize energy cubes to zero
-    private List<DamageCard> programmingDeck;
+
 
     private int checkpoint = 0;
 
@@ -138,6 +140,60 @@ public class Player extends Subject {
         }
     }
 
+    public void initializeProgrammingDeck() {
+        Map<Command, Integer> deckComposition = new HashMap<>();
+        deckComposition.put(Command.FORWARD, 2);
+        deckComposition.put(Command.FAST_FORWARD, 2);
+        deckComposition.put(Command.OPTION_LEFT_RIGHT, 2);
+        deckComposition.put(Command.FAST_FAST_FORWARD, 2);
+        deckComposition.put(Command.U_TURN, 2);
+        deckComposition.put(Command.BACK_UP, 2);
+        deckComposition.put(Command.POWER_UP, 2);
+        deckComposition.put(Command.LEFT, 2);
+        deckComposition.put(Command.RIGHT, 2);
+
+        for (Map.Entry<Command, Integer> entry : deckComposition.entrySet()) {
+            for (int i = 0; i < entry.getValue(); i++) {
+                programmingDeck.add(new CommandCard(entry.getKey()));
+            }
+        }
+
+        Collections.shuffle(programmingDeck);
+    }
+    public void takeDamage(CommandCard damageCard) {
+        discardPile.add(damageCard);
+        notifyChange(); // Notify observers of the change
+        System.out.println("Damage card added to discard pile."); // Debugging line
+    }
+
+
+    public void shuffleDiscardPileIntoDeck() {
+        programmingDeck.addAll(discardPile);
+        discardPile.clear();
+        Collections.shuffle(programmingDeck);
+    }
+
+    public CommandCard drawProgrammingCard() {
+        if (programmingDeck.isEmpty()) {
+            shuffleDiscardPileIntoDeck();
+        }
+        return programmingDeck.isEmpty() ? null : programmingDeck.remove(programmingDeck.size() - 1);
+    }
+
+    public void drawProgrammingCards(int count) {
+        for (int i = 0; i < count; i++) {
+            if (programmingDeck.isEmpty()) {
+                shuffleDiscardPileIntoDeck();
+            }
+            if (!programmingDeck.isEmpty()) {
+                cards[i].setCard(programmingDeck.remove(programmingDeck.size() - 1));
+            }
+        }
+        notifyChange();
+    }
+
+
+
     public void addEnergyCube() {
         this.energyCubes++;
         notifyChange();  // Notify observers that the player's energy cube count has changed
@@ -165,14 +221,16 @@ public class Player extends Subject {
         return cards[i];
     }
 
-
-    public List<DamageCard> getDiscardPile() {
+    public List<CommandCard> getDiscardPile() {
         return discardPile;
     }
 
-    public void setDiscardPile(List<DamageCard> discardPile) {
-        this.discardPile = discardPile;
+    public void setProgrammingDeck(List<CommandCard> deck) {
+        this.programmingDeck = deck;
     }
+
+
+
 
 }
 

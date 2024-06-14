@@ -1,24 +1,3 @@
-/*
- *  This file is part of the initial project provided for the
- *  course "Project in Software Development (02362)" held at
- *  DTU Compute at the Technical University of Denmark.
- *
- *  Copyright (C) 2019, 2020: Ekkart Kindler, ekki@dtu.dk
- *
- *  This software is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; version 2 of the License.
- *
- *  This project is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with this project; if not, write to the Free Software
- *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
- *
- */
 package dk.dtu.compute.se.pisd.roborally.view;
 
 import dk.dtu.compute.se.pisd.designpatterns.observer.Subject;
@@ -34,17 +13,9 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import org.jetbrains.annotations.NotNull;
 
-/**
- * ...
- *
- * @author Ekkart Kindler, ekki@dtu.dk
- *
- */
 public class CardFieldView extends GridPane implements ViewObserver {
 
-    // This data format helps avoiding transfers of e.g. Strings from other
-    // programs which can copy/paste Strings.
-    final public static  DataFormat ROBO_RALLY_CARD = new DataFormat("boards/games/roborally/cards");
+    final public static DataFormat ROBO_RALLY_CARD = new DataFormat("boards/games/roborally/cards");
 
     final public static int CARDFIELD_WIDTH = 65;
     final public static int CARDFIELD_HEIGHT = 100;
@@ -81,7 +52,7 @@ public class CardFieldView extends GridPane implements ViewObserver {
         this.setMinHeight(CARDFIELD_HEIGHT);
         this.setMaxHeight(CARDFIELD_HEIGHT);
 
-        label = new Label("This is a slightly longer text");
+        label = new Label();
         label.setWrapText(true);
         label.setMouseTransparent(true);
         this.add(label, 0, 0);
@@ -141,17 +112,13 @@ public class CardFieldView extends GridPane implements ViewObserver {
     public void updateView(Subject subject) {
         if (subject == field && subject != null) {
             CommandCard card = field.getCard();
-            DamageCard damageCard = field.getDamageCard();
             if (card != null && field.isVisible()) {
                 label.setText(card.getName());
-            } else if (damageCard != null && field.isVisible()) {
-                label.setText(damageCard.getDamageType().getDisplayName());
             } else {
                 label.setText("");
             }
         }
     }
-
 
     private class OnDragDetectedHandler implements EventHandler<MouseEvent> {
         @Override
@@ -160,7 +127,7 @@ public class CardFieldView extends GridPane implements ViewObserver {
             if (t instanceof CardFieldView) {
                 CardFieldView source = (CardFieldView) t;
                 CommandCardField cardField = source.field;
-                if (cardField != null && (cardField.getCard() != null || cardField.getDamageCard() != null) &&
+                if (cardField != null && cardField.getCard() != null &&
                         cardField.player != null &&
                         cardField.player.board != null &&
                         cardField.player.board.getPhase().equals(Phase.PROGRAMMING)) {
@@ -180,7 +147,6 @@ public class CardFieldView extends GridPane implements ViewObserver {
     }
 
     private class OnDragOverHandler implements EventHandler<DragEvent> {
-
         @Override
         public void handle(DragEvent event) {
             Object t = event.getTarget();
@@ -198,11 +164,9 @@ public class CardFieldView extends GridPane implements ViewObserver {
             }
             event.consume();
         }
-
     }
 
     private class OnDragEnteredHandler implements EventHandler<DragEvent> {
-
         @Override
         public void handle(DragEvent event) {
             Object t = event.getTarget();
@@ -221,11 +185,9 @@ public class CardFieldView extends GridPane implements ViewObserver {
             }
             event.consume();
         }
-
     }
 
     private class OnDragExitedHandler implements EventHandler<DragEvent> {
-
         @Override
         public void handle(DragEvent event) {
             Object t = event.getTarget();
@@ -244,11 +206,9 @@ public class CardFieldView extends GridPane implements ViewObserver {
             }
             event.consume();
         }
-
     }
 
     private class OnDragDroppedHandler implements EventHandler<DragEvent> {
-
         @Override
         public void handle(DragEvent event) {
             Object t = event.getTarget();
@@ -268,12 +228,7 @@ public class CardFieldView extends GridPane implements ViewObserver {
                         if (object instanceof String) {
                             CommandCardField source = cardFieldFromRepresentation((String) object);
                             if (source != null && gameController.moveCards(source, cardField)) {
-                                // CommandCard card = source.getCard();
-                                // if (card != null) {
-                                // if (gameController.moveCards(source, cardField)) {
-                                    // cardField.setCard(card);
-                                    success = true;
-                                // }
+                                success = true;
                             }
                         }
                     }
@@ -283,11 +238,9 @@ public class CardFieldView extends GridPane implements ViewObserver {
             }
             event.consume();
         }
-
     }
 
     private class OnDragDoneHandler implements EventHandler<DragEvent> {
-
         @Override
         public void handle(DragEvent event) {
             Object t = event.getTarget();
@@ -297,11 +250,5 @@ public class CardFieldView extends GridPane implements ViewObserver {
             }
             event.consume();
         }
-
     }
-
 }
-
-
-
-

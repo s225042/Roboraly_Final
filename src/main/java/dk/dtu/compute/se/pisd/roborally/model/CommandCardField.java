@@ -34,7 +34,7 @@ public class CommandCardField extends Subject {
     final public Player player;
 
     private CommandCard card;
-    private DamageCard damageCard;
+
 
     private boolean visible;
 
@@ -55,16 +55,6 @@ public class CommandCardField extends Subject {
         }
     }
 
-    public DamageCard getDamageCard() {
-        return damageCard;
-    }
-
-    public void setDamageCard(DamageCard damageCard) {
-        if (damageCard != this.damageCard) {
-            this.damageCard = damageCard;
-            notifyChange();
-        }
-    }
 
     public boolean isVisible() {
         return visible;

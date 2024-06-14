@@ -43,10 +43,19 @@ public class GameController {
     private Image energyCube;
     final public Board board;
     public boolean won = false;
+    private List<CommandCard> damageDeck = new ArrayList<>();
+
+
+
+
 
     public GameController(Board board) {
         this.board = board;
         loadEnergyCubeImage();
+        initializeDamageDeck();
+
+
+
     }
 
     private void loadEnergyCubeImage() {
@@ -68,8 +77,42 @@ public class GameController {
             board.setPlayerOrder(players);
         }
 
+    private void initializeDamageDeck() {
+        for (int i = 0; i < 20; i++) {
+            damageDeck.add(new CommandCard(Command.SPAM));
+        }
+        Collections.shuffle(damageDeck);
+    }
 
-        public void moveForward(@NotNull Player player) {
+    public CommandCard drawDamageCard() {
+        if (damageDeck.isEmpty()) {
+            initializeDamageDeck();
+        }
+        return damageDeck.remove(damageDeck.size() - 1);
+    }
+
+    public void applySpamDamage(Player player) {
+        CommandCard spamCard = drawDamageCard();
+        player.takeDamage(spamCard);
+        System.out.println("SPAM damage card added to player's discard pile."); // Debugging line
+    }
+
+
+    public void executeSpamDamageCard(Player player, CommandCard damageCard) {
+        if (damageCard.command == Command.SPAM) {
+            System.out.println("Executing SPAM card action");
+            CommandCard topCard = player.drawProgrammingCard();
+            if (topCard != null) {
+                executeCommand(player, topCard.command);
+                player.getDiscardPile().add(damageCard);
+            }
+        }
+    }
+
+
+
+
+    public void moveForward(@NotNull Player player) {
         if (!won && player.board == board) { // Check if game is won before moving
             Space space = player.getSpace();
             Heading heading = player.getHeading();
@@ -383,11 +426,15 @@ public class GameController {
                 case FAST_FAST_FORWARD:
                     this.fastFastForward(player);
                     break;
+                case SPAM:
+                    this.applySpamDamage(player);
+                    break;
                 default:
                     // DO NOTHING (for now)
             }
         }
     }
+
 
     private void moveForwardInDirection(Player player, Heading heading) {
         if (!won && player.board == board) {
@@ -432,101 +479,28 @@ public class GameController {
         board.setCurrentPlayer(board.getPlayer(0));
         board.setStep(0);
 
-        for (int i = 0; i < board.getPlayersNumber(); i++) {
-            Player player = board.getPlayer(i);
+        for (Player player : board.getPlayers()) {
             if (player != null) {
+                player.initializeProgrammingDeck();
                 for (int j = 0; j < Player.NO_REGISTERS; j++) {
                     CommandCardField field = player.getProgramField(j);
                     field.setCard(null);
                     field.setVisible(true);
                 }
-                for (int j = 0; j < Player.NO_CARDS; j++) {
-                    CommandCardField field = player.getCardField(j);
-                    field.setCard(generateRandomCommandCard());
-                    field.setVisible(true);
-                }
+                player.drawProgrammingCards(Player.NO_CARDS);
             }
         }
     }
 
-    private CommandCard generateRandomCommandCard() {
-        Command[] commands = Command.values();
-        int random = (int) (Math.random() * commands.length);
-        return new CommandCard(commands[random]);
-    }
-    /**
-     * Applies damage effects to the current player based on the specified damage type.
-     * This method handles different types of damage that can affect game strategy and player progress.
-     *
-     * @param currentPlayer The player currently affected by the damage effect.
-     * @param damageType The type of damage to apply, which determines the effect executed.
-     * @author Aisha Farah, student ID: 235123
-     */
-    public void applyDamageEffects(@NotNull Player currentPlayer, DamageType damageType) {
-        System.out.println("Applying effects to " + currentPlayer.getName());
-        switch (damageType) {
-            case SPAM:
-                System.out.println("Applying SPAM damage to " + currentPlayer.getName());
-                break;
-            case WORM:
-                rebootPlayer(currentPlayer);
-                break;
-            case TROJAN_HORSE:
-                giveAdditionalDamageCards(currentPlayer, DamageType.SPAM);
-                break;
-            case VIRUS:
-                spreadVirusDamage(currentPlayer);
-                break;
-        }
-    }
 
-    /**
-     * Resets the player's position to the starting point on the game board.
-     *
-     * @param player The player whose position needs to be reset.
-     * @author Aisha Farah, student ID: 235123
-     */
+
+
     private void rebootPlayer(Player player) {
         player.setSpace(board.getPlayerStartingPoint());
         System.out.println("Player " + player.getName() + " is rebooted to starting position.");
     }
 
-    /**
-     * Adds a specific type of damage cards to the player's discard pile.
-     *
-     * @param player The player who will receive the additional damage cards.
-     * @param type The type of damage card to add.
-     * @author Aisha Farah, student ID: 235123
-     */
-    private void giveAdditionalDamageCards(Player player, DamageType type) {
-        for (int i = 0; i < 2; i++) {
-            player.getDiscardPile().add(new DamageCard(type));
-        }
-    }
 
-    /**
-     * Spreads virus damage to all players within a specified radius of the source player.
-     *
-     * @param source The player from whom the virus originates.
-     * @author Aisha Farah, student ID: 235123
-     */
-    private void spreadVirusDamage(Player source) {
-        for (Player player : board.getPlayers()) {
-            if (player != source && isWithinRadius(source.getSpace(), player.getSpace(), 6)) {
-                player.getDiscardPile().add(new DamageCard(DamageType.VIRUS));
-            }
-        }
-    }
-
-    /**
-     * Checks if a target space is within a specified radius of a source space.
-     * This method is used to determine the proximity of one space to another, typically for area-of-effect damage.
-     *
-     * @param source The source space from which to measure.
-     * @param target The target space to check against the source.
-     * @param radius The radius within which the target must fall to be considered within range.
-     * @return true if the target is within the specified radius of the source, false otherwise.
-     */
     private boolean isWithinRadius(Space source, Space target, int radius) {
         int dx = Math.abs(source.getX() - target.getX());
         int dy = Math.abs(source.getY() - target.getY());
@@ -537,6 +511,7 @@ public class GameController {
     public void notImplemented() {
         assert false;
     }
+
 
     class ImpossibleMoveException extends Exception {
 
