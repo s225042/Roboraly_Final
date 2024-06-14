@@ -172,16 +172,6 @@ public class Player extends Subject {
         }
     }
 
-    private Space findUnoccupiedAdjacentSpace(Space space) {
-        for (Heading heading : Heading.values()) {
-            Space adjacentSpace = board.getNeighbour(space, heading);
-            if (adjacentSpace != null && adjacentSpace.getPlayer() == null) {
-                return adjacentSpace;
-            }
-        }
-        return null;
-    }
-
     public void reboot() {
         // Take two SPAM damage cards and place them in your discard pile
         addSpamCard();
@@ -194,25 +184,43 @@ public class Player extends Subject {
         moveToRebootToken();
     }
 
-    private void moveToRebootToken() {
+    public void moveToRebootToken() {
         Space rebootSpace = board.getRebootSpace();
         if (rebootSpace != null) {
+            Heading rebootDirection = board.getRebootDirection();
+            if (rebootDirection == null) {
+                rebootDirection = Heading.NORTH; // Fallback to default direction
+            }
+
             if (rebootSpace.getPlayer() == null) {
                 setSpace(rebootSpace);
                 setHeading(Heading.NORTH); // Default facing direction
             } else {
-                Space adjacentSpace = findUnoccupiedAdjacentSpace(rebootSpace);
-                if (adjacentSpace != null) {
-                    setSpace(adjacentSpace);
-                    setHeading(Heading.NORTH); // Default facing direction
-                } else {
-                    // Handle case where no adjacent space is free
-                    throw new IllegalStateException("No unoccupied adjacent space near the reboot token.");
-                }
+                // Recursive handling for moving the occupying player
+                moveOccupyingPlayer(rebootSpace, rebootDirection);
+                setSpace(rebootSpace);
+                setHeading(Heading.NORTH); // Default facing direction
             }
         } else {
             // Handle case where reboot space is not set
             throw new IllegalStateException("Reboot space not set on the board.");
+        }
+    }
+
+    private void moveOccupyingPlayer(Space space, Heading heading) {
+        Player occupyingPlayer = space.getPlayer();
+        if (occupyingPlayer != null) {
+            Space targetSpace = board.getNeighbour(space, heading);
+            if (targetSpace != null && targetSpace.getPlayer() == null) {
+                occupyingPlayer.setSpace(targetSpace);
+            } else if (targetSpace != null) {
+                // If the target space is also occupied, recursively handle this scenario
+                moveOccupyingPlayer(targetSpace, heading);
+                occupyingPlayer.setSpace(targetSpace);
+            } else {
+                // Handle case where no target space is free or out of bounds
+                throw new IllegalStateException("No unoccupied adjacent space in the direction of the reboot token.");
+            }
         }
     }
 }

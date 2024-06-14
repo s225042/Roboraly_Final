@@ -65,7 +65,7 @@ public class Board extends Subject {
     private List<Player> playersOrder = new ArrayList<>();
 
     private Space rebootSpace; // Assuming there is a single reboot space
-    private Heading rebootDirection; // Direction indicated by the arrow on the reboot token
+    private Heading rebootDirection = Heading.NORTH; // Default direction indicated by the arrow on the reboot token
 
     public Board(int width, int height, int antennaX, int antennaY) {
         this.width = width;
@@ -78,6 +78,7 @@ public class Board extends Subject {
             }
         }
         this.antenna = new Antenna(this, antennaX, antennaY);
+        this.rebootDirection = Heading.NORTH; // Ensure rebootDirection is set to a default
         this.stepMode = false;
     }
 
@@ -290,6 +291,17 @@ public class Board extends Subject {
                 ", Counter;" + (counter-1);
     }
 
+    public Heading getRebootDirection() {
+        return rebootDirection;
+    }
+
+    public void setRebootDirection(Heading heading) {
+        if (heading == null) {
+            throw new IllegalArgumentException("Reboot direction cannot be null.");
+        }
+        this.rebootDirection = heading;
+    }
+
     public Space getRebootSpace() {
         return rebootSpace;
     }
@@ -297,4 +309,5 @@ public class Board extends Subject {
     public void setRebootSpace(int x, int y) {
         this.rebootSpace = getSpace(x, y);
     }
+
 }
