@@ -72,7 +72,10 @@ public class GameController {
 
     public void fastForward(@NotNull Player player) {
         moveForward(player);
+        if(player.getSpace() != board.getRebootSpace())
         moveForward(player);
+
+        else;
     }
 
     public void turnRight(@NotNull Player player) {
