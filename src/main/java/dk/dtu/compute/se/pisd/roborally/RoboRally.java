@@ -25,6 +25,7 @@ import dk.dtu.compute.se.pisd.roborally.controller.AppController;
 import dk.dtu.compute.se.pisd.roborally.controller.GameController;
 import dk.dtu.compute.se.pisd.roborally.view.BoardView;
 import dk.dtu.compute.se.pisd.roborally.view.RoboRallyMenuBar;
+import dk.dtu.compute.se.pisd.roborally.view.WhatingromeView;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.layout.BorderPane;
@@ -84,6 +85,17 @@ public class RoboRally extends Application {
             BoardView boardView = new BoardView(gameController);
             boardRoot.setCenter(boardView);
         }
+
+        stage.sizeToScene();
+    }
+
+    public void createVatingRomeView(AppController appController){
+        // if present, remove old content
+        boardRoot.getChildren().clear();
+
+        // create and add WhatingromeView
+        WhatingromeView whatingromeView = new WhatingromeView(appController);
+        boardRoot.setCenter(whatingromeView);
 
         stage.sizeToScene();
     }

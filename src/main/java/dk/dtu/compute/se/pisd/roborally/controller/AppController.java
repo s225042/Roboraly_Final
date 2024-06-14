@@ -94,24 +94,56 @@ public class AppController implements Observer {
                 }
             }
 
+
             // XXX the board should eventually be created programmatically or loaded from a file
             //     here we just create an empty board with the required number of players.
             Board board = loadBoard(boardsname);
             gameController = new GameController(board);
 
-            int no = result.get();
-            for (int i = 0; i < no; i++) {
-                Player player = new Player(board, PLAYER_COLORS.get(i), "Player " + (i + 1));
-                board.addPlayer(player);
-                player.setSpace(board.getSpace(i % board.width, i));
+            //make the first player
+            TextInputDialog dialog1 = new TextInputDialog();
+            dialog1.setHeaderText("Enter PlayerID");
+            dialog1.setContentText("PlayerID:");
+
+            Optional<String> playerID = dialog1.showAndWait();
+            if(playerID.isPresent()){
+                 new Player(board, PLAYER_COLORS.get(0), playerID.toString());
             }
 
-            // XXX: V2
-            // board.setCurrentPlayer(board.getPlayer(0));
-            gameController.startProgrammingPhase();
+            // shold macke the whating rum whith a random nr to join her
+            roboRally.createVatingRomeView(this);
 
-            roboRally.createBoardView(gameController);
         }
+    }
+
+    public void startGame(){
+        //get the plaayers and plays them on the bord
+        /*
+        int no = result.get();
+        for (int i = 0; i < no; i++) {
+            //player skal lave på en lidt anden måde
+            Player player = new Player(board, PLAYER_COLORS.get(i), "Player " + (i + 1));
+            board.addPlayer(player);
+            player.setSpace(board.getSpace(i % board.width, i));
+        }
+*/
+        // XXX: V2
+        // board.setCurrentPlayer(board.getPlayer(0));
+        gameController.startProgrammingPhase();
+
+        roboRally.createBoardView(gameController);
+    }
+
+    public String joinGame(){
+        TextInputDialog dialog = new TextInputDialog();
+        dialog.setHeaderText("Enter GameID");
+        dialog.setContentText("GameID:");
+
+        Optional<String> result = dialog.showAndWait();
+        if(result.isPresent()){
+            return result.toString();
+        }
+        return null;
     }
 
     /**
