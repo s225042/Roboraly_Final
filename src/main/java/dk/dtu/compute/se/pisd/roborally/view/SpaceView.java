@@ -140,7 +140,14 @@ public class SpaceView extends StackPane implements ViewObserver {
         String imagePath = null;
         ImageView imageView = new ImageView();
 
-        if (space.getFieldAction() instanceof ConveyorBelt) {
+        Board board = space.getBoard();
+        Antenna antenna = board.getAntenna();
+
+        if (board.getRebootSpace() == space) {
+            imagePath = getClass().getResource("/images/respawn.png").toExternalForm();
+        } else if (antenna != null && antenna.x == space.x && antenna.y == space.y) {
+            imagePath = getClass().getResource("/images/antenna.png").toExternalForm();
+        } else if (space.getFieldAction() instanceof ConveyorBelt) {
             ConveyorBelt belt = (ConveyorBelt) space.getFieldAction();
             if (belt.getType() == ConveyorBelt.BeltType.GREEN) {
                 imagePath = getClass().getResource("/images/green.png").toExternalForm();
