@@ -64,11 +64,30 @@ public class HttpController {
 
     public boolean addPlayer(Player p) throws Exception {
         Gson gson = new Gson();
-        String requestBody = gson.toJson(p);
+        String requestBody = gson.toJson(p.getName() + p.getCardField(0) + p.getCardField(1) + p.getCardField(2) + p.getCardField(3) + p.getCardField(4));
 
         HttpRequest request = HttpRequest.newBuilder()
                 .POST(HttpRequest.BodyPublishers.ofString(requestBody))
                 .uri(URI.create("http://localhost:8089/players"))
+                .header("Accept", "application/json")
+                .build();
+        try {
+            CompletableFuture<HttpResponse<String>> response =
+                    httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString());
+            String result = response.thenApply((r)->r.body()).get(5, TimeUnit.SECONDS);
+            return true;
+        } catch (Exception e1) {
+            return false;
+        }
+    }
+
+    public boolean updatePlayer(Player p) throws Exception {
+        Gson gson = new Gson();
+        String requestBody = gson.toJson(p.getName() + p.getCardField(0) + p.getCardField(1) + p.getCardField(2) + p.getCardField(3) + p.getCardField(4));
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .PUT(HttpRequest.BodyPublishers.ofString(requestBody))
+                .uri(URI.create("http://localhost:8089/players/" + p.getName()))
                 .header("Accept", "application/json")
                 .build();
         try {
