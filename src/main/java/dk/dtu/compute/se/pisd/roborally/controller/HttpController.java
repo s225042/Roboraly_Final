@@ -42,6 +42,18 @@ public class HttpController {
         return result;
     }
 
+    public static String getByGameID(int gameID) throws Exception {
+        HttpRequest request = HttpRequest.newBuilder()
+                .GET()
+                .uri(URI.create("http://localhost:8089/gameInfos/" + gameID))
+                .header("Accept", "application/json")
+                .build();
+        CompletableFuture<HttpResponse<String>> response =
+                httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString());
+        String result = response.thenApply((r)->r.body()).get(5, TimeUnit.SECONDS);
+        return result;
+    }
+
     public boolean addGame(String board, int gameID) throws Exception {
         //String requestBody = "{\"gameID\":" + gameID + "\"board\":" + board + "}";
         Gson gson = new Gson();
