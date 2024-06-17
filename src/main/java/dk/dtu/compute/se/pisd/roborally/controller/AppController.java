@@ -68,6 +68,8 @@ public class AppController implements Observer {
 
     final private RoboRally roboRally;
 
+    final private HttpController httpController = new HttpController();
+
     private GameController gameController;
 
     public AppController(@NotNull RoboRally roboRally) {
@@ -99,7 +101,7 @@ public class AppController implements Observer {
             // XXX the board should eventually be created programmatically or loaded from a file
             //     here we just create an empty board with the required number of players.
             Board board = loadBoard(boardsname);
-            gameController = new GameController(board);
+            gameController = new GameController(board, httpController);
 
             //make the first player
             TextInputDialog dialog1 = new TextInputDialog();
@@ -112,7 +114,7 @@ public class AppController implements Observer {
             }
 
             WaitingRoom waitingRoom = new WaitingRoom(gameController.board.getGameId());
-            WaitingController waitingController = new WaitingController(waitingRoom);
+            WaitingController waitingController = new WaitingController(waitingRoom, httpController);
 
             //boolean to come back
 
@@ -195,7 +197,7 @@ public class AppController implements Observer {
             String boardsname = boardname.get();
 
             Board board = loadBoard("games/" + boardsname);
-            gameController = new GameController(board);
+            gameController = new GameController(board, httpController);
 
             roboRally.createBoardView(gameController);
 

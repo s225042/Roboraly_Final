@@ -27,8 +27,7 @@ public class WhatingromeView extends VBox implements ViewObserver {
         // Create the Start button
         Button startButton = new Button("Start");
 
-        //Skal bruge en bolyen
-        //startButton.setOnAction(e -> appController.startGame());
+        startButton.setOnAction(e -> waitingController.starttingGame());
 
         // Create a container for the top part
         HBox topContainer = new HBox();
@@ -50,7 +49,7 @@ public class WhatingromeView extends VBox implements ViewObserver {
         topContainer.getChildren().addAll(spacer, startButtonContainer);
 
         // Set the top container to the top of the BorderPane
-        //this.setTop(topContainer);
+        this.setTop(topContainer);
     }
 
     /**

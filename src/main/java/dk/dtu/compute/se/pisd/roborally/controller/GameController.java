@@ -38,10 +38,14 @@ import java.util.*;
 public class GameController {
 
     final public Board board;
+
+    final private HttpController httpController;
+
     public boolean won = false;
 
-    public GameController(Board board) {
+    public GameController(Board board, HttpController httpController) {
         this.board = board;
+        this.httpController = httpController;
     }
 
 
