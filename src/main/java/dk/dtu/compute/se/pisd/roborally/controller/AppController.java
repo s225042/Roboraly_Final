@@ -103,6 +103,21 @@ public class AppController implements Observer {
             Board board = loadBoard(boardsname);
             gameController = new GameController(board, httpController);
 
+            //setGameID
+            TextInputDialog gameID = new TextInputDialog();
+            gameID.setHeaderText("Enter GameID");
+            gameID.setContentText("GameID:");
+
+            Optional<String> gameIDs = gameID.showAndWait();
+            if(gameIDs.isPresent()) {
+                try {
+                    board.setGameId(Integer.valueOf(gameIDs.toString()));
+                } catch (Exception e1) {
+                    System.out.println(e1);
+                }
+            }
+
+
             //make the first player
             TextInputDialog dialog1 = new TextInputDialog();
             dialog1.setHeaderText("Enter PlayerID");
