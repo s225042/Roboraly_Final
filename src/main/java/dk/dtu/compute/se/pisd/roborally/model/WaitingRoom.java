@@ -4,18 +4,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class WaitingRoom {
-    int gameID;
+    final private int gameID;
 
-    List<String> playerNames = new ArrayList<>();
+    private List<String> playerNames = new ArrayList<>();
     public WaitingRoom(int gameID){
         this.gameID = gameID;
     }
 
-    List<String> getPlayerNames(){
+    public List<String> getPlayerNames(){
         return playerNames;
     }
 
-    void addPlayerID(String playerID){
+    public void addPlayerID(String playerID){
         playerNames.add(playerID);
     }
 

@@ -1,7 +1,12 @@
 package dk.dtu.compute.se.pisd.roborally.controller;
 
+import com.google.common.reflect.TypeToken;
+import com.google.gson.Gson;
 import dk.dtu.compute.se.pisd.roborally.model.Board;
 import dk.dtu.compute.se.pisd.roborally.model.WaitingRoom;
+
+import java.lang.reflect.Type;
+import java.util.List;
 
 public class WaitingController {
     HttpController httpController;
@@ -15,9 +20,17 @@ public class WaitingController {
         this.httpController = httpController;
     }
 
-    public boolean watingRomePlayers() throws Exception{
-        String players = httpController.getPlayers();
-        return true;
+    public void watingRomePlayers() throws Exception{
+        String playersJson = HttpController.getPlayers();
+
+        Gson gson = new Gson();
+        Type listType = new TypeToken<List<String>>() {}.getType();
+        List<String> players = gson.fromJson(playersJson, listType);
+
+        // Add player names to the waiting room
+        for (String playerName : players) {
+            waitingRoom.addPlayerID(playerName);
+        }
 
     }
 

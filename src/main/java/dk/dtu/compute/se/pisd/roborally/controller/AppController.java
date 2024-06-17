@@ -122,7 +122,6 @@ public class AppController implements Observer {
             WaitingController waitingController = new WaitingController(waitingRoom, httpController);
 
             while (!waitingController.starttingGame()) {
-                // shold macke the whating rum whith a random nr to join her
                 roboRally.createVatingRomeView(waitingController);
             }
 
