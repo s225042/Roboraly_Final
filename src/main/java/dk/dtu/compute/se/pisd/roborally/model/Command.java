@@ -45,7 +45,9 @@ public enum Command {
     OPTION_LEFT_RIGHT("Left OR Right", LEFT, RIGHT),
     FAST_FAST_FORWARD("fast fast fwd"),
 
-    SPAM("SPAM");
+    SPAM("SPAM"),
+
+    TROJAN_HORSE("Trojan Horse");
 
     final public String displayName;
 

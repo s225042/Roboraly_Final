@@ -7,7 +7,6 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.image.Image;
 
-import java.awt.*;
 import java.util.*;
 import java.util.List;
 
@@ -34,7 +33,7 @@ public class GameController {
         }
     }
 
-    public void determinePlayerOrder(){
+    public void determinePlayerOrder() {
         List<Player> players = new ArrayList<>(board.getPlayers());
         players.sort(Comparator.comparingInt(player -> board.getAntenna().calculateDistance(player)));
         board.setPlayerOrder(players);
@@ -43,19 +42,36 @@ public class GameController {
     private void initializeDamageDeck() {
         for (int i = 0; i < 20; i++) {
             damageDeck.add(new CommandCard(Command.SPAM));
+            // Add a few Trojan Horse cards
+            if (i < 5) {
+                damageDeck.add(new CommandCard(Command.TROJAN_HORSE));
+            }
         }
         Collections.shuffle(damageDeck);
     }
 
-    public CommandCard drawDamageCard() {
+    public CommandCard drawDamageCard(Player player) {
         if (damageDeck.isEmpty()) {
             initializeDamageDeck();
         }
-        return damageDeck.remove(damageDeck.size() - 1);
+        CommandCard card = damageDeck.remove(damageDeck.size() - 1);
+        if (card.command == Command.TROJAN_HORSE) {
+            applyTrojanHorseDamage(player);
+            // Recursively draw a new card since the Trojan Horse card itself should not be used.
+            return drawDamageCard(player);
+        }
+        return card;
+    }
+
+    private void applyTrojanHorseDamage(Player player) {
+        System.out.println("Applying Trojan Horse damage.");
+        player.takeDamage(new CommandCard(Command.SPAM));
+        player.takeDamage(new CommandCard(Command.SPAM));
+        showTrojanHorseMessage(player);
     }
 
     public void applySpamDamage(Player player) {
-        CommandCard spamCard = drawDamageCard();
+        CommandCard spamCard = drawDamageCard(player);
         player.takeDamage(spamCard);
         showDamageMessage(player);
     }
@@ -254,23 +270,27 @@ public class GameController {
     }
 
     private void spaceActions() {
-        for (Space space: board.getSpaceBLueConveyor()){
+        for (Space space: board.getSpaceBLueConveyor()) {
             ConveyorBelt conveyorBelt = (ConveyorBelt) space.getFieldAction();
             conveyorBelt.doAction(this, space);
         }
-        for (Space space: board.getSpacesGreanConveyor()){
+        for (Space space: board.getSpacesGreanConveyor()) {
             ConveyorBelt conveyorBelt = (ConveyorBelt) space.getFieldAction();
             conveyorBelt.doAction(this, space);
         }
-        for (Space space: board.getSpacesGears()){
+        for (Space space: board.getSpacesGears()) {
             Gear gear = (Gear) space.getFieldAction();
             gear.doAction(this, space);
         }
-        for (Space space: board.getLaisers()){
+        for (Space space: board.getLaisers()) {
             Laiser laiser = (Laiser) space.getFieldAction();
             laiser.doAction(this, space);
+            Player player = space.getPlayer();
+            if (player != null) {
+                applySpamDamage(player);
+            }
         }
-        for (Space space: board.getChekpoints()){
+        for (Space space: board.getChekpoints()) {
             Checkpoint checkpoint = (Checkpoint) space.getFieldAction();
             checkpoint.doAction(this, space);
         }
@@ -348,6 +368,9 @@ public class GameController {
                     break;
                 case SPAM:
                     this.executeSpamDamageCard(player, new CommandCard(Command.SPAM));
+                    break;
+                case TROJAN_HORSE:
+                    this.applyTrojanHorseDamage(player);
                     break;
                 default:
                     break;
@@ -457,5 +480,12 @@ public class GameController {
         alert.setContentText(player.getName() + " has drawn a SPAM card.");
         alert.showAndWait();
     }
-}
 
+    private void showTrojanHorseMessage(Player player) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Damage Taken");
+        alert.setHeaderText("Trojan Horse Activated!");
+        alert.setContentText(player.getName() + " has drawn two SPAM cards.");
+        alert.showAndWait();
+    }
+}
