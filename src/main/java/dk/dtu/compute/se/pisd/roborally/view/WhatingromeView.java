@@ -1,15 +1,15 @@
 package dk.dtu.compute.se.pisd.roborally.view;
 
 import dk.dtu.compute.se.pisd.designpatterns.observer.Subject;
-import dk.dtu.compute.se.pisd.roborally.controller.AppController;
 import dk.dtu.compute.se.pisd.roborally.controller.WaitingController;
 import dk.dtu.compute.se.pisd.roborally.model.WaitingRoom;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+
+import java.util.List;
 
 /**
  * WhatingromeView is a placeholder for the actual view content.
@@ -21,8 +21,8 @@ public class WhatingromeView extends VBox implements ViewObserver {
     public WhatingromeView(WaitingController waitingController) {
         waitingRoom = waitingController.waitingRoom;
 
-        // Create the Player label
-        Label playerLabel = new Label("Player");
+        // list of players
+        List<String> playerLabels = waitingRoom.getPlayerNames();
 
         // Create the Start button
         Button startButton = new Button("Start");
@@ -34,7 +34,10 @@ public class WhatingromeView extends VBox implements ViewObserver {
         topContainer.setAlignment(Pos.TOP_LEFT);
 
         // Add the Player label to the top left
-        topContainer.getChildren().add(playerLabel);
+        for (String playerName: playerLabels){
+            Label playerLabel = new Label(playerName);
+            topContainer.getChildren().add(playerLabel);
+        }
 
         // Add an empty HBox for spacing
         HBox spacer = new HBox();
@@ -49,7 +52,7 @@ public class WhatingromeView extends VBox implements ViewObserver {
         topContainer.getChildren().addAll(spacer, startButtonContainer);
 
         // Set the top container to the top of the BorderPane
-        this.setTop(topContainer);
+        this.getChildren().add(topContainer);
     }
 
     /**
