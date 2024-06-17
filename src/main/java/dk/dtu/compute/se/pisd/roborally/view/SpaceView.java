@@ -50,8 +50,8 @@ public class SpaceView extends StackPane implements ViewObserver {
     public final Space space;
 
     /**
-     * @author s225042 Rebecca Moss
      * @param space
+     * @author s225042 Rebecca Moss
      */
 
     public SpaceView(@NotNull Space space) {
@@ -84,8 +84,8 @@ public class SpaceView extends StackPane implements ViewObserver {
         String imagePath = null;
         ImageView imageView = new ImageView();
 
-        if (player != null){
-            switch (player.getColor()){
+        if (player != null) {
+            switch (player.getColor()) {
                 case "red":
                     imagePath = getClass().getResource("/images/r6.png").toExternalForm();
                     break;
@@ -101,7 +101,7 @@ public class SpaceView extends StackPane implements ViewObserver {
                 case "grey":
                     imagePath = getClass().getResource("/images/r1.png").toExternalForm();
                     break;
-                case  "magenta":
+                case "magenta":
                     imagePath = getClass().getResource("/images/r3.png").toExternalForm();
                     break;
             }
@@ -109,7 +109,7 @@ public class SpaceView extends StackPane implements ViewObserver {
             imageView.setImage(image);
             imageView.setFitWidth(SPACE_WIDTH);
             imageView.setFitHeight(SPACE_HEIGHT);
-            switch (player.getHeading()){
+            switch (player.getHeading()) {
                 case NORTH:
                     imageView.setRotate(180);
                     break;
@@ -136,11 +136,34 @@ public class SpaceView extends StackPane implements ViewObserver {
      * The belts are represented by arrows that point in the direction of the belt.
      */
 
-    private void updateFieldactions(){
+    private void updateFieldactions() {
         String imagePath = null;
         ImageView imageView = new ImageView();
 
-        if (space.getFieldAction() instanceof ConveyorBelt) {
+        Board board = space.getBoard();
+        Antenna antenna = board.getAntenna();
+
+        if (board.getRebootSpace() == space) {
+            imagePath = getClass().getResource("/images/respawn.png").toExternalForm();
+            imageView.setImage(new Image(imagePath));
+            Heading rebootDirection = board.getRebootDirection();
+            switch (rebootDirection) {
+                case NORTH:
+                    imageView.setRotate(0);
+                    break;
+                case EAST:
+                    imageView.setRotate(90);
+                    break;
+                case SOUTH:
+                    imageView.setRotate(180);
+                    break;
+                case WEST:
+                    imageView.setRotate(270);
+                    break;
+            }
+        } else if (antenna != null && antenna.x == space.x && antenna.y == space.y) {
+            imagePath = getClass().getResource("/images/antenna.png").toExternalForm();
+        } else if (space.getFieldAction() instanceof ConveyorBelt) {
             ConveyorBelt belt = (ConveyorBelt) space.getFieldAction();
             if (belt.getType() == ConveyorBelt.BeltType.GREEN) {
                 imagePath = getClass().getResource("/images/green.png").toExternalForm();
@@ -293,21 +316,6 @@ public class SpaceView extends StackPane implements ViewObserver {
         }
     }
 
-    public void updateAntenna(){
-        Space space = this.space;
-        if(space != null && space.getAntenna() != null){
-            Antenna antenna = space.getAntenna();
-            String imagePath = getClass().getResource("/images/antenna.png").toExternalForm();
-            Image antennaImage = new Image(imagePath);
-            ImageView antennaImageView = new ImageView(antennaImage);
-
-            antennaImageView.setFitWidth(SPACE_WIDTH);
-            antennaImageView.setFitHeight(SPACE_HEIGHT);
-
-            this.getChildren().add(antennaImageView);
-        }
-    }
-
     @Override
     public void updateView(Subject subject) {
         if (subject == this.space) {
@@ -316,8 +324,6 @@ public class SpaceView extends StackPane implements ViewObserver {
             updateLaser();
             updateWalls();
             updatePlayer();
-            updateAntenna();
-
         }
     }
 }
