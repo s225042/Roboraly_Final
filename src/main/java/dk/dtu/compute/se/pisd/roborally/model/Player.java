@@ -202,6 +202,15 @@ public class Player extends Subject {
         notifyChange(); // Notify that the player's cards have changed
     }
 
+    // In Player class
+    public CommandCard drawRandomProgrammingCard() {
+        if (programmingDeck.isEmpty()) {
+            initializeProgrammingDeck();
+        }
+        Collections.shuffle(programmingDeck);
+        return programmingDeck.isEmpty() ? null : programmingDeck.remove(0);
+    }
+
 
     public void addEnergyCube() {
         this.energyCubes++;

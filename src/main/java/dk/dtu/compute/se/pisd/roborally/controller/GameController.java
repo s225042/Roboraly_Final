@@ -1,24 +1,3 @@
-/*
- *  This file is part of the initial project provided for the
- *  course "Project in Software Development (02362)" held at
- *  DTU Compute at the Technical University of Denmark.
- *
- *  Copyright (C) 2019, 2020: Ekkart Kindler, ekki@dtu.dk
- *
- *  This software is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; version 2 of the License.
- *
- *  This project is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with this project; if not, write to the Free Software
- *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
- *
- */
 package dk.dtu.compute.se.pisd.roborally.controller;
 
 import dk.dtu.compute.se.pisd.roborally.model.*;
@@ -32,12 +11,6 @@ import java.awt.*;
 import java.util.*;
 import java.util.List;
 
-/**
- * ...
- *
- * @author Ekkart Kindler, ekki@dtu.dk
- *
- */
 public class GameController {
 
     private Image energyCube;
@@ -45,37 +18,27 @@ public class GameController {
     public boolean won = false;
     private List<CommandCard> damageDeck = new ArrayList<>();
 
-
-
-
-
     public GameController(Board board) {
         this.board = board;
         loadEnergyCubeImage();
         initializeDamageDeck();
-
-
-
     }
 
     private void loadEnergyCubeImage() {
         try {
-            // Load the image from the resources directory
             energyCube = new Image(getClass().getResource("/images/energyCube.png").toExternalForm());
             System.out.println("Image loaded successfully: " + energyCube.getUrl());
         } catch (Exception e) {
             System.err.println("Error loading image: " + e.getMessage());
             e.printStackTrace();
-            // Handle error
         }
     }
 
-
     public void determinePlayerOrder(){
-            List<Player> players = new ArrayList<>(board.getPlayers());
-            players.sort(Comparator.comparingInt(player -> board.getAntenna().calculateDistance(player)));
-            board.setPlayerOrder(players);
-        }
+        List<Player> players = new ArrayList<>(board.getPlayers());
+        players.sort(Comparator.comparingInt(player -> board.getAntenna().calculateDistance(player)));
+        board.setPlayerOrder(players);
+    }
 
     private void initializeDamageDeck() {
         for (int i = 0; i < 20; i++) {
@@ -94,38 +57,33 @@ public class GameController {
     public void applySpamDamage(Player player) {
         CommandCard spamCard = drawDamageCard();
         player.takeDamage(spamCard);
-        showDamageMessage(player); // Show damage (spam card) message
-
+        showDamageMessage(player);
     }
-
 
     public void executeSpamDamageCard(Player player, CommandCard damageCard) {
         if (damageCard.command == Command.SPAM) {
             System.out.println("Executing SPAM card action");
-            CommandCard topCard = player.drawProgrammingCard();
-            if (topCard != null) {
-                executeCommand(player, topCard.command);
-                player.getDiscardPile().add(damageCard);
+            CommandCard randomCard;
+            do {
+                randomCard = player.drawRandomProgrammingCard();
+            } while (randomCard != null && randomCard.command == Command.SPAM);
+
+            if (randomCard != null) {
+                executeCommand(player, randomCard.command);
             }
+            player.getDiscardPile().add(damageCard);
         }
     }
 
-
-
-
     public void moveForward(@NotNull Player player) {
-        if (!won && player.board == board) { // Check if game is won before moving
+        if (!won && player.board == board) {
             Space space = player.getSpace();
             Heading heading = player.getHeading();
-
             Space target = board.getNeighbour(space, heading);
             if (target != null) {
                 try {
                     moveToSpace(player, target, heading);
                 } catch (ImpossibleMoveException e) {
-                    // we don't do anything here for now; we just catch the
-                    // exception so that we do not pass it on to the caller
-                    // (which would be very bad style).
                 }
             }
         }
@@ -172,20 +130,13 @@ public class GameController {
     }
 
     void moveToSpace(@NotNull Player player, @NotNull Space space, @NotNull Heading heading) throws ImpossibleMoveException {
-        assert board.getNeighbour(player.getSpace(), heading) == space; // make sure the move to here is possible in principle
+        assert board.getNeighbour(player.getSpace(), heading) == space;
         Player other = space.getPlayer();
         if (other != null) {
             Space target = board.getNeighbour(space, heading);
             if (target != null) {
-                // XXX Note that there might be additional problems with
-                //     infinite recursion here (in some special cases)!
-                //     We will come back to that!
                 moveToSpace(other, target, heading);
-
-                // Note that we do NOT embed the above statement in a try-catch block, since
-                // the thrown exception is supposed to be passed on to the caller
-
-                assert target.getPlayer() == null : target; // make sure target is free now
+                assert target.getPlayer() == null : target;
             } else {
                 throw new ImpossibleMoveException(player, space, heading);
             }
@@ -247,7 +198,6 @@ public class GameController {
         board.setStep(0);
     }
 
-
     public void executePrograms() {
         board.setStepMode(false);
         continuePrograms();
@@ -264,7 +214,6 @@ public class GameController {
         } while (board.getPhase() == Phase.ACTIVATION && !board.isStepMode());
         spaceActions();
     }
-
 
     private boolean executeNextStep() {
         if (won) {
@@ -284,36 +233,27 @@ public class GameController {
                 int nextPlayerIndex = (board.getPlayerOrder().indexOf(currentPlayer) + 1) % board.getPlayersNumber();
                 if (nextPlayerIndex != 0) {
                     board.setCurrentPlayer(board.getPlayerOrder().get(nextPlayerIndex));
-                    return false; // Not all players have finished this step
+                    return false;
                 } else {
                     step++;
                     if (step < Player.NO_REGISTERS) {
                         makeProgramFieldsVisible(step);
                         board.setStep(step);
-                        board.setCurrentPlayer(board.getPlayerOrder().get(0)); // Set the first player for the next step
+                        board.setCurrentPlayer(board.getPlayerOrder().get(0));
                     } else {
                         startProgrammingPhase();
                     }
-                    return true; // All players have finished the current step
+                    return true;
                 }
             } else {
-                // This should not happen
                 return false;
             }
         } else {
-            // This should not happen
             return false;
         }
     }
 
-    /**
-     * s225042, Rebecca Moss
-     * This is the actions that hapens after eatch turn is taken for the spaces
-     */
-
-
     private void spaceActions() {
-
         for (Space space: board.getSpaceBLueConveyor()){
             ConveyorBelt conveyorBelt = (ConveyorBelt) space.getFieldAction();
             conveyorBelt.doAction(this, space);
@@ -334,25 +274,6 @@ public class GameController {
             Checkpoint checkpoint = (Checkpoint) space.getFieldAction();
             checkpoint.doAction(this, space);
         }
-
-       /* for (Player player : board.getPlayers()) {
-            if (won) {
-                break;
-            }
-
-            Space space = player.getSpace();
-            FieldAction fieldAction = space.getFieldAction();
-            if (fieldAction instanceof ConveyorBelt) {
-                ConveyorBelt conveyorBelt = (ConveyorBelt) fieldAction;
-                conveyorBelt.doAction(this, space);
-            } else if (fieldAction instanceof Checkpoint) {
-                Checkpoint checkpoint = (Checkpoint) fieldAction;
-                checkpoint.doAction(this, space);
-            } else if (fieldAction instanceof Gear) {
-                Gear gear = (Gear) fieldAction;
-                gear.doAction(this, space);
-            }
-        }*/
     }
 
     private void uTurn(@NotNull Player player) {
@@ -364,12 +285,10 @@ public class GameController {
             Space currentSpace = player.getSpace();
             Heading oppositeHeading = player.getHeading().prev().prev();
             Space targetSpace = board.getNeighbour(currentSpace, oppositeHeading);
-
             if (targetSpace != null && !targetSpace.getWalls().contains(oppositeHeading)) {
                 try {
                     moveToSpace(player, targetSpace, oppositeHeading);
                 } catch (ImpossibleMoveException e) {
-                    // Handle exception if the move is not possible
                 }
             }
         }
@@ -428,14 +347,13 @@ public class GameController {
                     this.fastFastForward(player);
                     break;
                 case SPAM:
-                    this.applySpamDamage(player);
+                    this.executeSpamDamageCard(player, new CommandCard(Command.SPAM));
                     break;
                 default:
-                    // DO NOTHING (for now)
+                    break;
             }
         }
     }
-
 
     private void moveForwardInDirection(Player player, Heading heading) {
         if (!won && player.board == board) {
@@ -445,7 +363,6 @@ public class GameController {
                 try {
                     moveToSpace(player, target, heading);
                 } catch (ImpossibleMoveException e) {
-                    // Handle impossible move exception
                 }
             }
         }
@@ -483,7 +400,7 @@ public class GameController {
         for (int i = 0; i < board.getPlayersNumber(); i++) {
             Player player = board.getPlayer(i);
             if (player != null) {
-                player.initializeProgrammingDeck(); // Ensure deck is initialized
+                player.initializeProgrammingDeck();
                 for (int j = 0; j < Player.NO_REGISTERS; j++) {
                     CommandCardField field = player.getProgramField(j);
                     field.setCard(null);
@@ -494,14 +411,10 @@ public class GameController {
         }
     }
 
-
-
-
     private void rebootPlayer(Player player) {
         player.setSpace(board.getPlayerStartingPoint());
         System.out.println("Player " + player.getName() + " is rebooted to starting position.");
     }
-
 
     private boolean isWithinRadius(Space source, Space target, int radius) {
         int dx = Math.abs(source.getX() - target.getX());
@@ -509,11 +422,9 @@ public class GameController {
         return Math.sqrt(dx * dx + dy * dy) <= radius;
     }
 
-
     public void notImplemented() {
         assert false;
     }
-
 
     class ImpossibleMoveException extends Exception {
 
@@ -539,7 +450,6 @@ public class GameController {
         alert.showAndWait();
     }
 
-
     private void showDamageMessage(Player player) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle("Damage Taken");
@@ -548,3 +458,4 @@ public class GameController {
         alert.showAndWait();
     }
 }
+
