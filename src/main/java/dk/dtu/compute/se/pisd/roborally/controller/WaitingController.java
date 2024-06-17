@@ -6,6 +6,8 @@ import dk.dtu.compute.se.pisd.roborally.model.WaitingRoom;
 public class WaitingController {
     HttpController httpController;
 
+    private boolean startingGame = false;
+
     final public WaitingRoom waitingRoom;
 
     public WaitingController(WaitingRoom waitingRoom, HttpController httpController){
@@ -20,7 +22,11 @@ public class WaitingController {
     }
 
     public boolean starttingGame(){
-        return true;
+        return startingGame;
+    }
+
+    public  void  setStartingGame(boolean startGame){
+        startingGame = startGame;
     }
 
 

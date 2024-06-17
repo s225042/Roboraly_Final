@@ -76,7 +76,7 @@ public class AppController implements Observer {
         this.roboRally = roboRally;
     }
 
-    public void newGame() {
+    public void newGame(){
         ChoiceDialog<String> boards = new ChoiceDialog<>(Game_Bord.get(0),Game_Bord);
         boards.setTitle("Table");
         boards.setHeaderText("select game table");
@@ -110,16 +110,23 @@ public class AppController implements Observer {
 
             Optional<String> playerID = dialog1.showAndWait();
             if(playerID.isPresent()){
-                 new Player(board, PLAYER_COLORS.get(0), playerID.toString());
+                try {
+                    httpController.addPlayer(new Player(board, null, playerID.toString()));
+                }
+                catch (Exception e1){
+                    System.out.println(e1);
+                }
             }
 
             WaitingRoom waitingRoom = new WaitingRoom(gameController.board.getGameId());
             WaitingController waitingController = new WaitingController(waitingRoom, httpController);
 
-            //boolean to come back
+            while (!waitingController.starttingGame()) {
+                // shold macke the whating rum whith a random nr to join her
+                roboRally.createVatingRomeView(waitingController);
+            }
 
-            // shold macke the whating rum whith a random nr to join her
-            roboRally.createVatingRomeView(waitingController);
+            this.startGame();
 
         }
     }
@@ -142,16 +149,53 @@ public class AppController implements Observer {
         roboRally.createBoardView(gameController);
     }
 
-    public String joinGame(){
+    public void joinGame(){
+        String bordName;
         TextInputDialog dialog = new TextInputDialog();
         dialog.setHeaderText("Enter GameID");
         dialog.setContentText("GameID:");
 
-        Optional<String> result = dialog.showAndWait();
-        if(result.isPresent()){
-            return result.toString();
+        while (true) {
+            try {
+                Optional<String> result = dialog.showAndWait();
+                if (result.isPresent()) {
+                    Integer iResult = Integer.valueOf(result.toString());
+                    bordName = HttpController.getByGameID(iResult);
+
+                    break;
+                }
+            } catch (Exception e1) {
+
+            }
         }
-        return null;
+        //Shold macke the gamecontroler from the https nolegs
+        Board board = loadBoard(bordName);
+        gameController = new GameController(board, httpController);
+
+        //make the first player
+        TextInputDialog dialog1 = new TextInputDialog();
+        dialog1.setHeaderText("Enter PlayerID");
+        dialog1.setContentText("PlayerID:");
+
+        Optional<String> playerID = dialog1.showAndWait();
+        if(playerID.isPresent()){
+            try {
+                httpController.addPlayer(new Player(board, null, playerID.toString()));
+            }
+            catch (Exception e1){
+                System.out.println(e1);
+            }
+        }
+
+        WaitingRoom waitingRoom = new WaitingRoom(gameController.board.getGameId());
+        WaitingController waitingController = new WaitingController(waitingRoom, httpController);
+
+        /*
+        while (!waitingController.starttingGame()) {
+            roboRally.createVatingRomeView(waitingController);
+        }
+        //shold getsomting from http that wil start the game*/
+
     }
 
     /**
