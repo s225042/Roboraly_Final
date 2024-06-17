@@ -288,6 +288,9 @@ public class GameController {
             } else if (fieldAction instanceof Gear) {
                 Gear gear = (Gear) fieldAction;
                 gear.doAction(this, space);
+            } else if (fieldAction instanceof Pit) {
+                Pit pit = (Pit) fieldAction;
+                pit.doAction(this, space);
             }
         }
     }

@@ -107,6 +107,18 @@
       "x": 1,
       "y": 6
     },
+
+    {
+      "walls": [],
+      "actions": [
+        {
+          "CLASSNAME": "dk.dtu.compute.se.pisd.roborally.model.Pit",
+            "INSTANCE": {}
+        }
+      ],
+      "x": 4,
+      "y": 5
+    },
     {
       "walls": [
         "NORTH"

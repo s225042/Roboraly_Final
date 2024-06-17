@@ -142,6 +142,9 @@ public class Space extends Subject {
             if (action instanceof Laiser && fieldAction == null){
                 fieldAction = (Laiser) action;
             }
+            if (action instanceof  Pit && fieldAction == null){
+                fieldAction = (Pit) action;
+            }
         }
         return fieldAction;
     }

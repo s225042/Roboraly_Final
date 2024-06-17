@@ -220,7 +220,13 @@ public class SpaceView extends StackPane implements ViewObserver {
             } else {
                 imagePath = getClass().getResource("/images/gearRight.png").toExternalForm();
             }
-        } else {
+        } else if (space.getFieldAction() instanceof Pit) {
+            Pit pit = (Pit) space.getFieldAction();
+            imagePath = getClass().getResource("/images/hole.png").toExternalForm();
+
+        }
+        
+        else {
             imagePath = getClass().getResource("/images/empty.png").toExternalForm();
         }
 
