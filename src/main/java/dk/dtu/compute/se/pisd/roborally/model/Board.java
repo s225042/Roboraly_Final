@@ -92,9 +92,10 @@ public class Board extends Subject {
     }
 
 
-public Antenna getAntenna() {
+    public Antenna getAntenna() {
         return antenna;
     }
+
     public Integer getGameId() {
         return gameId;
     }

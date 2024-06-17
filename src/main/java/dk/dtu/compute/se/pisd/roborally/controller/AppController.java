@@ -30,6 +30,7 @@ import dk.dtu.compute.se.pisd.roborally.fileaccess.LoadBoard;
 import dk.dtu.compute.se.pisd.roborally.model.Board;
 import dk.dtu.compute.se.pisd.roborally.model.Player;
 
+import dk.dtu.compute.se.pisd.roborally.model.WaitingRoom;
 import javafx.application.Platform;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
@@ -110,8 +111,13 @@ public class AppController implements Observer {
                  new Player(board, PLAYER_COLORS.get(0), playerID.toString());
             }
 
+            WaitingRoom waitingRoom = new WaitingRoom(gameController.board.getGameId());
+            WaitingController waitingController = new WaitingController(waitingRoom);
+
+            //boolean to come back
+
             // shold macke the whating rum whith a random nr to join her
-            roboRally.createVatingRomeView(this);
+            roboRally.createVatingRomeView(waitingController);
 
         }
     }

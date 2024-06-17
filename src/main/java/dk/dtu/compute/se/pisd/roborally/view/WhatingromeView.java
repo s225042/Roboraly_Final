@@ -1,24 +1,34 @@
 package dk.dtu.compute.se.pisd.roborally.view;
 
+import dk.dtu.compute.se.pisd.designpatterns.observer.Subject;
 import dk.dtu.compute.se.pisd.roborally.controller.AppController;
+import dk.dtu.compute.se.pisd.roborally.controller.WaitingController;
+import dk.dtu.compute.se.pisd.roborally.model.WaitingRoom;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 
 /**
  * WhatingromeView is a placeholder for the actual view content.
  */
-public class WhatingromeView extends BorderPane {
+public class WhatingromeView extends VBox implements ViewObserver {
 
-    public WhatingromeView(AppController appController) {
+    WaitingRoom waitingRoom;
+
+    public WhatingromeView(WaitingController waitingController) {
+        waitingRoom = waitingController.waitingRoom;
+
         // Create the Player label
         Label playerLabel = new Label("Player");
 
         // Create the Start button
         Button startButton = new Button("Start");
-        startButton.setOnAction(e -> appController.startGame());
+
+        //Skal bruge en bolyen
+        //startButton.setOnAction(e -> appController.startGame());
 
         // Create a container for the top part
         HBox topContainer = new HBox();
@@ -40,6 +50,14 @@ public class WhatingromeView extends BorderPane {
         topContainer.getChildren().addAll(spacer, startButtonContainer);
 
         // Set the top container to the top of the BorderPane
-        this.setTop(topContainer);
+        //this.setTop(topContainer);
+    }
+
+    /**
+     * @param subject
+     */
+    @Override
+    public void updateView(Subject subject) {
+
     }
 }
