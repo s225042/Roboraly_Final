@@ -189,13 +189,17 @@ public class PlayerView extends Tab implements ViewObserver {
         alert.showAndWait();
     }
 
+
     @Override
     public void update(Subject subject) {
         if (subject == player) {
             // If the player takes damage, show a message
             List<CommandCard> discardPile = player.getDiscardPile();
-            if (!discardPile.isEmpty() && discardPile.get(discardPile.size() - 1).command == Command.SPAM) {
-                showDamageMessage(player.getName() + " has drawn a SPAM card.");
+            if (!discardPile.isEmpty()) {
+                Command command = discardPile.get(discardPile.size() - 1).command;
+                if (command == Command.SPAM) {
+                    showDamageMessage(player.getName() + " has drawn a SPAM card.");
+                }
             }
         }
         // Update the view

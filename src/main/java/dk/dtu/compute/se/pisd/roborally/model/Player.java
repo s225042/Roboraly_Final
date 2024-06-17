@@ -55,6 +55,9 @@ public class Player extends Subject {
     private List<CommandCard> discardPile = new ArrayList<>();
     private List<CommandCard> programmingDeck = new ArrayList<>();
 
+    private boolean infected = false; // Track if the player is infected
+
+
 
 
     private int energyCubes = 0;  // Initialize energy cubes to zero
@@ -218,6 +221,64 @@ public class Player extends Subject {
     }
 
 
+    public boolean isInfected() {
+        return infected;
+    }
+
+    public void setInfected(boolean infected) {
+        this.infected = infected;
+    }
+
+    // Method to apply virus damage to nearby players
+    public void applyVirusDamage() {
+        List<Player> playersWithinRadius = getPlayersWithinRadius();
+        for (Player player : playersWithinRadius) {
+            CommandCard virusCard = new CommandCard(Command.VIRUS);
+            player.takeDamage(virusCard);
+        }
+    }
+
+    // Method to get players within a radius of 6 spaces
+    public List<Player> getPlayersWithinRadius() {
+        List<Player> playersWithinRadius = new ArrayList<>();
+        for (Player player : board.getPlayers()) {
+            if (player != this && isWithinRadius(player.getSpace(), 6)) {
+                playersWithinRadius.add(player);
+            }
+        }
+        return playersWithinRadius;
+    }
+
+    // Method to check if a space is within a certain radius
+    public boolean isWithinRadius(Space target, int radius) {
+        if (target == null || this.space == null) {
+            return false;
+        }
+        int dx = Math.abs(this.space.getX() - target.getX());
+        int dy = Math.abs(this.space.getY() - target.getY());
+        double distance = Math.sqrt(dx * dx + dy * dy);
+        boolean withinRadius = distance <= radius;
+        System.out.println("Checking radius for " + (target.getPlayer() != null ? target.getPlayer().getName() : "null") + ": " + withinRadius);
+        return withinRadius;
+    }
+
+
+    // Method to play the virus card
+    public void playVirusCard(CommandCard virusCard) {
+        applyVirusDamage();
+        discardPile.remove(virusCard);  // Remove the virus card from the discard pile
+    }
+
+    public void takeVirusDamage(CommandCard damageCard) {
+        if (damageCard.command == Command.VIRUS && !this.isInfected()) {
+            this.applyVirusDamage();
+        } else {
+            discardPile.add(damageCard);
+            notifyChange(); // Notify observers of the change
+            System.out.println("Damage card added to discard pile."); // Debugging line
+        }
+    }
+
 
 
 
@@ -250,6 +311,7 @@ public class Player extends Subject {
     public void setProgrammingDeck(List<CommandCard> deck) {
         this.programmingDeck = deck;
     }
+
 
 
 
