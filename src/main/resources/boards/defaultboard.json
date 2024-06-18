@@ -119,6 +119,25 @@
       "x": 4,
       "y": 5
     },
+
+    {
+      "walls": [],
+      "pushPanel": [
+        "NORTH"
+      ],
+      "actions": [
+        {
+          "CLASSNAME": "dk.dtu.compute.se.pisd.roborally.controller.PushPanel",
+            "INSTANCE": {
+              "heading": "NORTH"
+            }
+        }
+      ],
+      "x": 4,
+      "y": 2
+
+    },
+
     {
       "walls": [
         "NORTH"

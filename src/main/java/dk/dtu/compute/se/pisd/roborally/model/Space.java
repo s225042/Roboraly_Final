@@ -24,6 +24,7 @@ package dk.dtu.compute.se.pisd.roborally.model;
 import dk.dtu.compute.se.pisd.designpatterns.observer.Subject;
 import dk.dtu.compute.se.pisd.roborally.controller.ConveyorBelt;
 import dk.dtu.compute.se.pisd.roborally.controller.FieldAction;
+import dk.dtu.compute.se.pisd.roborally.controller.PushPanel;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,6 +42,8 @@ public class Space extends Subject {
     private Antenna antenna;
 
     private List<Heading> walls = new ArrayList<>();
+
+    private List<Heading> pushPanel = new ArrayList<>();
     private List<FieldAction> actions = new ArrayList<>();
 
     public final Board board;
@@ -95,6 +98,10 @@ public class Space extends Subject {
         return walls;
     }
 
+    public List<Heading> getPushPanel(){
+        return pushPanel;
+    }
+
 
     /**
      * @Author s235074
@@ -144,6 +151,9 @@ public class Space extends Subject {
             }
             if (action instanceof  Pit && fieldAction == null){
                 fieldAction = (Pit) action;
+            }
+            if(action instanceof PushPanel && fieldAction == null){
+                fieldAction = (PushPanel) action;
             }
         }
         return fieldAction;

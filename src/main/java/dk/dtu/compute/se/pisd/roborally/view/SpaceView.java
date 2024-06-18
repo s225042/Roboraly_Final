@@ -24,6 +24,7 @@ package dk.dtu.compute.se.pisd.roborally.view;
 import dk.dtu.compute.se.pisd.designpatterns.observer.Subject;
 import dk.dtu.compute.se.pisd.roborally.controller.ConveyorBelt;
 import dk.dtu.compute.se.pisd.roborally.controller.FieldAction;
+import dk.dtu.compute.se.pisd.roborally.controller.PushPanel;
 import dk.dtu.compute.se.pisd.roborally.model.*;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
@@ -35,6 +36,8 @@ import javafx.scene.shape.Polygon;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.StrokeLineCap;
 import org.jetbrains.annotations.NotNull;
+
+import static dk.dtu.compute.se.pisd.roborally.model.Heading.*;
 
 /**
  * ...
@@ -224,6 +227,29 @@ public class SpaceView extends StackPane implements ViewObserver {
             Pit pit = (Pit) space.getFieldAction();
             imagePath = getClass().getResource("/images/hole.png").toExternalForm();
 
+        } else if (space.getFieldAction() instanceof PushPanel){
+            PushPanel pushPanel = (PushPanel) space.getFieldAction();
+            imagePath = getClass().getResource("/images/push24.png").toExternalForm();
+            Image pushImage = new Image(imagePath);
+            ImageView pushImageView = new ImageView(pushImage);
+            pushImageView.setFitWidth(SPACE_WIDTH);
+            pushImageView.setFitHeight(5);
+
+            switch (pushPanel.getHeading()) {
+                case NORTH:
+                    imageView.setRotate(0);
+                    break;
+                case EAST:
+                    imageView.setRotate(90);
+                    break;
+                case SOUTH:
+                    imageView.setRotate(180);
+                    break;
+                case WEST:
+                    imageView.setRotate(270);
+                    break;
+            }
+
         }
         
         else {
@@ -259,7 +285,7 @@ public class SpaceView extends StackPane implements ViewObserver {
                 imageView.setFitWidth(SPACE_WIDTH);
                 imageView.setFitHeight(5);
 
-                if (laise.getHeading() == Heading.SOUTH || laise.getHeading() == Heading.NORTH) {
+                if (laise.getHeading() == SOUTH || laise.getHeading() == Heading.NORTH) {
                     imageView.setRotate(90);
                 }
 

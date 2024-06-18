@@ -276,21 +276,26 @@ public class GameController {
             if (won) {
                 break;
             }
-
             Space space = player.getSpace();
             FieldAction fieldAction = space.getFieldAction();
             if (fieldAction instanceof ConveyorBelt) {
                 ConveyorBelt conveyorBelt = (ConveyorBelt) fieldAction;
                 conveyorBelt.doAction(this, space);
+
             } else if (fieldAction instanceof Checkpoint) {
                 Checkpoint checkpoint = (Checkpoint) fieldAction;
                 checkpoint.doAction(this, space);
+
             } else if (fieldAction instanceof Gear) {
                 Gear gear = (Gear) fieldAction;
                 gear.doAction(this, space);
+
             } else if (fieldAction instanceof Pit) {
                 Pit pit = (Pit) fieldAction;
                 pit.doAction(this, space);
+            } else if(fieldAction instanceof PushPanel){
+                PushPanel pushPanel = (PushPanel) fieldAction;
+                pushPanel.doAction(this, space);
             }
         }
     }
