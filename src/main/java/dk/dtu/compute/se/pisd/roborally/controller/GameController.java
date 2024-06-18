@@ -416,7 +416,6 @@ public class GameController {
             }
         }
     }
-
     private void moveForwardInDirection(Player player, Heading heading) {
         if (!won && player.board == board) {
             Space space = player.getSpace();
@@ -473,6 +472,10 @@ public class GameController {
         }
     }
 
+    private void rebootPlayer(Player player) {
+        player.setSpace(board.getPlayerStartingPoint());
+        System.out.println("Player " + player.getName() + " is rebooted to starting position.");
+    }
 
     private boolean isWithinRadius(Space source, Space target, int radius) {
         int dx = Math.abs(source.getX() - target.getX());
