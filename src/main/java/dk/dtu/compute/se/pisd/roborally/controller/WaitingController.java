@@ -21,7 +21,7 @@ public class WaitingController {
     }
 
     public void watingRomePlayers() throws Exception{
-        String playersJson = HttpController.getPlayers();
+        String playersJson = httpController.getPlayers();
 
         Gson gson = new Gson();
         Type listType = new TypeToken<List<String>>() {}.getType();

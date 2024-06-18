@@ -176,7 +176,7 @@ public class AppController implements Observer {
                 Optional<String> result = dialog.showAndWait();
                 if (result.isPresent()) {
                     Integer iResult = Integer.valueOf(result.toString());
-                    bordName = HttpController.getByGameID(iResult);
+                    bordName = httpController.getByGameID(iResult);
 
                     break;
                 }

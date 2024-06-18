@@ -14,28 +14,31 @@ import java.util.concurrent.TimeUnit;
 
 public class HttpController {
 
-    private static final HttpClient httpClient = HttpClient.newBuilder()
-            .version(HttpClient.Version.HTTP_2)
-            .connectTimeout(Duration.ofSeconds(10))
-            .build();
+    private HttpClient httpClient;
 
-    public static String getPlayers() throws Exception {
+    public HttpController() {
+        this.httpClient = HttpClient.newHttpClient();
+    }
+
+    public String getPlayers() throws Exception {
         HttpRequest request = HttpRequest.newBuilder()
                 .GET()
                 .uri(URI.create("http://localhost:8089/players"))
                 .header("Accept", "application/json")
+                .setHeader("Content-Type", "application/json")
                 .build();
         CompletableFuture<HttpResponse<String>> response =
-                httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString());
+              httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString());
         String result = response.thenApply((r)->r.body()).get(5, TimeUnit.SECONDS);
         return result;
     }
 
-    public static String getPlayerByID(String playerID) throws Exception {
+    public String getPlayerByID(String playerID) throws Exception {
         HttpRequest request = HttpRequest.newBuilder()
                 .GET()
                 .uri(URI.create("http://localhost:8089/players/" + playerID))
                 .header("Accept", "application/json")
+                .setHeader("Content-Type", "application/json")
                 .build();
         CompletableFuture<HttpResponse<String>> response =
                 httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString());
@@ -43,11 +46,12 @@ public class HttpController {
         return result;
     }
 
-    public static String getByGameID(int gameID) throws Exception {
+    public String getByGameID(int gameID) throws Exception {
         HttpRequest request = HttpRequest.newBuilder()
                 .GET()
                 .uri(URI.create("http://localhost:8089/gameInfos/" + gameID))
                 .header("Accept", "application/json")
+                .setHeader("Content-Type", "application/json")
                 .build();
         CompletableFuture<HttpResponse<String>> response =
                 httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString());
@@ -64,12 +68,13 @@ public class HttpController {
                 .POST(HttpRequest.BodyPublishers.ofString(requestBody))
                 .uri(URI.create("http://localhost:8089/gameInfos"))
                 .header("Accept", "application/json")
+                .setHeader("Content-Type", "application/json")
                 .build();
         try {
             CompletableFuture<HttpResponse<String>> response =
                     httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString());
-            String result = response.thenApply((r)->r.body()).get(5, TimeUnit.SECONDS);
-            return true;
+            Boolean result = Boolean.valueOf(response.thenApply((r)->r.body()).get(5, TimeUnit.SECONDS));
+            return result;
         } catch (Exception e1) {
             return false;
         }
@@ -83,6 +88,7 @@ public class HttpController {
                 .POST(HttpRequest.BodyPublishers.ofString(requestBody))
                 .uri(URI.create("http://localhost:8089/players"))
                 .header("Accept", "application/json")
+                .setHeader("Content-Type", "application/json")
                 .build();
         try {
             CompletableFuture<HttpResponse<String>> response =
@@ -102,6 +108,7 @@ public class HttpController {
                 .PUT(HttpRequest.BodyPublishers.ofString(requestBody))
                 .uri(URI.create("http://localhost:8089/players/" + p.getName()))
                 .header("Accept", "application/json")
+                .setHeader("Content-Type", "application/json")
                 .build();
         try {
             CompletableFuture<HttpResponse<String>> response =
