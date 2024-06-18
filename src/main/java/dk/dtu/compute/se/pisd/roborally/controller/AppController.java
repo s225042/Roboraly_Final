@@ -112,6 +112,7 @@ public class AppController implements Observer {
             if(gameIDs.isPresent()) {
                 try {
                     board.setGameId(Integer.parseInt(gameIDs.get()));
+                    httpController.addGame(boardsname, board.getGameId());
                 } catch (Exception e1) {
                     System.out.println(e1);
                 }
