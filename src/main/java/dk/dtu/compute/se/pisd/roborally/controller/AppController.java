@@ -111,7 +111,7 @@ public class AppController implements Observer {
             Optional<String> gameIDs = gameID.showAndWait();
             if(gameIDs.isPresent()) {
                 try {
-                    board.setGameId(Integer.valueOf(gameIDs.toString()));
+                    board.setGameId(Integer.parseInt(gameIDs.get()));
                 } catch (Exception e1) {
                     System.out.println(e1);
                 }
