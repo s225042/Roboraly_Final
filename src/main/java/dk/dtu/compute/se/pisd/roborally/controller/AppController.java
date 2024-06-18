@@ -30,7 +30,6 @@ import dk.dtu.compute.se.pisd.roborally.fileaccess.LoadBoard;
 import dk.dtu.compute.se.pisd.roborally.model.Board;
 import dk.dtu.compute.se.pisd.roborally.model.Player;
 
-import dk.dtu.compute.se.pisd.roborally.model.SpawnPoint;
 import javafx.application.Platform;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
@@ -75,39 +74,42 @@ public class AppController implements Observer {
     }
 
     public void newGame() {
-        ChoiceDialog<String> boards = new ChoiceDialog<>(Game_Bord.get(0), Game_Bord);
+        ChoiceDialog<String> boards = new ChoiceDialog<>(Game_Bord.get(0),Game_Bord);
         boards.setTitle("Table");
         boards.setHeaderText("select game table");
         Optional<String> boardname = boards.showAndWait();
         String boardsname = boardname.get();
 
-        ChoiceDialog<Integer> dialog = new ChoiceDialog<>(PLAYER_NUMBER_OPTIONS.get(0), PLAYER_NUMBER_OPTIONS);
+       ChoiceDialog<Integer> dialog = new ChoiceDialog<>(PLAYER_NUMBER_OPTIONS.get(0), PLAYER_NUMBER_OPTIONS);
         dialog.setTitle("Player number");
         dialog.setHeaderText("Select number of players");
         Optional<Integer> result = dialog.showAndWait();
 
         if (result.isPresent()) {
             if (gameController != null) {
+                // The UI should not allow this, but in case this happens anyway.
+                // give the user the option to save the game or abort this operation!
                 if (!stopGame()) {
                     return;
                 }
             }
 
+            // XXX the board should eventually be created programmatically or loaded from a file
+            //     here we just create an empty board with the required number of players.
             Board board = loadBoard(boardsname);
             gameController = new GameController(board);
 
             int no = result.get();
-            List<SpawnPoint> spawnPoints = board.getSpawnPoints();
             for (int i = 0; i < no; i++) {
                 Player player = new Player(board, PLAYER_COLORS.get(i), "Player " + (i + 1));
                 board.addPlayer(player);
-
-                // Place the player on the spawn point
-                SpawnPoint spawnPoint = spawnPoints.get(i % spawnPoints.size());
-                player.setSpace(board.getSpace(spawnPoint.x, spawnPoint.y));
+                player.setSpace(board.getSpace(i % board.width, i));
             }
 
+            // XXX: V2
+            // board.setCurrentPlayer(board.getPlayer(0));
             gameController.startProgrammingPhase();
+
             roboRally.createBoardView(gameController);
         }
     }

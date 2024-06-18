@@ -1,22 +1,45 @@
+/*
+ *  This file is part of the initial project provided for the
+ *  course "Project in Software Development (02362)" held at
+ *  DTU Compute at the Technical University of Denmark.
+ *
+ *  Copyright (C) 2019, 2020: Ekkart Kindler, ekki@dtu.dk
+ *
+ *  This software is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; version 2 of the License.
+ *
+ *  This project is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this project; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *
+ */
 package dk.dtu.compute.se.pisd.roborally.fileaccess;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
-import dk.dtu.compute.se.pisd.roborally.controller.FieldAction;
 import dk.dtu.compute.se.pisd.roborally.fileaccess.model.BoardTemplate;
 import dk.dtu.compute.se.pisd.roborally.fileaccess.model.CommandCardFieldTemplate;
 import dk.dtu.compute.se.pisd.roborally.fileaccess.model.PlayerTemplate;
 import dk.dtu.compute.se.pisd.roborally.fileaccess.model.SpaceTemplate;
+import dk.dtu.compute.se.pisd.roborally.controller.FieldAction;
 import dk.dtu.compute.se.pisd.roborally.model.*;
 
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.util.List;
 
+/**
+ * ...
+ *
+ * @author Ekkart Kindler, ekki@dtu.dk
+ */
 public class LoadBoard {
 
     private static final String BOARDSFOLDER = "boards";
@@ -53,21 +76,6 @@ public class LoadBoard {
                 }
             }
             result.setMaxNumberofChekpoints();
-
-            // Set the reboot token location
-            result.setRebootSpace(template.rebootX, template.rebootY);
-
-            if (template.rebootDirection != null) {
-                result.setRebootDirection(Heading.valueOf(template.rebootDirection));
-            }
-
-            // Load spawn points
-            for (SpawnPoint spawnPointTemplate : template.spawnPoints) {
-                result.addSpawnPoint(new SpawnPoint(
-                        spawnPointTemplate.x,
-                        spawnPointTemplate.y
-                ));
-            }
 
             result.setPhase(template.phase);
             for (int i = 0; i < template.players.size(); i++) {
@@ -136,8 +144,6 @@ public class LoadBoard {
         template.phase = board.getPhase();
         template.current = board.getPlayerNumber(board.getCurrentPlayer());
         template.counter = board.getCounter();
-        template.rebootX = board.getRebootSpace().getX();
-        template.rebootY = board.getRebootSpace().getY();
 
         for (int i = 0; i < board.width; i++) {
             for (int j = 0; j < board.height; j++) {
