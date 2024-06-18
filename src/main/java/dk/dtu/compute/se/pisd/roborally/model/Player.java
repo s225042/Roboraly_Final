@@ -31,9 +31,6 @@ public class Player extends Subject {
 
     private int spamCount = 0; // to count the number of SPAM cards
 
-    private static Queue<Player> rebootQueue = new LinkedList<>();
-
-
     public Player(@NotNull Board board, String color, @NotNull String name) {
         this.board = board;
         this.name = name;
@@ -172,6 +169,12 @@ public class Player extends Subject {
         }
     }
 
+    /**
+     * @author s235112 Tobias Kolstrup Vittrup
+     * Reboot the player by taking two SPAM damage cards and placing them in the player's discard pile.
+     * Discard all programming cards and place the player on the reboot token.
+     */
+
     public void reboot() {
         // Take two SPAM damage cards and place them in your discard pile
         addSpamCard();
@@ -183,6 +186,12 @@ public class Player extends Subject {
         // Place robot on the reboot token
         moveToRebootToken();
     }
+
+    /**
+     * @author s235112 Tobias Kolstrup Vittrup
+     * Move the player to the reboot token and set the player's heading according to the reboot direction.
+     * If the reboot space is occupied, move the occupying player to an adjacent space.
+     */
 
     public void moveToRebootToken() {
         Space rebootSpace = board.getRebootSpace();
@@ -207,6 +216,13 @@ public class Player extends Subject {
         }
     }
 
+    /**
+     * @Author s235112 Tobias Kolstrup Vittrup
+     * Move the occupying player to an adjacent space in the direction of the reboot token.
+     * If the target space is also occupied, recursively handle this scenario.
+     * @param space the space occupied by the player
+     * @param heading the direction of the reboot token
+     */
     private void moveOccupyingPlayer(Space space, Heading heading) {
         Player occupyingPlayer = space.getPlayer();
         if (occupyingPlayer != null) {

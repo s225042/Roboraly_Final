@@ -59,6 +59,8 @@ public class Board extends Subject {
 
     private List<Space> chekpoints = new ArrayList<>();
 
+    private List<SpawnPoint> spawnPoints = new ArrayList<>();
+
     private Player current;
 
     private Phase phase = INITIALISATION;
@@ -354,6 +356,23 @@ public class Board extends Subject {
 
     public void setRebootSpace(int x, int y) {
         this.rebootSpace = getSpace(x, y);
+    }
+
+    public void addSpawnPoint(SpawnPoint spawnPoint) {
+        spawnPoints.add(spawnPoint);
+    }
+
+    public List<SpawnPoint> getSpawnPoints() {
+        return spawnPoints;
+    }
+
+    public boolean isSpawnPoint(Space space) {
+        for (SpawnPoint spawnPoint : spawnPoints) {
+            if (spawnPoint.x == space.getX() && spawnPoint.y == space.getY()) {
+                return true;
+            }
+        }
+        return false;
     }
 
 }

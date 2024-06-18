@@ -2,7 +2,7 @@
   "width": 8,
   "height": 8,
   "antennaX": 0,
-    "antennaY": 3,
+  "antennaY": 3,
   "rebootX": 3,
   "rebootY": 6,
   "rebootDirection": "WEST",
@@ -107,19 +107,17 @@
       "x": 1,
       "y": 6
     },
-
     {
       "walls": [],
       "actions": [
         {
           "CLASSNAME": "dk.dtu.compute.se.pisd.roborally.model.Pit",
-            "INSTANCE": {}
+          "INSTANCE": {}
         }
       ],
       "x": 4,
       "y": 5
     },
-
     {
       "walls": [],
       "pushPanel": [
@@ -128,16 +126,14 @@
       "actions": [
         {
           "CLASSNAME": "dk.dtu.compute.se.pisd.roborally.controller.PushPanel",
-            "INSTANCE": {
-              "heading": "NORTH"
-            }
+          "INSTANCE": {
+            "heading": "NORTH"
+          }
         }
       ],
       "x": 4,
       "y": 2
-
     },
-
     {
       "walls": [
         "NORTH"
@@ -230,11 +226,11 @@
       "y": 6
     },
     {
-    "walls": [
-      "SOUTH"
-    ],
-    "x": 6,
-    "y": 7
+      "walls": [
+        "SOUTH"
+      ],
+      "x": 6,
+      "y": 7
     },
     {
       "walls": [
@@ -252,5 +248,13 @@
       "x": 7,
       "y": 7
     }
+  ],
+  "spawnPoints": [
+    { "x": 4, "y": 0, "heading": "NORTH" },
+    { "x": 5, "y": 0, "heading": "EAST" },
+    { "x": 6, "y": 0, "heading": "SOUTH" },
+    { "x": 7, "y": 0, "heading": "WEST" },
+    { "x": 7, "y": 1, "heading": "EAST" },
+    { "x": 6, "y": 1, "heading": "SOUTH" }
   ]
 }

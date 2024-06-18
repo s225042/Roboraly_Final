@@ -91,6 +91,12 @@ public class GameController {
         }
     }
 
+    /**
+     * @Author s235074 Dennis Eren Dogulu
+     * Move the player forward and check if the player is on the reboot space before it moves further
+     * @param player
+     */
+
     public void fastForward(@NotNull Player player) {
         moveForward(player);
         if(player.getSpace() != board.getRebootSpace())
@@ -106,6 +112,12 @@ public class GameController {
     public void turnLeft(@NotNull Player player) {
         player.setHeading(player.getHeading().next());
     }
+
+    /**
+     * @Author s235074 Dennis Eren Dogulu
+     * Move the player and check if the player is on the reboot space before it moves further
+     * @param player
+     */
 
     public void fastFastForward(@NotNull Player player) {
         moveForward(player);
@@ -466,6 +478,11 @@ public class GameController {
         alert.showAndWait();
     }
 
+    /**
+     * @Author s235112
+     * Reboot the player and add it to the reboot queue
+     * @param player
+     */
     // Reboot player
     public void rebootPlayer(@NotNull Player player) {
         player.reboot();

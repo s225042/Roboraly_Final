@@ -348,6 +348,21 @@ public class SpaceView extends StackPane implements ViewObserver {
         }
     }
 
+    private void updateSpawnPoint() {
+        Board board = space.getBoard();
+
+        if (board.isSpawnPoint(space)) {
+            String imagePath = getClass().getResource("/images/startField.png").toExternalForm(); // Make sure you have an appropriate spawn point image
+            Image image = new Image(imagePath);
+            ImageView imageView = new ImageView(image);
+
+            imageView.setFitWidth(SPACE_WIDTH);
+            imageView.setFitHeight(SPACE_HEIGHT);
+
+            this.getChildren().add(imageView);
+        }
+    }
+
     @Override
     public void updateView(Subject subject) {
         if (subject == this.space) {
@@ -355,6 +370,7 @@ public class SpaceView extends StackPane implements ViewObserver {
             updateFieldactions();
             updateLaser();
             updateWalls();
+            updateSpawnPoint();
             updatePlayer();
         }
     }

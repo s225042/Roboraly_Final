@@ -4,21 +4,19 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
+import dk.dtu.compute.se.pisd.roborally.controller.FieldAction;
 import dk.dtu.compute.se.pisd.roborally.fileaccess.model.BoardTemplate;
 import dk.dtu.compute.se.pisd.roborally.fileaccess.model.CommandCardFieldTemplate;
 import dk.dtu.compute.se.pisd.roborally.fileaccess.model.PlayerTemplate;
 import dk.dtu.compute.se.pisd.roborally.fileaccess.model.SpaceTemplate;
-import dk.dtu.compute.se.pisd.roborally.controller.FieldAction;
 import dk.dtu.compute.se.pisd.roborally.model.*;
 
-import java.io.*;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.List;
 
-/**
- * ...
- *
- * @author Ekkart Kindler, ekki@dtu.dk
- */
 public class LoadBoard {
 
     private static final String BOARDSFOLDER = "boards";
@@ -61,6 +59,14 @@ public class LoadBoard {
 
             if (template.rebootDirection != null) {
                 result.setRebootDirection(Heading.valueOf(template.rebootDirection));
+            }
+
+            // Load spawn points
+            for (SpawnPoint spawnPointTemplate : template.spawnPoints) {
+                result.addSpawnPoint(new SpawnPoint(
+                        spawnPointTemplate.x,
+                        spawnPointTemplate.y
+                ));
             }
 
             result.setPhase(template.phase);

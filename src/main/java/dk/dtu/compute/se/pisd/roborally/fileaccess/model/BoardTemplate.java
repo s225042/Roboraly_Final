@@ -23,7 +23,7 @@ package dk.dtu.compute.se.pisd.roborally.fileaccess.model;
 
 import dk.dtu.compute.se.pisd.roborally.model.Phase;
 import dk.dtu.compute.se.pisd.roborally.model.Player;
-
+import dk.dtu.compute.se.pisd.roborally.model.SpawnPoint;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -58,4 +58,7 @@ public class BoardTemplate {
     public int rebootY;
 
     public String rebootDirection;
+
+    public List<SpawnPoint> spawnPoints = new ArrayList<>();
 }
+
