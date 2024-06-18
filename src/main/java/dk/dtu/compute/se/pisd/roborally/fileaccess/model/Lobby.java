@@ -3,13 +3,11 @@ package dk.dtu.compute.se.pisd.roborally.fileaccess.model;
 public class Lobby {
     String board;
     int turnID;
-    int gameID;
+    int id;
 
-    public Lobby(String board, int turnID, int gameID){
+    public Lobby(String board, int turnID){
         this.board = board;
         this.turnID = turnID;
-        this.gameID = gameID;
-
     }
 
     public String getBoard() {
@@ -28,11 +26,11 @@ public class Lobby {
         this.turnID = turnID;
     }
 
-    public int getGameID() {
-        return gameID;
+    public int getID() {
+        return id;
     }
 
-    public void setGameID(int gameID) {
-        this.gameID = gameID;
+    public void setGameID(int id) {
+        this.id = id;
     }
 }

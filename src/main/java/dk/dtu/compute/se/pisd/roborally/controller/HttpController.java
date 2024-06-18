@@ -34,7 +34,7 @@ public class HttpController {
         return result;
     }
 
-    public String getPlayerByID(String playerID) throws Exception {
+    public PlayerServer getPlayerByID(String playerID) throws Exception {
         HttpRequest request = HttpRequest.newBuilder()
                 .GET()
                 .uri(URI.create("http://localhost:8089/players/" + playerID))
@@ -44,7 +44,9 @@ public class HttpController {
         CompletableFuture<HttpResponse<String>> response =
                 httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString());
         String result = response.thenApply((r)->r.body()).get(5, TimeUnit.SECONDS);
-        return result;
+        Gson gson = new Gson();
+        PlayerServer playerServer = gson.fromJson(result, PlayerServer.class);
+        return playerServer;
     }
 
     public Lobby getByGameID(int gameID) throws Exception {
@@ -63,7 +65,7 @@ public class HttpController {
         return lobby;
     }
 
-    public boolean addGame(Lobby lobby) throws Exception {
+    public int addGame(Lobby lobby) throws Exception {
         Gson gson = new Gson();
         String requestBody = gson.toJson(lobby);
 
@@ -76,10 +78,12 @@ public class HttpController {
         try {
             CompletableFuture<HttpResponse<String>> response =
                     httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString());
-            Boolean result = Boolean.valueOf(response.thenApply((r)->r.body()).get(5, TimeUnit.SECONDS));
-            return result;
+            String responseBody = response.thenApply(HttpResponse::body).get(5, TimeUnit.SECONDS);
+            Lobby serverLoby = gson.fromJson(responseBody, Lobby.class);
+            return serverLoby.getID();
         } catch (Exception e1) {
-            return false;
+            e1.printStackTrace();
+            return 0;
         }
     }
 

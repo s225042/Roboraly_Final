@@ -1,8 +1,9 @@
 package dk.dtu.compute.se.pisd.roborally.fileaccess.model;
 
 public class PlayerServer {
-    private String playerID;
 
+    private int playerID;
+    private String playerName;
     private String program1;
     private String program2;
     private String program3;
@@ -11,8 +12,8 @@ public class PlayerServer {
 
     private Lobby gameInfo;
 
-    public PlayerServer(String playerID, String program1, String program2, String program3, String program4, String program5, Lobby gameInfo){
-        this.playerID = playerID;
+    public PlayerServer(String playerName, String program1, String program2, String program3, String program4, String program5, Lobby gameInfo){
+        this.playerName = playerName;
         this.program1 = program1;
         this.program2 = program2;
         this.program3 = program3;
@@ -21,12 +22,12 @@ public class PlayerServer {
         this.gameInfo = gameInfo;
     }
 
-    public String getPlayerID() {
-        return playerID;
+    public String getPlayerName() {
+        return playerName;
     }
 
-    public void setPlayerID(String playerID) {
-        this.playerID = playerID;
+    public void setPlayerID(String playerName) {
+        this.playerName = playerName;
     }
 
     public String getProgram1() {
@@ -75,5 +76,13 @@ public class PlayerServer {
 
     public void setGameInfo(Lobby gameInfo){
         this.gameInfo = gameInfo;
+    }
+
+    public void setPlayerID(int playerID) {
+        this.playerID = playerID;
+    }
+
+    public int getPlayerID(){
+        return playerID;
     }
 }
