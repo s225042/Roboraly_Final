@@ -28,6 +28,7 @@ import dk.dtu.compute.se.pisd.roborally.RoboRally;
 
 import dk.dtu.compute.se.pisd.roborally.fileaccess.LoadBoard;
 import dk.dtu.compute.se.pisd.roborally.fileaccess.model.Lobby;
+import dk.dtu.compute.se.pisd.roborally.fileaccess.model.PlayerServer;
 import dk.dtu.compute.se.pisd.roborally.model.Board;
 import dk.dtu.compute.se.pisd.roborally.model.Player;
 
@@ -128,7 +129,7 @@ public class AppController implements Observer {
             Optional<String> playerID = dialog1.showAndWait();
             if(playerID.isPresent()){
                 try {
-                    httpController.addPlayer(new Player(board, null, playerID.toString()));
+                    httpController.addPlayer(new PlayerServer(playerID.get(), null, null, null, null, null, board.getGameId()));
                 }
                 catch (Exception e1){
                     System.out.println(e1);
@@ -175,7 +176,7 @@ public class AppController implements Observer {
             try {
                 Optional<String> result = dialog.showAndWait();
                 if (result.isPresent()) {
-                    Integer iResult = Integer.valueOf(result.toString());
+                    Integer iResult = Integer.valueOf(result.get());
                     bordName = httpController.getByGameID(iResult);
 
                     break;
@@ -196,7 +197,7 @@ public class AppController implements Observer {
         Optional<String> playerID = dialog1.showAndWait();
         if(playerID.isPresent()){
             try {
-                httpController.addPlayer(new Player(board, null, playerID.toString()));
+                httpController.addPlayer(new PlayerServer(playerID.get(), null, null, null, null, null, gameController.board.getGameId()));
             }
             catch (Exception e1){
                 System.out.println(e1);

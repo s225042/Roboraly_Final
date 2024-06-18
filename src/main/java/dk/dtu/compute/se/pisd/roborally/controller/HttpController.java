@@ -2,6 +2,7 @@ package dk.dtu.compute.se.pisd.roborally.controller;
 
 import com.google.gson.Gson;
 import dk.dtu.compute.se.pisd.roborally.fileaccess.model.Lobby;
+import dk.dtu.compute.se.pisd.roborally.fileaccess.model.PlayerServer;
 import dk.dtu.compute.se.pisd.roborally.model.Player;
 
 import java.net.URI;
@@ -62,7 +63,6 @@ public class HttpController {
     public boolean addGame(Lobby lobby) throws Exception {
         Gson gson = new Gson();
         String requestBody = gson.toJson(lobby);
-        System.out.println("requestbody: " + requestBody.toString());
 
         HttpRequest request = HttpRequest.newBuilder()
                 .POST(HttpRequest.BodyPublishers.ofString(requestBody))
@@ -80,9 +80,9 @@ public class HttpController {
         }
     }
 
-    public boolean addPlayer(Player p) throws Exception {
+    public boolean addPlayer(PlayerServer p) throws Exception {
         Gson gson = new Gson();
-        String requestBody = gson.toJson(p.getName() + p.getCardField(0) + p.getCardField(1) + p.getCardField(2) + p.getCardField(3) + p.getCardField(4));
+        String requestBody = gson.toJson(p);
 
         HttpRequest request = HttpRequest.newBuilder()
                 .POST(HttpRequest.BodyPublishers.ofString(requestBody))
@@ -100,13 +100,13 @@ public class HttpController {
         }
     }
 
-    public boolean updatePlayer(Player p) throws Exception {
+    public boolean updatePlayer(PlayerServer p) throws Exception {
         Gson gson = new Gson();
-        String requestBody = gson.toJson(p.getName() + p.getCardField(0) + p.getCardField(1) + p.getCardField(2) + p.getCardField(3) + p.getCardField(4));
+        String requestBody = gson.toJson(p);
 
         HttpRequest request = HttpRequest.newBuilder()
                 .PUT(HttpRequest.BodyPublishers.ofString(requestBody))
-                .uri(URI.create("http://localhost:8089/players/" + p.getName()))
+                .uri(URI.create("http://localhost:8089/players/" + p.getPlayerID()))
                 .header("Accept", "application/json")
                 .setHeader("Content-Type", "application/json")
                 .build();
