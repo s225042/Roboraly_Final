@@ -1,6 +1,7 @@
 package dk.dtu.compute.se.pisd.roborally.controller;
 
 import com.google.gson.Gson;
+import dk.dtu.compute.se.pisd.roborally.fileaccess.model.Lobby;
 import dk.dtu.compute.se.pisd.roborally.model.Player;
 
 import java.net.URI;
@@ -54,10 +55,10 @@ public class HttpController {
         return result;
     }
 
-    public boolean addGame(String board, int gameID) throws Exception {
-        //String requestBody = "{\"gameID\":" + gameID + "\"board\":" + board + "}";
+    public boolean addGame(Lobby lobby) throws Exception {
         Gson gson = new Gson();
-        String requestBody = gson.toJson(board + gameID);
+        String requestBody = gson.toJson(lobby);
+        System.out.println("requestbody: " + requestBody.toString());
 
         HttpRequest request = HttpRequest.newBuilder()
                 .POST(HttpRequest.BodyPublishers.ofString(requestBody))

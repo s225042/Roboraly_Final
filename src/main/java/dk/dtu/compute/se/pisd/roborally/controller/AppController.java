@@ -27,6 +27,7 @@ import dk.dtu.compute.se.pisd.designpatterns.observer.Subject;
 import dk.dtu.compute.se.pisd.roborally.RoboRally;
 
 import dk.dtu.compute.se.pisd.roborally.fileaccess.LoadBoard;
+import dk.dtu.compute.se.pisd.roborally.fileaccess.model.Lobby;
 import dk.dtu.compute.se.pisd.roborally.model.Board;
 import dk.dtu.compute.se.pisd.roborally.model.Player;
 
@@ -112,7 +113,7 @@ public class AppController implements Observer {
             if(gameIDs.isPresent()) {
                 try {
                     board.setGameId(Integer.parseInt(gameIDs.get()));
-                    httpController.addGame(boardsname, board.getGameId());
+                    httpController.addGame(new Lobby(boardsname, 0, board.getGameId()));
                 } catch (Exception e1) {
                     System.out.println(e1);
                 }
