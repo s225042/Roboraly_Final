@@ -184,12 +184,7 @@ public class Player extends Subject {
         Collections.shuffle(programmingDeck);
     }
 
-    public CommandCard drawProgrammingCard() {
-        if (programmingDeck.isEmpty()) {
-            shuffleDiscardPileIntoDeck();
-        }
-        return programmingDeck.isEmpty() ? null : programmingDeck.remove(programmingDeck.size() - 1);
-    }
+
 
     public void drawProgrammingCards(int count) {
         for (int i = 0; i < count; i++) {
@@ -268,17 +263,6 @@ public class Player extends Subject {
         applyVirusDamage();
         discardPile.remove(virusCard);  // Remove the virus card from the discard pile
     }
-
-    public void takeVirusDamage(CommandCard damageCard) {
-        if (damageCard.command == Command.VIRUS && !this.isInfected()) {
-            this.applyVirusDamage();
-        } else {
-            discardPile.add(damageCard);
-            notifyChange(); // Notify observers of the change
-            System.out.println("Damage card added to discard pile."); // Debugging line
-        }
-    }
-
 
 
 
