@@ -16,6 +16,7 @@ public class GameController {
     final public Board board;
     public boolean won = false;
     private List<CommandCard> damageDeck = new ArrayList<>();
+    private Queue<Player> rebootQueue = new LinkedList<>();
 
     public GameController(Board board) {
         this.board = board;
@@ -143,7 +144,7 @@ public class GameController {
     }
 
     public void moveForward(@NotNull Player player) {
-        if (!won && player.board == board) {
+        if (!won && player.board == board) { // Check if game is won before moving
             Space space = player.getSpace();
             Heading heading = player.getHeading();
             Space target = board.getNeighbour(space, heading);
@@ -151,7 +152,11 @@ public class GameController {
                 try {
                     moveToSpace(player, target, heading);
                 } catch (ImpossibleMoveException e) {
+                    // Handle the exception appropriately
                 }
+            } else {
+                // Reboot the player if moving out of bounds
+                rebootPlayer(player);
             }
         }
     }
@@ -177,9 +182,18 @@ public class GameController {
         }
     }
 
+    /**
+     * @Author s235074 Dennis Eren Dogulu
+     * Move the player forward and check if the player is on the reboot space before it moves further
+     * @param player
+     */
+
     public void fastForward(@NotNull Player player) {
         moveForward(player);
+        if(player.getSpace() != board.getRebootSpace())
         moveForward(player);
+
+        else;
     }
 
     public void turnRight(@NotNull Player player) {
@@ -190,35 +204,65 @@ public class GameController {
         player.setHeading(player.getHeading().next());
     }
 
+    /**
+     * @Author s235074 Dennis Eren Dogulu
+     * Move the player and check if the player is on the reboot space before it moves further
+     * @param player
+     */
+
     public void fastFastForward(@NotNull Player player) {
         moveForward(player);
-        moveForward(player);
-        moveForward(player);
+        if(player.getSpace() != board.getRebootSpace()) {
+            moveForward(player);
+        }
+        if(player.getSpace() != board.getRebootSpace()) {
+            moveForward(player);
+        }
+
     }
 
     void moveToSpace(@NotNull Player player, @NotNull Space space, @NotNull Heading heading) throws ImpossibleMoveException {
-        assert board.getNeighbour(player.getSpace(), heading) == space;
+        assert board.getNeighbour(player.getSpace(), heading) == space; // make sure the move to here is possible in principle
+
+        // Check if the space is within board boundaries
+        if (space.getX() < 0 || space.getX() >= board.getWidth() || space.getY() < 0 || space.getY() >= board.getHeight()) {
+            // Space is out of bounds, trigger a reboot
+            rebootPlayer(player);
+            return;
+        }
+
         Player other = space.getPlayer();
         if (other != null) {
             Space target = board.getNeighbour(space, heading);
             if (target != null) {
-                moveToSpace(other, target, heading);
+                // Check if the target space is within board boundaries
+                if (target.getX() < 0 || target.getX() >= board.getWidth() || target.getY() < 0 || target.getY() >= board.getHeight()) {
+                    // Target space is out of bounds, trigger a reboot for the other player
+                    rebootPlayer(other);
+                    return;
+                }
+
+                // Ensure the target is free now
                 assert target.getPlayer() == null : target;
             } else {
                 throw new ImpossibleMoveException(player, space, heading);
             }
         }
+
+        // Handle the field action if the space is valid
         FieldAction fieldAction = space.getFieldAction();
         if (fieldAction instanceof ConveyorBelt) {
             ConveyorBelt conveyorBelt = (ConveyorBelt) fieldAction;
             Heading beltHeading = conveyorBelt.getHeading();
             for (int i = 0; i < conveyorBelt.getMovement(); i++) {
                 space = board.getNeighbour(space, beltHeading);
-                if (space == null) {
-                    break;
+                if (space == null || space.getX() < 0 || space.getX() >= board.getWidth() || space.getY() < 0 || space.getY() >= board.getHeight()) {
+                    rebootPlayer(player);
+                    return;
                 }
             }
         }
+
         player.setSpace(space);
     }
 
@@ -300,50 +344,60 @@ public class GameController {
                 int nextPlayerIndex = (board.getPlayerOrder().indexOf(currentPlayer) + 1) % board.getPlayersNumber();
                 if (nextPlayerIndex != 0) {
                     board.setCurrentPlayer(board.getPlayerOrder().get(nextPlayerIndex));
-                    return false;
+                    return false; // Not all players have finished this step
                 } else {
                     step++;
                     if (step < Player.NO_REGISTERS) {
                         makeProgramFieldsVisible(step);
                         board.setStep(step);
-                        board.setCurrentPlayer(board.getPlayerOrder().get(0));
+                        board.setCurrentPlayer(board.getPlayerOrder().get(0)); // Set the first player for the next step
                     } else {
                         startProgrammingPhase();
                     }
-                    return true;
+                    return true; // All players have finished the current step
                 }
             } else {
+                // This should not happen
                 return false;
             }
         } else {
+            // This should not happen
             return false;
         }
     }
 
+    /**
+     * s225042, Rebecca Moss
+     * This is the actions that hapens after eatch turn is taken for the spaces
+     */
+
+
     private void spaceActions() {
-        for (Space space: board.getSpaceBLueConveyor()) {
-            ConveyorBelt conveyorBelt = (ConveyorBelt) space.getFieldAction();
-            conveyorBelt.doAction(this, space);
-        }
-        for (Space space: board.getSpacesGreanConveyor()) {
-            ConveyorBelt conveyorBelt = (ConveyorBelt) space.getFieldAction();
-            conveyorBelt.doAction(this, space);
-        }
-        for (Space space: board.getSpacesGears()) {
-            Gear gear = (Gear) space.getFieldAction();
-            gear.doAction(this, space);
-        }
-        for (Space space: board.getLaisers()) {
-            Laiser laiser = (Laiser) space.getFieldAction();
-            laiser.doAction(this, space);
-            Player player = space.getPlayer();
-            if (player != null) {
-                applyRandomDamage(player);
+        for (Player player : board.getPlayers()) {
+            if (won) {
+                break;
             }
-        }
-        for (Space space: board.getChekpoints()) {
-            Checkpoint checkpoint = (Checkpoint) space.getFieldAction();
-            checkpoint.doAction(this, space);
+            Space space = player.getSpace();
+            FieldAction fieldAction = space.getFieldAction();
+            if (fieldAction instanceof ConveyorBelt) {
+                ConveyorBelt conveyorBelt = (ConveyorBelt) fieldAction;
+                conveyorBelt.doAction(this, space);
+
+            } else if (fieldAction instanceof Checkpoint) {
+                Checkpoint checkpoint = (Checkpoint) fieldAction;
+                checkpoint.doAction(this, space);
+
+            } else if (fieldAction instanceof Gear) {
+                Gear gear = (Gear) fieldAction;
+                gear.doAction(this, space);
+
+            } else if (fieldAction instanceof Pit) {
+                Pit pit = (Pit) fieldAction;
+                pit.doAction(this, space);
+            } else if(fieldAction instanceof PushPanel){
+                PushPanel pushPanel = (PushPanel) fieldAction;
+                pushPanel.doAction(this, space);
+            }
         }
     }
 
@@ -351,7 +405,7 @@ public class GameController {
         player.setHeading(player.getHeading().next().next());
     }
 
-    private void backUp(@NotNull Player player) {
+    public void backUp(@NotNull Player player) {
         if (!won) {
             Space currentSpace = player.getSpace();
             Heading oppositeHeading = player.getHeading().prev().prev();
@@ -360,7 +414,11 @@ public class GameController {
                 try {
                     moveToSpace(player, targetSpace, oppositeHeading);
                 } catch (ImpossibleMoveException e) {
+                    // Handle the exception appropriately
                 }
+            } else {
+                // Reboot the player if moving out of bounds
+                rebootPlayer(player);
             }
         }
     }
@@ -478,10 +536,6 @@ public class GameController {
         }
     }
 
-    private void rebootPlayer(Player player) {
-        player.setSpace(board.getPlayerStartingPoint());
-        System.out.println("Player " + player.getName() + " is rebooted to starting position.");
-    }
 
     public void notImplemented() {
         assert false;
@@ -541,5 +595,15 @@ public class GameController {
         alert.setHeaderText("Virus Activated!");
         alert.setContentText(player.getName() + " is now infected and spreads the virus to nearby players.");
         alert.showAndWait();
+    }
+
+    /**
+     * @Author s235112
+     * Reboot the player and add it to the reboot queue
+     * @param player
+     */
+    // Reboot player
+    public void rebootPlayer(@NotNull Player player) {
+        player.reboot();
     }
 }
