@@ -22,7 +22,7 @@ public class Laiser extends FieldAction {
         while (!space.getWalls().contains(heading)) {
             if (currentSpace.getPlayer() != null) {
                 Player player = currentSpace.getPlayer();
-                gameController.applySpamDamage(player);
+                gameController.applyRandomDamage(player);
                 break;
             } else {
                 Space nextSpace = currentSpace.board.getNeighbour(currentSpace, heading);

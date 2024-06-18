@@ -42,74 +42,89 @@ public class GameController {
     private void initializeDamageDeck() {
         for (int i = 0; i < 20; i++) {
             damageDeck.add(new CommandCard(Command.SPAM));
-            // Add a few Trojan Horse cards
             if (i < 5) {
                 damageDeck.add(new CommandCard(Command.TROJAN_HORSE));
-            }
-            if (i < 19) {
+                damageDeck.add(new CommandCard(Command.WORM));
                 damageDeck.add(new CommandCard(Command.VIRUS));
             }
         }
         Collections.shuffle(damageDeck);
     }
-    public CommandCard drawDamageCard(Player player) {
+
+    public CommandCard drawRandomDamageCard() {
         if (damageDeck.isEmpty()) {
             initializeDamageDeck();
         }
-        CommandCard card = damageDeck.remove(damageDeck.size() - 1);
-        // Recursively draw a new card since the Trojan Horse card itself should not be used.
-        if (card.command == Command.TROJAN_HORSE) {
-            applyTrojanHorseDamage(player);
-            return drawDamageCard(player);
-        } else if (card.command == Command.VIRUS) {
-            applyVirusDamage(player);
-            showVirusCardMessage(player);
-        } else {
-            player.takeDamage(card);
-            if (card.command == Command.SPAM) {
-                showDamageMessage(player);
-            }
-        }
-        return card;
+        int randomIndex = new Random().nextInt(damageDeck.size());
+        return damageDeck.remove(randomIndex);
     }
 
-    private void applyTrojanHorseDamage(Player player) {
+    public void applyTrojanHorseDamage(Player player) {
         System.out.println("Applying Trojan Horse damage.");
         player.takeDamage(new CommandCard(Command.SPAM));
         player.takeDamage(new CommandCard(Command.SPAM));
         showTrojanHorseMessage(player);
     }
 
-    private void applyVirusDamage(Player player) {
-        if (!player.isInfected()) {
-            player.setInfected(true);
-            List<Player> playersWithinRadius = getPlayersWithinRadius(player);
-            System.out.println("Applying virus damage to players within radius:");
-            for (Player p : playersWithinRadius) {
-                System.out.println("Player affected: " + p.getName());
-                CommandCard virusCard = new CommandCard(Command.VIRUS);
-                p.takeDamage(virusCard);
-                showVirusCardMessage(p);
+    public void applyWormDamage(Player player) {
+        System.out.println("Applying WORM damage.");
+        rebootPlayer(player);
+        showWormMessage(player);
+    }
+
+    public void applyVirusDamage(Player player) {
+        System.out.println("Applying VIRUS damage.");
+        player.setInfected(true); // Infect the player
+        spreadVirus(player);
+    }
+
+    public void spreadVirus(Player infectedPlayer) {
+        System.out.println("Spreading virus from player: " + infectedPlayer.getName());
+        List<Player> playersWithinRadius = getPlayersWithinRadius(infectedPlayer);
+        for (Player player : playersWithinRadius) {
+            if (!player.isInfected()) {
+                player.setInfected(true);
+                System.out.println("Player " + player.getName() + " is infected.");
+                // Each newly infected player draws a virus card
+                player.takeDamage(new CommandCard(Command.VIRUS));
+                showVirusCardMessage(player);
             }
         }
     }
 
-    private List<Player> getPlayersWithinRadius(Player source) {
+    public List<Player> getPlayersWithinRadius(Player sourcePlayer) {
         List<Player> playersWithinRadius = new ArrayList<>();
         for (Player player : board.getPlayers()) {
-            if (player != source && isWithinRadius(source.getSpace(), player.getSpace(), 6)) {
+            if (player != sourcePlayer && isWithinRadius(sourcePlayer.getSpace(), player.getSpace(), 6)) {
                 playersWithinRadius.add(player);
             }
         }
         return playersWithinRadius;
     }
 
+    private boolean isWithinRadius(Space source, Space target, int radius) {
+        int dx = Math.abs(source.getX() - target.getX());
+        int dy = Math.abs(source.getY() - target.getY());
+        return Math.sqrt(dx * dx + dy * dy) <= radius;
+    }
 
-
-    public void applySpamDamage(Player player) {
-        CommandCard spamCard = drawDamageCard(player);
-        player.takeDamage(spamCard);
-        showDamageMessage(player);
+    public void applyRandomDamage(Player player) {
+        CommandCard damageCard = drawRandomDamageCard();
+        switch (damageCard.command) {
+            case TROJAN_HORSE:
+                applyTrojanHorseDamage(player);
+                break;
+            case WORM:
+                applyWormDamage(player);
+                break;
+            case VIRUS:
+                applyVirusDamage(player);
+                break;
+            default:
+                player.takeDamage(damageCard);
+                showDamageMessage(player, damageCard);
+                break;
+        }
     }
 
     public void executeSpamDamageCard(Player player, CommandCard damageCard) {
@@ -323,7 +338,7 @@ public class GameController {
             laiser.doAction(this, space);
             Player player = space.getPlayer();
             if (player != null) {
-                applySpamDamage(player);
+                applyRandomDamage(player);
             }
         }
         for (Space space: board.getChekpoints()) {
@@ -365,7 +380,7 @@ public class GameController {
         }
     }
 
-    void executeCommand(@NotNull Player player, Command command) {
+    private void executeCommand(@NotNull Player player, Command command) {
         if (!won && player != null && player.board == board && command != null) {
             if (command != Command.AGAIN) {
                 player.setLastCommand(command);
@@ -408,23 +423,14 @@ public class GameController {
                 case TROJAN_HORSE:
                     this.applyTrojanHorseDamage(player);
                     break;
-                default:
+                case WORM:
+                    this.applyWormDamage(player);
                     break;
                 case VIRUS:
-                    player.applyVirusDamage();
+                    this.applyVirusDamage(player);
                     break;
-            }
-        }
-    }
-    private void moveForwardInDirection(Player player, Heading heading) {
-        if (!won && player.board == board) {
-            Space space = player.getSpace();
-            Space target = board.getNeighbour(space, heading);
-            if (target != null) {
-                try {
-                    moveToSpace(player, target, heading);
-                } catch (ImpossibleMoveException e) {
-                }
+                default:
+                    break;
             }
         }
     }
@@ -477,12 +483,6 @@ public class GameController {
         System.out.println("Player " + player.getName() + " is rebooted to starting position.");
     }
 
-    private boolean isWithinRadius(Space source, Space target, int radius) {
-        int dx = Math.abs(source.getX() - target.getX());
-        int dy = Math.abs(source.getY() - target.getY());
-        return Math.sqrt(dx * dx + dy * dy) <= radius;
-    }
-
     public void notImplemented() {
         assert false;
     }
@@ -511,11 +511,11 @@ public class GameController {
         alert.showAndWait();
     }
 
-    private void showDamageMessage(Player player) {
+    private void showDamageMessage(Player player, CommandCard damageCard) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle("Damage Taken");
         alert.setHeaderText("Robot hit by laser!");
-        alert.setContentText(player.getName() + " has drawn a SPAM card.");
+        alert.setContentText(player.getName() + " has drawn a " + damageCard.command + " card.");
         alert.showAndWait();
     }
 
@@ -527,13 +527,19 @@ public class GameController {
         alert.showAndWait();
     }
 
-    private void showVirusCardMessage(Player player) {
+    private void showWormMessage(Player player) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle("Damage Taken");
-        alert.setHeaderText("Virus Activated!");
-        alert.setContentText(player.getName() + " has drawn a VIRUS card.");
+        alert.setHeaderText("WORM Activated!");
+        alert.setContentText(player.getName() + " has been rebooted.");
         alert.showAndWait();
     }
 
-
+    private void showVirusCardMessage(Player player) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Virus Card");
+        alert.setHeaderText("Virus Activated!");
+        alert.setContentText(player.getName() + " is now infected and spreads the virus to nearby players.");
+        alert.showAndWait();
+    }
 }

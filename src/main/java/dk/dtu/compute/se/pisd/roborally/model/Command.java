@@ -49,6 +49,8 @@ public enum Command {
 
     TROJAN_HORSE("Trojan Horse"),
 
+    WORM("Worm"),
+
     VIRUS("VIRUS");
 
     final public String displayName;
