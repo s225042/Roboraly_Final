@@ -47,7 +47,7 @@ public class HttpController {
         return result;
     }
 
-    public String getByGameID(int gameID) throws Exception {
+    public Lobby getByGameID(int gameID) throws Exception {
         HttpRequest request = HttpRequest.newBuilder()
                 .GET()
                 .uri(URI.create("http://localhost:8089/gameInfos/" + gameID))
@@ -57,7 +57,10 @@ public class HttpController {
         CompletableFuture<HttpResponse<String>> response =
                 httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString());
         String result = response.thenApply((r)->r.body()).get(5, TimeUnit.SECONDS);
-        return result;
+
+        Gson gson = new Gson();
+        Lobby lobby = gson.fromJson(result, Lobby.class);
+        return lobby;
     }
 
     public boolean addGame(Lobby lobby) throws Exception {

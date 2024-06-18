@@ -9,16 +9,16 @@ public class PlayerServer {
     private String program4;
     private String program5;
 
-    private int gameID;
+    private Lobby gameInfo;
 
-    public PlayerServer(String playerID, String program1, String program2, String program3, String program4, String program5, int gameID){
+    public PlayerServer(String playerID, String program1, String program2, String program3, String program4, String program5, Lobby gameInfo){
         this.playerID = playerID;
         this.program1 = program1;
         this.program2 = program2;
         this.program3 = program3;
         this.program4 = program4;
         this.program5 = program5;
-        this.gameID = gameID;
+        this.gameInfo = gameInfo;
     }
 
     public String getPlayerID() {
@@ -69,11 +69,11 @@ public class PlayerServer {
         this.program5 = program5;
     }
 
-    public int getGameID(){
-        return gameID;
+    public Lobby getGameInfo(){
+        return gameInfo;
     }
 
-    public void  setGameID(int gameID){
-        this.gameID = gameID;
+    public void setGameInfo(Lobby gameInfo){
+        this.gameInfo = gameInfo;
     }
 }
