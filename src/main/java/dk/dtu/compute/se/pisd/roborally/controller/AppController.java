@@ -32,7 +32,6 @@ import dk.dtu.compute.se.pisd.roborally.fileaccess.model.PlayerServer;
 import dk.dtu.compute.se.pisd.roborally.model.Board;
 import dk.dtu.compute.se.pisd.roborally.model.Player;
 
-import dk.dtu.compute.se.pisd.roborally.model.WaitingRoom;
 import javafx.application.Platform;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
@@ -82,7 +81,7 @@ public class AppController implements Observer {
         this.roboRally = roboRally;
     }
 
-    public void newGame() throws Exception {
+    public void newGame(){
         ChoiceDialog<String> boards = new ChoiceDialog<>(Game_Bord.get(0),Game_Bord);
         boards.setTitle("Table");
         boards.setHeaderText("select game table");
@@ -121,11 +120,12 @@ public class AppController implements Observer {
             TextInputDialog dialog1 = new TextInputDialog();
             dialog1.setHeaderText("Enter Player name");
             dialog1.setContentText("Player name:");
+            Lobby lobby = null;
 
             Optional<String> playerID = dialog1.showAndWait();
             if(playerID.isPresent()){
                 try {
-                    Lobby lobby = httpController.getByGameID(board.getGameId());
+                    lobby = httpController.getByGameID(board.getGameId());
                     httpController.addPlayer(new PlayerServer(playerID.get(), null, null, null, null, null, lobby));
                     playerName = playerID.get();
                 }
@@ -134,11 +134,11 @@ public class AppController implements Observer {
                 }
             }
 
-            WaitingRoom waitingRoom = new WaitingRoom(gameController.board.getGameId());
-            WaitingController waitingController = new WaitingController(waitingRoom, httpController);
+            //WaitingRoom waitingRoom = new WaitingRoom(gameController.board.getGameId());
+            //WaitingController waitingController = new WaitingController(waitingRoom, httpController);
 
-            while (!waitingController.starttingGame()) {
-                roboRally.createVatingRomeView(waitingController);
+            while (lobby.getPhase() != Lobby.phase.WAITING) {
+                roboRally.createVatingRomeView(lobby);
             }
 
             this.startGame();
@@ -148,15 +148,15 @@ public class AppController implements Observer {
 
     public void startGame(){
         //get the plaayers and plays them on the bord
-        Lobby gameInfo = httpController.getByGameID(gameController.board.getGameId());
-        List<PlayerServer> players = gameInfo.getPlayers();
-        Board board = loadBoard(gameInfo.getBoard());
+        try {
+            Lobby gameInfo = httpController.getByGameID(gameController.board.getGameId());
+            List<PlayerServer> players = gameInfo.getPlayers();
+            Board board = loadBoard(gameInfo.getBoard());
 
-        for (int i = 0; i<players.size(); i++){
-            gameController.board.addPlayer(new Player(board, PLAYER_COLORS.get(i), players.get(i).getPlayerName()));
-        }
-
-        /*
+            for (int i = 0; i<players.size(); i++){
+                gameController.board.addPlayer(new Player(board, PLAYER_COLORS.get(i), players.get(i).getPlayerName()));
+            }
+                    /*
         int no = result.get();
         for (int i = 0; i < no; i++) {
             //player skal lave på en lidt anden måde
@@ -165,14 +165,19 @@ public class AppController implements Observer {
             player.setSpace(board.getSpace(i % board.width, i));
         }
 */
-        // XXX: V2
-        // board.setCurrentPlayer(board.getPlayer(0));
-        for (int i = 0; i<board.getPlayers().size(); i++){
-            Player player = board.getPlayer(i);
-            if(player.getName() == playerName){
-                board.setCurrentPlayer(board.getPlayer(i));
-                break;
+            // XXX: V2
+            // board.setCurrentPlayer(board.getPlayer(0));
+            for (int i = 0; i<board.getPlayers().size(); i++){
+                Player player = board.getPlayer(i);
+                if(player.getName() == playerName){
+                    board.setCurrentPlayer(board.getPlayer(i));
+                    break;
+                }
             }
+
+        }
+        catch (Exception e){
+            throw new RuntimeException(e);
         }
 
         gameController.startProgrammingPhase();
@@ -182,6 +187,7 @@ public class AppController implements Observer {
 
     public void joinGame(){
         String bordName;
+        int iResult;
         TextInputDialog dialog = new TextInputDialog();
         dialog.setHeaderText("Enter GameID");
         dialog.setContentText("GameID:");
@@ -190,7 +196,7 @@ public class AppController implements Observer {
             try {
                 Optional<String> result = dialog.showAndWait();
                 if (result.isPresent()) {
-                    Integer iResult = Integer.valueOf(result.get());
+                    iResult = Integer.valueOf(result.get());
                     bordName = httpController.getByGameID(iResult).getBoard();
                     playerName = result.get();
                     break;
@@ -219,15 +225,13 @@ public class AppController implements Observer {
             }
         }
 
-        WaitingRoom waitingRoom = new WaitingRoom(gameController.board.getGameId());
-        WaitingController waitingController = new WaitingController(waitingRoom, httpController);
-
         /*
         while (!waitingController.starttingGame()) {
             roboRally.createVatingRomeView(waitingController);
         }
         //shold getsomting from http that wil start the game*/
-
+        Polling.gameStart(iResult);
+        startGame();
     }
 
     /**

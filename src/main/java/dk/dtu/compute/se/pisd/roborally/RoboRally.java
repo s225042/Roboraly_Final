@@ -23,7 +23,7 @@ package dk.dtu.compute.se.pisd.roborally;
 
 import dk.dtu.compute.se.pisd.roborally.controller.AppController;
 import dk.dtu.compute.se.pisd.roborally.controller.GameController;
-import dk.dtu.compute.se.pisd.roborally.controller.WaitingController;
+import dk.dtu.compute.se.pisd.roborally.fileaccess.model.Lobby;
 import dk.dtu.compute.se.pisd.roborally.view.BoardView;
 import dk.dtu.compute.se.pisd.roborally.view.RoboRallyMenuBar;
 import dk.dtu.compute.se.pisd.roborally.view.WhatingromeView;
@@ -90,13 +90,13 @@ public class RoboRally extends Application {
         stage.sizeToScene();
     }
 
-    public void createVatingRomeView(WaitingController waitingController){
+    public void createVatingRomeView(Lobby lobby){
         // if present, remove old content
         boardRoot.getChildren().clear();
 
-        if (waitingController != null) {
+        if (lobby != null) {
             // create and add view for new board
-            WhatingromeView whatingromeView = new WhatingromeView(waitingController);
+            WhatingromeView whatingromeView = new WhatingromeView(lobby);
             boardRoot.setCenter(whatingromeView);
         }
 

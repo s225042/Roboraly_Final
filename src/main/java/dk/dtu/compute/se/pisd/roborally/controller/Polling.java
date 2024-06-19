@@ -27,7 +27,7 @@ public class Polling {
 
     private static ScheduledFuture<?> roundDone;
 
-    private static void gameStart(int gameID) {
+    public static void gameStart(int gameID) {
         startGame = executorService.scheduleAtFixedRate(() -> gameStarted(gameID), 0, POLLING_INTERVAL_SECONDS, TimeUnit.SECONDS);
     }
 
@@ -65,7 +65,7 @@ public class Polling {
 
     }
 
-    public static void programmingCompleted(int gameID){
+    private static void programmingCompleted(int gameID){
         //Tjekke om alle spillere med samme gameID har programmingDone = true
         List<PlayerServer> playerServers = new ArrayList<>();
         try {

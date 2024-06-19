@@ -1,8 +1,8 @@
 package dk.dtu.compute.se.pisd.roborally.view;
 
 import dk.dtu.compute.se.pisd.designpatterns.observer.Subject;
-import dk.dtu.compute.se.pisd.roborally.controller.WaitingController;
-import dk.dtu.compute.se.pisd.roborally.model.WaitingRoom;
+import dk.dtu.compute.se.pisd.roborally.fileaccess.model.Lobby;
+import dk.dtu.compute.se.pisd.roborally.fileaccess.model.PlayerServer;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -16,26 +16,26 @@ import java.util.List;
  */
 public class WhatingromeView extends VBox implements ViewObserver {
 
-    WaitingRoom waitingRoom;
+    private Lobby lobby;
 
-    public WhatingromeView(WaitingController waitingController) {
-        waitingRoom = waitingController.waitingRoom;
+    public WhatingromeView(Lobby lobby) {
+        this.lobby = lobby;
 
         // list of players
-        List<String> playerLabels = waitingRoom.getPlayerNames();
+        List<PlayerServer> playerLabels = lobby.getPlayers();
 
         // Create the Start button
         Button startButton = new Button("Start");
 
-        startButton.setOnAction(e -> waitingController.setStartingGame(true));
+        startButton.setOnAction(e -> lobby.setPhase(Lobby.phase.WAITING));
 
         // Create a container for the top part
         HBox topContainer = new HBox();
         topContainer.setAlignment(Pos.TOP_LEFT);
 
         // Add the Player label to the top left
-        for (String playerName: playerLabels){
-            Label playerLabel = new Label(playerName);
+        for (PlayerServer playerName: playerLabels){
+            Label playerLabel = new Label(playerName.getPlayerName());
             topContainer.getChildren().add(playerLabel);
         }
 
