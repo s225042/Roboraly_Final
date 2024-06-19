@@ -14,9 +14,14 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 
 public class Polling {
-    private static final String REST_URL = "http://localhost:8089/";
+
+    private static final ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);
+    private static final int POLLING_INTERVAL_SECONDS = 2;
+
 
     private final HttpClient httpClient;
 
