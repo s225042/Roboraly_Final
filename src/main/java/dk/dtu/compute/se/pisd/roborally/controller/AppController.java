@@ -72,6 +72,8 @@ public class AppController implements Observer {
 
     final private HttpController httpController = new HttpController();
 
+    final private Polling polling = new Polling();
+
     private GameController gameController;
 
     private String playerName;
@@ -144,7 +146,7 @@ public class AppController implements Observer {
         }
     }
 
-    public void startGame() throws Exception {
+    public void startGame(){
         //get the plaayers and plays them on the bord
         Lobby gameInfo = httpController.getByGameID(gameController.board.getGameId());
         List<PlayerServer> players = gameInfo.getPlayers();

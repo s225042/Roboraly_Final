@@ -12,18 +12,42 @@ import java.net.URL;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.*;
 
 public class Polling {
 
+
     private static final ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);
     private static final int POLLING_INTERVAL_SECONDS = 2;
 
     private static ScheduledFuture<?> startGame;
+    private static ScheduledFuture<?> programmingDone;
 
-    private static void gameStart() {
-        startGame = executorService.scheduleAtFixedRate(Polling::gameStarted, 0, POLLING_INTERVAL_SECONDS, TimeUnit.SECONDS);
+    private static ScheduledFuture<?> roundDone;
+
+    private static void gameStart(int gameID) {
+        startGame = executorService.scheduleAtFixedRate(() -> gameStarted(gameID), 0, POLLING_INTERVAL_SECONDS, TimeUnit.SECONDS);
+    }
+
+    private static void finishProgramming(int gameID){
+        programmingDone = executorService.scheduleAtFixedRate(() -> programmingCompleted(gameID), 0, POLLING_INTERVAL_SECONDS, TimeUnit.SECONDS);
+    }
+
+    private static void finishRound(int gameID){
+        roundDone = executorService.scheduleAtFixedRate(() -> roundCompleted(gameID), 0, POLLING_INTERVAL_SECONDS, TimeUnit.SECONDS);
+    }
+
+    private static void gameStarted(int gameID) {
+        try {
+            if (httpController.getByGameID(gameID).getPhase() == Lobby.phase.PROGRAMMING) {
+                startGame.cancel(false);
+            }
+        }
+        catch (Exception e){
+            throw new RuntimeException(e);
+        }
     }
 
 
@@ -35,46 +59,54 @@ public class Polling {
         this.httpClient = HttpClient.newHttpClient();
     }
 
-    public static void gameStarted(int gameID) throws Exception {
-        //Skal tjekke om spillet er rykket til PROGRAMMING phase hos en spiller, og opdatere det hos alle
-
-
-           if (httpController.getByGameID(gameID).getPhase() == Lobby.phase.PROGRAMMING) {
-                startGame.cancel(false);
-           } else {
-
-           }
-    }
-
     public void playerList(int gameID) throws Exception {
         //this.playerList = playerList;
         //Skal have og opdatere listen af spillere som er i lobbyen til spillet
 
     }
 
-    public boolean programmingCompleted(int gameID) throws Exception {
+    public static void programmingCompleted(int gameID){
         //Tjekke om alle spillere med samme gameID har programmingDone = true
-        List<PlayerServer> playerServers = httpController.getByGameID(gameID).getPlayers();
+        List<PlayerServer> playerServers = new ArrayList<>();
+        try {
+            playerServers.addAll(httpController.getByGameID(gameID).getPlayers());
+        }
+        catch (Exception e){
+            throw new RuntimeException(e);
+        }
 
-        for(PlayerServer playerServer : playerServers) {
+
+        for(int i = 0; i<playerServers.size(); i++) {
+            PlayerServer playerServer = playerServers.get(i);
             if (!playerServer.isProgrammingDone()){
-                return false;
+                break;
+            }
+            if(playerServers.get(playerServers.size() -1) == playerServer){
+                programmingDone.cancel(false);
             }
         }
-        return true;
     }
 
-    public boolean roundCompleted(int gameID) throws Exception {
+    private static void roundCompleted(int gameID){
         //Når spillet er kørt igennem skal det rykkes tilbage til PROGRAMMING phase
         //Tjekke om alle spillere med samme gameID har programmingDone = false
-        List<PlayerServer> playerServers = httpController.getByGameID(gameID).getPlayers();
+        List<PlayerServer> playerServers = new ArrayList<>();
+        try {
+            playerServers.addAll(httpController.getByGameID(gameID).getPlayers());
+        }
+        catch (Exception e){
+            throw new RuntimeException(e);
+        }
 
         for(PlayerServer playerServer : playerServers) {
             if (playerServer.isProgrammingDone()){
-                return false;
+                break;
+            }
+            if(playerServers.get(playerServers.size() -1) != playerServer){
+                roundDone.cancel(false);
             }
         }
-        return true;
+
     }
 
 
