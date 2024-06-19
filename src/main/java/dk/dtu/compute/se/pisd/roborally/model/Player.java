@@ -176,6 +176,7 @@ public class Player extends Subject {
             deckComposition.put(Command.FORWARD, 2);
             deckComposition.put(Command.FAST_FORWARD, 2);
             deckComposition.put(Command.OPTION_LEFT_RIGHT, 2);
+            deckComposition.put(Command.OPTION_LEFT_RIGHT, 2);
             deckComposition.put(Command.FAST_FAST_FORWARD, 2);
             deckComposition.put(Command.U_TURN, 2);
             deckComposition.put(Command.BACK_UP, 2);
@@ -218,6 +219,7 @@ public class Player extends Subject {
             if (!programmingDeck.isEmpty()) {
                 CommandCard drawnCard = programmingDeck.remove(programmingDeck.size() - 1);
                 cards[i].setCard(drawnCard);
+                cards[i].setVisible(true);  // Ensure the card is visible
                 System.out.println("Player " + name + " drew: " + drawnCard.command);
             }
         }
@@ -301,8 +303,10 @@ public class Player extends Subject {
 
     public void reboot() {
         // Take two SPAM damage cards and place them in your discard pile
-        addSpamCard();
-        addSpamCard();
+        CommandCard spamCard = new CommandCard(Command.SPAM);
+            takeDamage(spamCard);
+            takeDamage(spamCard);
+
 
         // Discard programming cards
         discardProgrammingCards();
