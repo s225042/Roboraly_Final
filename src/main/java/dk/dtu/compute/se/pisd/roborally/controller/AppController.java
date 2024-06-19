@@ -74,11 +74,13 @@ public class AppController implements Observer {
 
     private GameController gameController;
 
+    private String playerName;
+
     public AppController(@NotNull RoboRally roboRally) {
         this.roboRally = roboRally;
     }
 
-    public void newGame(){
+    public void newGame() throws Exception {
         ChoiceDialog<String> boards = new ChoiceDialog<>(Game_Bord.get(0),Game_Bord);
         boards.setTitle("Table");
         boards.setHeaderText("select game table");
@@ -123,6 +125,7 @@ public class AppController implements Observer {
                 try {
                     Lobby lobby = httpController.getByGameID(board.getGameId());
                     httpController.addPlayer(new PlayerServer(playerID.get(), null, null, null, null, null, lobby));
+                    playerName = playerID.get();
                 }
                 catch (Exception e1){
                     System.out.println(e1);
@@ -141,8 +144,16 @@ public class AppController implements Observer {
         }
     }
 
-    public void startGame(){
+    public void startGame() throws Exception {
         //get the plaayers and plays them on the bord
+        Lobby gameInfo = httpController.getByGameID(gameController.board.getGameId());
+        List<PlayerServer> players = gameInfo.getPlayers();
+        Board board = loadBoard(gameInfo.getBoard());
+
+        for (int i = 0; i<players.size(); i++){
+            gameController.board.addPlayer(new Player(board, PLAYER_COLORS.get(i), players.get(i).getPlayerName()));
+        }
+
         /*
         int no = result.get();
         for (int i = 0; i < no; i++) {
@@ -154,6 +165,14 @@ public class AppController implements Observer {
 */
         // XXX: V2
         // board.setCurrentPlayer(board.getPlayer(0));
+        for (int i = 0; i<board.getPlayers().size(); i++){
+            Player player = board.getPlayer(i);
+            if(player.getName() == playerName){
+                board.setCurrentPlayer(board.getPlayer(i));
+                break;
+            }
+        }
+
         gameController.startProgrammingPhase();
 
         roboRally.createBoardView(gameController);
@@ -171,7 +190,7 @@ public class AppController implements Observer {
                 if (result.isPresent()) {
                     Integer iResult = Integer.valueOf(result.get());
                     bordName = httpController.getByGameID(iResult).getBoard();
-
+                    playerName = result.get();
                     break;
                 }
             } catch (Exception e1) {
