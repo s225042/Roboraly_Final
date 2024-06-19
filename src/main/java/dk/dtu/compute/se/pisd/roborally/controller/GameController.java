@@ -40,14 +40,30 @@ public class GameController {
     }
 
     private void initializeDamageDeck() {
-        for (int i = 0; i < 20; i++) {
+        int totalCards = 40; // Total number of damage cards in the deck
+        int cardTypes = 4; // Number of different damage card types
+        int cardsPerType = totalCards / cardTypes; // Number of each type of damage card
+
+        // Add SPAM cards
+        for (int i = 0; i < cardsPerType; i++) {
             damageDeck.add(new CommandCard(Command.SPAM));
-            if (i < 5) {
-                damageDeck.add(new CommandCard(Command.TROJAN_HORSE));
-                damageDeck.add(new CommandCard(Command.WORM));
-                damageDeck.add(new CommandCard(Command.VIRUS));
-            }
         }
+
+        // Add TROJAN_HORSE cards
+        for (int i = 0; i < cardsPerType; i++) {
+            damageDeck.add(new CommandCard(Command.TROJAN_HORSE));
+        }
+
+        // Add WORM cards
+        for (int i = 0; i < cardsPerType; i++) {
+            damageDeck.add(new CommandCard(Command.WORM));
+        }
+
+        // Add VIRUS cards
+        for (int i = 0; i < cardsPerType; i++) {
+            damageDeck.add(new CommandCard(Command.VIRUS));
+        }
+
         Collections.shuffle(damageDeck);
     }
 
