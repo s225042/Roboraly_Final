@@ -3,13 +3,11 @@ package dk.dtu.compute.se.pisd.roborally.controller;
 import com.google.gson.Gson;
 import dk.dtu.compute.se.pisd.roborally.fileaccess.model.Lobby;
 import dk.dtu.compute.se.pisd.roborally.fileaccess.model.PlayerServer;
-import dk.dtu.compute.se.pisd.roborally.model.Player;
 
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.time.Duration;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
@@ -127,13 +125,13 @@ public class HttpController {
         }
     }
 
-    public boolean updateGameInfo(int id, Lobby lobby) throws Exception {
+    public void updateGameInfo(int id, Lobby lobby) throws Exception {
         Gson gson = new Gson();
         String requestBody = gson.toJson(lobby);
 
         HttpRequest request = HttpRequest.newBuilder()
                 .PUT(HttpRequest.BodyPublishers.ofString(requestBody))
-                .uri(URI.create("http://localhost:8089/gameInfos/" + lobby.getID()))
+                .uri(URI.create("http://localhost:8089/gameInfos/" + id))
                 .header("Accept", "application/json")
                 .setHeader("Content-Type", "application/json")
                 .build();
@@ -141,9 +139,7 @@ public class HttpController {
             CompletableFuture<HttpResponse<String>> response =
                     httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString());
             String result = response.thenApply((r)->r.body()).get(5, TimeUnit.SECONDS);
-            return true;
         } catch (Exception e1) {
-            return false;
         }
     }
 

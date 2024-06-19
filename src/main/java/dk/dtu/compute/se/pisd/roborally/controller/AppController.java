@@ -191,13 +191,15 @@ public class AppController implements Observer {
         TextInputDialog dialog = new TextInputDialog();
         dialog.setHeaderText("Enter GameID");
         dialog.setContentText("GameID:");
+        Lobby lobby;
 
         while (true) {
             try {
                 Optional<String> result = dialog.showAndWait();
                 if (result.isPresent()) {
                     iResult = Integer.valueOf(result.get());
-                    bordName = httpController.getByGameID(iResult).getBoard();
+                    lobby = httpController.getByGameID(iResult);
+                    bordName = lobby.getBoard();
                     playerName = result.get();
                     break;
                 }
@@ -217,9 +219,7 @@ public class AppController implements Observer {
         Optional<String> playerID = dialog1.showAndWait();
         if(playerID.isPresent()){
             try {
-                Lobby lobby = httpController.getByGameID(board.getGameId());
-                lobby.addPlayer(new PlayerServer(playerID.get(), null, null, null, null, null, lobby));
-                httpController.updateGameInfo(lobby.getID(), lobby);
+                httpController.addPlayer(new PlayerServer(playerID.get(), null, null, null, null, null, lobby));
             }
             catch (Exception e1){
                 System.out.println(e1);
