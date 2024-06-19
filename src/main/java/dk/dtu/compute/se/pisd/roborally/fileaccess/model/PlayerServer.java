@@ -12,6 +12,8 @@ public class PlayerServer {
 
     private Lobby gameInfo;
 
+    private boolean programmingDone;
+
     public PlayerServer(String playerName, String program1, String program2, String program3, String program4, String program5, Lobby gameInfo){
         this.playerName = playerName;
         this.program1 = program1;
@@ -20,6 +22,7 @@ public class PlayerServer {
         this.program4 = program4;
         this.program5 = program5;
         this.gameInfo = gameInfo;
+        this.programmingDone = false;
     }
 
     public String getPlayerName() {
@@ -85,4 +88,8 @@ public class PlayerServer {
     public int getPlayerID(){
         return playerID;
     }
+
+    public boolean isProgrammingDone() {return programmingDone;}
+
+    public void setProgrammingDone(boolean programmingDone) {this.programmingDone = programmingDone;}
 }
