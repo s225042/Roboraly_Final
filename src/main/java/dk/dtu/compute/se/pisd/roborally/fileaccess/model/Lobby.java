@@ -7,15 +7,15 @@ public class Lobby {
     private String board;
     private int turnID;
     private int id;
-    public enum phase {WAITING, PROGRAMMING, EXECUTION};
-    private phase phase;
+    public enum Phase {WAITING, PROGRAMMING, EXECUTION};
+    private Phase phase;
 
     private List<PlayerServer> players = new ArrayList<>();
 
     public Lobby(String board, int turnID){
         this.board = board;
         this.turnID = turnID;
-        this.phase = phase.WAITING;
+        this.phase = Phase.WAITING;
     }
 
     public String getBoard() {
@@ -50,7 +50,7 @@ public class Lobby {
         players.add(playerServer);
     }
 
-    public Lobby.phase getPhase() {return phase;}
+    public Phase getPhase() {return phase;}
 
-    public void setPhase(Lobby.phase phase) {this.phase = phase;}
+    public void setPhase(Phase phase) {this.phase = phase;}
 }

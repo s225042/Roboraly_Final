@@ -40,13 +40,16 @@ public class Polling {
     }
 
     private static void gameStarted(int gameID) {
+        Lobby lobby;
+
         try {
-            if (httpController.getByGameID(gameID).getPhase() == Lobby.phase.PROGRAMMING) {
-                startGame.cancel(false);
-            }
+            lobby = httpController.getByGameID(gameID);
         }
         catch (Exception e){
             throw new RuntimeException(e);
+        }
+        if (lobby.getPhase() == Lobby.Phase.PROGRAMMING){
+            startGame.cancel(false);
         }
     }
 
