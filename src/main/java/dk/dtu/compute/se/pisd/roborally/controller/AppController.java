@@ -137,7 +137,7 @@ public class AppController implements Observer {
             //WaitingRoom waitingRoom = new WaitingRoom(gameController.board.getGameId());
             //WaitingController waitingController = new WaitingController(waitingRoom, httpController);
 
-            while (lobby.getPhase() != Lobby.phase.WAITING) {
+            while (lobby.getPhase() == Lobby.phase.WAITING) {
                 roboRally.createVatingRomeView(lobby);
             }
 
@@ -218,7 +218,8 @@ public class AppController implements Observer {
         if(playerID.isPresent()){
             try {
                 Lobby lobby = httpController.getByGameID(board.getGameId());
-                httpController.addPlayer(new PlayerServer(playerID.get(), null, null, null, null, null, lobby));
+                lobby.addPlayer(new PlayerServer(playerID.get(), null, null, null, null, null, lobby));
+                httpController.updateGameInfo(lobby.getID(), lobby);
             }
             catch (Exception e1){
                 System.out.println(e1);

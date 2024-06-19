@@ -46,6 +46,10 @@ public class Lobby {
         return players;
     }
 
+    public void addPlayer(PlayerServer playerServer){
+        players.add(playerServer);
+    }
+
     public Lobby.phase getPhase() {return phase;}
 
     public void setPhase(Lobby.phase phase) {this.phase = phase;}

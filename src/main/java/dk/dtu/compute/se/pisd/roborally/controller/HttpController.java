@@ -127,5 +127,25 @@ public class HttpController {
         }
     }
 
+    public boolean updateGameInfo(int id, Lobby lobby) throws Exception {
+        Gson gson = new Gson();
+        String requestBody = gson.toJson(lobby);
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .PUT(HttpRequest.BodyPublishers.ofString(requestBody))
+                .uri(URI.create("http://localhost:8089/gameInfos/" + lobby.getID()))
+                .header("Accept", "application/json")
+                .setHeader("Content-Type", "application/json")
+                .build();
+        try {
+            CompletableFuture<HttpResponse<String>> response =
+                    httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString());
+            String result = response.thenApply((r)->r.body()).get(5, TimeUnit.SECONDS);
+            return true;
+        } catch (Exception e1) {
+            return false;
+        }
+    }
+
 
 }
