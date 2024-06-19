@@ -209,6 +209,7 @@ public class AppController implements Observer {
         }
         //Shold macke the gamecontroler from the https nolegs
         Board board = loadBoard(bordName);
+        board.setGameId(lobby.getID());
         gameController = new GameController(board, httpController);
 
         //make the first player
