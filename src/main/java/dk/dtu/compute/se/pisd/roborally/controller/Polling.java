@@ -13,31 +13,36 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.*;
 
 public class Polling {
 
     private static final ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);
     private static final int POLLING_INTERVAL_SECONDS = 2;
 
+    private static ScheduledFuture<?> startGame;
+
+    private static void gameStart() {
+        startGame = executorService.scheduleAtFixedRate(Polling::gameStarted, 0, POLLING_INTERVAL_SECONDS, TimeUnit.SECONDS);
+    }
+
 
     private final HttpClient httpClient;
 
-    private HttpController httpController = new HttpController();
+    private static HttpController httpController = new HttpController();
 
     public Polling() {
         this.httpClient = HttpClient.newHttpClient();
     }
 
-    public boolean gameStarted(int gameID) throws Exception {
+    public static void gameStarted(int gameID) throws Exception {
         //Skal tjekke om spillet er rykket til PROGRAMMING phase hos en spiller, og opdatere det hos alle
 
+
            if (httpController.getByGameID(gameID).getPhase() == Lobby.phase.PROGRAMMING) {
-               return true;
+                startGame.cancel(false);
            } else {
-               return false;
+
            }
     }
 
