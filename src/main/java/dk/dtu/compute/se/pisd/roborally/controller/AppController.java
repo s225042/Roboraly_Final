@@ -107,7 +107,7 @@ public class AppController implements Observer {
 
             //setGameID
             try {
-                board.setGameId(httpController.addGame(new Lobby(boardsname, 0)));
+                board.setGameId(httpController.addGame(new Lobby(boardsname, 0)).getID());
             } catch (Exception e1) {
                 System.out.println(e1);
             }
