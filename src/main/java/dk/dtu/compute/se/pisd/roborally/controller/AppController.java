@@ -126,7 +126,7 @@ public class AppController implements Observer {
             if(playerID.isPresent()){
                 try {
                     lobby = httpController.getByGameID(board.getGameId());
-                    httpController.addPlayer(new PlayerServer(playerID.get(), null, null, null, null, null, lobby));
+                    httpController.addPlayer(new PlayerServer(playerID.get(), lobby));
                     playerName = playerID.get();
                 }
                 catch (Exception e1){
@@ -220,7 +220,7 @@ public class AppController implements Observer {
         Optional<String> playerID = dialog1.showAndWait();
         if(playerID.isPresent()){
             try {
-                httpController.addPlayer(new PlayerServer(playerID.get(), null, null, null, null, null, lobby));
+                httpController.addPlayer(new PlayerServer(playerID.get(), lobby));
             }
             catch (Exception e1){
                 System.out.println(e1);

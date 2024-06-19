@@ -14,13 +14,8 @@ public class PlayerServer {
 
     private boolean programmingDone;
 
-    public PlayerServer(String playerName, String program1, String program2, String program3, String program4, String program5, Lobby gameInfo){
+    public PlayerServer(String playerName, Lobby gameInfo){
         this.playerName = playerName;
-        this.program1 = program1;
-        this.program2 = program2;
-        this.program3 = program3;
-        this.program4 = program4;
-        this.program5 = program5;
         this.gameInfo = gameInfo;
         this.programmingDone = false;
     }
