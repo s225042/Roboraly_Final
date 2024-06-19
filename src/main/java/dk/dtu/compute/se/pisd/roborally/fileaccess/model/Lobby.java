@@ -1,9 +1,14 @@
 package dk.dtu.compute.se.pisd.roborally.fileaccess.model;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Lobby {
-    String board;
-    int turnID;
-    int id;
+    private String board;
+    private int turnID;
+    private int id;
+
+    private List<PlayerServer> players = new ArrayList<>();
 
     public Lobby(String board, int turnID){
         this.board = board;
@@ -32,5 +37,9 @@ public class Lobby {
 
     public void setGameID(int id) {
         this.id = id;
+    }
+
+    public List<PlayerServer> getPlayers(){
+        return players;
     }
 }

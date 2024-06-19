@@ -65,7 +65,7 @@ public class HttpController {
         return lobby;
     }
 
-    public int addGame(Lobby lobby) throws Exception {
+    public Lobby addGame(Lobby lobby) throws Exception {
         Gson gson = new Gson();
         String requestBody = gson.toJson(lobby);
 
@@ -80,10 +80,10 @@ public class HttpController {
                     httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString());
             String responseBody = response.thenApply(HttpResponse::body).get(5, TimeUnit.SECONDS);
             Lobby serverLoby = gson.fromJson(responseBody, Lobby.class);
-            return serverLoby.getID();
+            return serverLoby;
         } catch (Exception e1) {
             e1.printStackTrace();
-            return 0;
+            return null;
         }
     }
 
