@@ -28,6 +28,7 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.Alert.AlertType;
 
 import java.util.*;
+import java.util.List;
 
 /**
  * ...
@@ -40,16 +41,147 @@ public class GameController {
     final public Board board;
     public boolean won = false;
     private Queue<Player> rebootQueue = new LinkedList<>();
+    private List<CommandCard> damageDeck = new ArrayList<>();
+
+
+
 
     public GameController(Board board) {
         this.board = board;
+        initializeDamageDeck();
+
     }
+
+
 
     public void determinePlayerOrder(){
         List<Player> players = new ArrayList<>(board.getPlayers());
         players.sort(Comparator.comparingInt(player -> board.getAntenna().calculateDistance(player)));
         board.setPlayerOrder(players);
     }
+
+    private void initializeDamageDeck() {
+        int totalCards = 40; // Total number of damage cards in the deck
+        int cardTypes = 4; // Number of different damage card types
+        int cardsPerType = totalCards / cardTypes; // Number of each type of damage card
+
+        // Add SPAM cards
+        for (int i = 0; i < cardsPerType; i++) {
+            damageDeck.add(new CommandCard(Command.SPAM));
+        }
+
+        // Add TROJAN_HORSE cards
+        for (int i = 0; i < cardsPerType; i++) {
+            damageDeck.add(new CommandCard(Command.TROJAN_HORSE));
+        }
+
+        // Add WORM cards
+        for (int i = 0; i < cardsPerType; i++) {
+            damageDeck.add(new CommandCard(Command.WORM));
+        }
+
+        // Add VIRUS cards
+        for (int i = 0; i < cardsPerType; i++) {
+            damageDeck.add(new CommandCard(Command.VIRUS));
+        }
+
+        Collections.shuffle(damageDeck);
+    }
+
+    public CommandCard drawRandomDamageCard() {
+        if (damageDeck.isEmpty()) {
+            initializeDamageDeck();
+        }
+        int randomIndex = new Random().nextInt(damageDeck.size());
+        return damageDeck.remove(randomIndex);
+    }
+
+
+    public void applyTrojanHorseDamage(Player player) {
+        System.out.println("Applying Trojan Horse damage.");
+        player.takeDamage(new CommandCard(Command.SPAM));
+        player.takeDamage(new CommandCard(Command.SPAM));
+        showTrojanHorseMessage(player);
+    }
+
+    public void applyWormDamage(Player player) {
+        System.out.println("Applying WORM damage.");
+        rebootPlayer(player);
+        showWormMessage(player);
+    }
+
+    public void applyVirusDamage(Player player) {
+        System.out.println("Applying VIRUS damage.");
+        player.setInfected(true); // Infect the player
+        spreadVirus(player);
+    }
+
+    public void spreadVirus(Player infectedPlayer) {
+        System.out.println("Spreading virus from player: " + infectedPlayer.getName());
+        List<Player> playersWithinRadius = getPlayersWithinRadius(infectedPlayer);
+        for (Player player : playersWithinRadius) {
+            if (!player.isInfected()) {
+                player.setInfected(true);
+                System.out.println("Player " + player.getName() + " is infected.");
+                // Each newly infected player draws a virus card
+                player.takeDamage(new CommandCard(Command.VIRUS));
+                showVirusCardMessage(player);
+            }
+        }
+    }
+
+    public List<Player> getPlayersWithinRadius(Player sourcePlayer) {
+        List<Player> playersWithinRadius = new ArrayList<>();
+        for (Player player : board.getPlayers()) {
+            if (player != sourcePlayer && isWithinRadius(sourcePlayer.getSpace(), player.getSpace(), 6)) {
+                playersWithinRadius.add(player);
+            }
+        }
+        return playersWithinRadius;
+    }
+
+    private boolean isWithinRadius(Space source, Space target, int radius) {
+        int dx = Math.abs(source.getX() - target.getX());
+        int dy = Math.abs(source.getY() - target.getY());
+        return Math.sqrt(dx * dx + dy * dy) <= radius;
+    }
+
+    public void applyRandomDamage(Player player) {
+        CommandCard damageCard = drawRandomDamageCard();
+        switch (damageCard.command) {
+            case TROJAN_HORSE:
+                applyTrojanHorseDamage(player);
+                break;
+            case WORM:
+                applyWormDamage(player);
+                break;
+            case VIRUS:
+                applyVirusDamage(player);
+                break;
+            default:
+                player.takeDamage(damageCard);
+                showDamageMessage(player, damageCard);
+                break;
+        }
+    }
+
+    public void executeSpamDamageCard(Player player, CommandCard damageCard) {
+        if (damageCard.command == Command.SPAM) {
+            System.out.println("Executing SPAM card action");
+            CommandCard randomCard;
+            do {
+                randomCard = player.drawRandomProgrammingCard();
+            } while (randomCard != null && randomCard.command == Command.SPAM);
+
+            if (randomCard != null) {
+                executeCommand(player, randomCard.command);
+            }
+            player.getDiscardPile().add(damageCard);
+        }
+    }
+
+
+
 
     public void moveForward(@NotNull Player player) {
         if (!won && player.board == board) { // Check if game is won before moving
@@ -284,33 +416,32 @@ public class GameController {
 
 
     private void spaceActions() {
-        for (Player player : board.getPlayers()) {
-            if (won) {
-                break;
-            }
-            Space space = player.getSpace();
-            FieldAction fieldAction = space.getFieldAction();
-            if (fieldAction instanceof ConveyorBelt) {
-                ConveyorBelt conveyorBelt = (ConveyorBelt) fieldAction;
-                conveyorBelt.doAction(this, space);
-
-            } else if (fieldAction instanceof Checkpoint) {
-                Checkpoint checkpoint = (Checkpoint) fieldAction;
-                checkpoint.doAction(this, space);
-
-            } else if (fieldAction instanceof Gear) {
-                Gear gear = (Gear) fieldAction;
-                gear.doAction(this, space);
-
-            } else if (fieldAction instanceof Pit) {
-                Pit pit = (Pit) fieldAction;
-                pit.doAction(this, space);
-            } else if(fieldAction instanceof PushPanel){
-                PushPanel pushPanel = (PushPanel) fieldAction;
-                pushPanel.doAction(this, space);
+        for (Space space: board.getSpaceBLueConveyor()) {
+            ConveyorBelt conveyorBelt = (ConveyorBelt) space.getFieldAction();
+            conveyorBelt.doAction(this, space);
+        }
+        for (Space space: board.getSpacesGreanConveyor()) {
+            ConveyorBelt conveyorBelt = (ConveyorBelt) space.getFieldAction();
+            conveyorBelt.doAction(this, space);
+        }
+        for (Space space: board.getSpacesGears()) {
+            Gear gear = (Gear) space.getFieldAction();
+            gear.doAction(this, space);
+        }
+        for (Space space: board.getLaisers()) {
+            Laiser laiser = (Laiser) space.getFieldAction();
+            laiser.doAction(this, space);
+            Player player = space.getPlayer();
+            if (player != null) {
+                applyRandomDamage(player);
             }
         }
+        for (Space space: board.getChekpoints()) {
+            Checkpoint checkpoint = (Checkpoint) space.getFieldAction();
+            checkpoint.doAction(this, space);
+        }
     }
+
 
     private void uTurn(@NotNull Player player) {
         player.setHeading(player.getHeading().next().next());
@@ -378,8 +509,20 @@ public class GameController {
                 case FAST_FAST_FORWARD:
                     this.fastFastForward(player);
                     break;
+                case SPAM:
+                    this.executeSpamDamageCard(player, new CommandCard(Command.SPAM));
+                    break;
+                case TROJAN_HORSE:
+                    this.applyTrojanHorseDamage(player);
+                    break;
+                case WORM:
+                    this.applyWormDamage(player);
+                    break;
+                case VIRUS:
+                    this.applyVirusDamage(player);
+                    break;
                 default:
-                    // DO NOTHING (for now)
+                    break;
             }
         }
     }
@@ -422,6 +565,8 @@ public class GameController {
         return false;
     }
 
+
+
     public void startProgrammingPhase() {
         board.setPhase(Phase.PROGRAMMING);
         board.setCurrentPlayer(board.getPlayer(0));
@@ -430,25 +575,17 @@ public class GameController {
         for (int i = 0; i < board.getPlayersNumber(); i++) {
             Player player = board.getPlayer(i);
             if (player != null) {
+                player.initializeProgrammingDeck(); // Initialize the deck if needed
                 for (int j = 0; j < Player.NO_REGISTERS; j++) {
                     CommandCardField field = player.getProgramField(j);
                     field.setCard(null);
                     field.setVisible(true);
                 }
-                for (int j = 0; j < Player.NO_CARDS; j++) {
-                    CommandCardField field = player.getCardField(j);
-                    field.setCard(generateRandomCommandCard());
-                    field.setVisible(true);
-                }
+                player.drawProgrammingCards(Player.NO_CARDS); // Draw cards for the player
             }
         }
     }
 
-    private CommandCard generateRandomCommandCard() {
-        Command[] commands = Command.values();
-        int random = (int) (Math.random() * commands.length);
-        return new CommandCard(commands[random]);
-    }
 
     public void notImplemented() {
         assert false;
@@ -477,6 +614,40 @@ public class GameController {
 
         alert.showAndWait();
     }
+
+    private void showDamageMessage(Player player, CommandCard damageCard) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Damage Taken");
+        alert.setHeaderText("Robot hit by laser!");
+        alert.setContentText(player.getName() + " has drawn a " + damageCard.command + " card.");
+        alert.showAndWait();
+    }
+
+    private void showTrojanHorseMessage(Player player) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Damage Taken");
+        alert.setHeaderText("Trojan Horse Activated!");
+        alert.setContentText(player.getName() + " has drawn two SPAM cards.");
+        alert.showAndWait();
+    }
+
+    private void showWormMessage(Player player) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Damage Taken");
+        alert.setHeaderText("WORM Activated!");
+        alert.setContentText(player.getName() + " has been rebooted.");
+        alert.showAndWait();
+    }
+
+    private void showVirusCardMessage(Player player) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Virus Card");
+        alert.setHeaderText("Virus Activated!");
+        alert.setContentText(player.getName() + " is now infected and spreads the virus to nearby players.");
+        alert.showAndWait();
+    }
+
+
 
     /**
      * @Author s235112
