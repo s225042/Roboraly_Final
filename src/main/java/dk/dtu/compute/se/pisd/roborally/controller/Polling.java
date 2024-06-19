@@ -54,8 +54,16 @@ public class Polling {
         return true;
     }
 
-    public boolean roundCompleted() {
+    public boolean roundCompleted(int gameID) throws Exception {
         //Når spillet er kørt igennem skal det rykkes tilbage til PROGRAMMING phase
+        //Tjekke om alle spillere med samme gameID har programmingDone = false
+        List<PlayerServer> playerServers = httpController.getByGameID(gameID).getPlayers();
+
+        for(PlayerServer playerServer : playerServers) {
+            if (playerServer.isProgrammingDone()){
+                return false;
+            }
+        }
         return true;
     }
 
