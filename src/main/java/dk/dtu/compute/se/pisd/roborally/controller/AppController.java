@@ -202,7 +202,6 @@ public class AppController implements Observer {
                     iResult = Integer.valueOf(result.get());
                     lobby = httpController.getByGameID(iResult);
                     bordName = lobby.getBoard();
-                    playerName = result.get();
                     break;
                 }
             } catch (Exception e1) {
@@ -223,6 +222,7 @@ public class AppController implements Observer {
         if(playerID.isPresent()){
             try {
                 httpController.addPlayer(new PlayerServer(playerID.get(), lobby));
+                playerName = playerID.get();
             }
             catch (Exception e1){
                 System.out.println(e1);

@@ -58,6 +58,13 @@ public class PlayersView extends TabPane implements ViewObserver {
         if (subject == board) {
             Player current = board.getCurrentPlayer();
             this.getSelectionModel().select(board.getPlayerNumber(current));
+
+            int player = board.getPlayerNumber(current);
+            for (int i = 0; i<playerViews.length; i++){
+                if(i != player){
+                    playerViews[i].setDisable(true);
+                }
+            }
         }
     }
 
