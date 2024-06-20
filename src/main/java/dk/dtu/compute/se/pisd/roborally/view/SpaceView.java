@@ -229,7 +229,7 @@ public class SpaceView extends StackPane implements ViewObserver {
 
         } else if (space.getFieldAction() instanceof PushPanel){
             PushPanel pushPanel = (PushPanel) space.getFieldAction();
-            imagePath = getClass().getResource("/images/push24.png").toExternalForm();
+            imagePath = getClass().getResource("/images/pushpanel.png").toExternalForm();
             Image pushImage = new Image(imagePath);
             ImageView pushImageView = new ImageView(pushImage);
             pushImageView.setFitWidth(SPACE_WIDTH);
