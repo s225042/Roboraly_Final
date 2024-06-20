@@ -153,7 +153,9 @@ public class AppController implements Observer {
             List<PlayerServer> players = gameInfo.getPlayers();
 
             for (int i = 0; i<players.size(); i++){
-                gameController.board.addPlayer(new Player(gameController.board, PLAYER_COLORS.get(i), players.get(i).getPlayerName()));
+                Player player = new Player(gameController.board, PLAYER_COLORS.get(i), players.get(i).getPlayerName());
+                gameController.board.addPlayer(player);
+                player.setSpace(gameController.board.getSpace(i % gameController.board.width, i));
             }
                     /*
         int no = result.get();
