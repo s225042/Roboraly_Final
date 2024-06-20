@@ -151,11 +151,9 @@ public class AppController implements Observer {
         try {
             Lobby gameInfo = httpController.getByGameID(gameController.board.getGameId());
             List<PlayerServer> players = gameInfo.getPlayers();
-            Board board = loadBoard(gameInfo.getBoard());
 
             for (int i = 0; i<players.size(); i++){
-
-                board.addPlayer(new Player(board, PLAYER_COLORS.get(i), players.get(i).getPlayerName()));
+                gameController.board.addPlayer(new Player(gameController.board, PLAYER_COLORS.get(i), players.get(i).getPlayerName()));
             }
                     /*
         int no = result.get();
@@ -168,11 +166,10 @@ public class AppController implements Observer {
 */
             // XXX: V2
             // board.setCurrentPlayer(board.getPlayer(0));
-            for (int i = 0; i<board.getPlayers().size(); i++){
-                Player player = board.getPlayer(i);
-                if(player.getName() == playerName){
-                    board.setCurrentPlayer(board.getPlayer(i));
-                    break;
+            for (int i = 0; i<gameController.board.getPlayers().size(); i++){
+                Player player = gameController.board.getPlayer(i);
+                if(player.getName().equals(playerName)){
+                    gameController.board.setCurrentPlayer(gameController.board.getPlayer(i));
                 }
             }
 
@@ -234,7 +231,13 @@ public class AppController implements Observer {
             roboRally.createVatingRomeView(waitingController);
         }
         //shold getsomting from http that wil start the game*/
-        Polling.gameStart(iResult);
+        try {
+            roboRally.createVatingRomeView(httpController.getByGameID(lobby.getID()));
+            Polling.gameStart(iResult);
+        }
+        catch (Exception e){
+            throw new RuntimeException(e);
+        }
     }
 
     /**
