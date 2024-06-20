@@ -32,7 +32,7 @@ public class WhatingromeView extends VBox implements ViewObserver {
 
         // Create the Start button
         Button startButton = new Button("Start");
-        startButton.setOnAction(e -> lobby.setPhase(Lobby.Phase.WAITING));
+        startButton.setOnAction(e -> lobby.setPhase(Lobby.Phase.PROGRAMMING));
 
         stage = new Stage();
         window = new HBox();
