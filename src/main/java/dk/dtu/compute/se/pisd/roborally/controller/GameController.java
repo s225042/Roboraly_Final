@@ -437,9 +437,13 @@ public class GameController {
             } else if (fieldAction instanceof Pit) {
                 Pit pit = (Pit) fieldAction;
                 pit.doAction(this, space);
+
             } else if(fieldAction instanceof PushPanel){
                 PushPanel pushPanel = (PushPanel) fieldAction;
                 pushPanel.doAction(this, space);
+            } else if(fieldAction instanceof Laiser){
+                Laiser laiser = (Laiser) fieldAction;
+                laiser.doAction(this, space);
             }
         }
     }

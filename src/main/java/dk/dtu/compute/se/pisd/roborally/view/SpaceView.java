@@ -37,6 +37,9 @@ import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.StrokeLineCap;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import static dk.dtu.compute.se.pisd.roborally.model.Heading.*;
 
 /**
@@ -51,6 +54,7 @@ public class SpaceView extends StackPane implements ViewObserver {
     final public static int SPACE_WIDTH = 60; // 75;
 
     public final Space space;
+    private Set<Space> laserPositions = new HashSet<>();
 
     /**
      * @param space
@@ -251,7 +255,7 @@ public class SpaceView extends StackPane implements ViewObserver {
             }
 
         }
-        
+
         else {
             imagePath = getClass().getResource("/images/empty.png").toExternalForm();
         }
@@ -286,9 +290,26 @@ public class SpaceView extends StackPane implements ViewObserver {
 
                 if (laise.getHeading() == SOUTH || laise.getHeading() == Heading.NORTH) {
                     imageView.setRotate(90);
+                } else {
+                    imageView.setRotate(0);
                 }
 
-                this.getChildren().add(imageView);
+                // Add the laser image to the current space
+                if (!laserPositions.contains(currentSpace)) {
+                    this.getChildren().add(imageView);
+                    laserPositions.add(currentSpace);
+                } else {
+                    // Laser intersection detected, add another laser image to form a plus sign
+                    ImageView intersectImageView = new ImageView(image);
+                    intersectImageView.setFitWidth(SPACE_WIDTH);
+                    intersectImageView.setFitHeight(5);
+                    if (laise.getHeading() == SOUTH || laise.getHeading() == Heading.NORTH) {
+                        intersectImageView.setRotate(90);
+                    } else {
+                        intersectImageView.setRotate(0);
+                    }
+                    this.getChildren().add(intersectImageView);
+                }
 
                 // Move to the next space in the direction of the laser
                 Space nextSpace = currentSpace.board.getNeighbour(currentSpace, laise.getHeading());
