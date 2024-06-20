@@ -24,7 +24,6 @@ public class Polling {
 
     private static ScheduledFuture<?> startGame;
     private static ScheduledFuture<?> programmingDone;
-
     private static ScheduledFuture<?> roundDone;
 
     public static void gameStart(int gameID) {

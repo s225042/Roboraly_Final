@@ -1,6 +1,8 @@
 package dk.dtu.compute.se.pisd.roborally.fileaccess.model;
 
-public class PlayerServer {
+import dk.dtu.compute.se.pisd.designpatterns.observer.Subject;
+
+public class PlayerServer extends Subject {
 
     private int playerID;
     private String playerName;

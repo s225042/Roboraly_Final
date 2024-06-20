@@ -3,11 +3,13 @@ package dk.dtu.compute.se.pisd.roborally.view;
 import dk.dtu.compute.se.pisd.designpatterns.observer.Subject;
 import dk.dtu.compute.se.pisd.roborally.fileaccess.model.Lobby;
 import dk.dtu.compute.se.pisd.roborally.fileaccess.model.PlayerServer;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
 
 import java.util.List;
 
@@ -17,26 +19,36 @@ import java.util.List;
 public class WhatingromeView extends VBox implements ViewObserver {
 
     private Lobby lobby;
+    private final Stage stage;
+    private final HBox window;
+    private List<PlayerServer> playerLabels;
+
 
     public WhatingromeView(Lobby lobby) {
         this.lobby = lobby;
 
         // list of players
-        List<PlayerServer> playerLabels = lobby.getPlayers();
+        playerLabels = lobby.getPlayers();
 
         // Create the Start button
         Button startButton = new Button("Start");
-
         startButton.setOnAction(e -> lobby.setPhase(Lobby.Phase.WAITING));
 
-        // Create a container for the top part
-        HBox topContainer = new HBox();
-        topContainer.setAlignment(Pos.TOP_LEFT);
+        stage = new Stage();
+        window = new HBox();
 
-        // Add the Player label to the top left
+        //Making the lobbyLayout
+        this.setAlignment(Pos.CENTER);
+        this.setSpacing(10);
+        this.setPadding(new Insets(10));
+
+        window.getChildren().add(this);
+
+
+        // Add the Player label to the space
         for (PlayerServer playerName: playerLabels){
             Label playerLabel = new Label(playerName.getPlayerName());
-            topContainer.getChildren().add(playerLabel);
+            this.getChildren().add(playerLabel);
         }
 
         // Add an empty HBox for spacing
@@ -49,17 +61,18 @@ public class WhatingromeView extends VBox implements ViewObserver {
         startButtonContainer.getChildren().add(startButton);
 
         // Add the components to the top container
-        topContainer.getChildren().addAll(spacer, startButtonContainer);
-
-        // Set the top container to the top of the BorderPane
-        this.getChildren().add(topContainer);
+        this.getChildren().addAll(spacer, startButtonContainer);
     }
+
+
 
     /**
      * @param subject
      */
     @Override
     public void updateView(Subject subject) {
+        if (subject == lobby){
 
+        }
     }
 }

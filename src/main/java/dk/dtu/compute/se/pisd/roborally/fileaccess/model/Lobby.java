@@ -1,9 +1,11 @@
 package dk.dtu.compute.se.pisd.roborally.fileaccess.model;
 
+import dk.dtu.compute.se.pisd.designpatterns.observer.Subject;
+
 import java.util.ArrayList;
 import java.util.List;
 
-public class Lobby {
+public class Lobby extends Subject {
     private String board;
     private int turnID;
     private int id;
