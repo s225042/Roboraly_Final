@@ -59,6 +59,8 @@ public class Board extends Subject {
 
     private List<Space> chekpoints = new ArrayList<>();
 
+    private List<SpawnPoint> spawnPoints = new ArrayList<>();
+
     private Player current;
 
     private Phase phase = INITIALISATION;
@@ -75,7 +77,8 @@ public class Board extends Subject {
 
     private List<Player> playersOrder = new ArrayList<>();
 
-
+    private Space rebootSpace; // Assuming there is a single reboot space
+    private Heading rebootDirection; // Default direction indicated by the arrow on the reboot token
 
     public Board(int width, int height, int antennaX, int antennaY) {
         this.width = width;
@@ -292,10 +295,6 @@ public class Board extends Subject {
      * @return the space in the given direction; null if there is no (reachable) neighbour
      */
     public Space getNeighbour(@NotNull Space space, @NotNull Heading heading) {
-        if (space.getWalls().contains(heading)) {
-            return null;
-        }
-
         int x = space.x;
         int y = space.y;
 
@@ -319,14 +318,17 @@ public class Board extends Subject {
             return null;
         }
 
-        Heading reverse = Heading.values()[(heading.ordinal() + 2) % Heading.values().length];
         Space result = getSpace(x, y);
-        if (result != null && result.getWalls().contains(reverse)) {
-            return null;
+        if (result != null) {
+            Heading reverse = Heading.values()[(heading.ordinal() + 2) % Heading.values().length];
+            if (space.getWalls().contains(heading) || result.getWalls().contains(reverse)) {
+                return space; // Returning the current space if there's a wall in the way
+            }
         }
 
         return result;
     }
+
 
 
     public String getStatusMessage() {
@@ -337,4 +339,41 @@ public class Board extends Subject {
                 ", Step: " + getStep() +
                 ", Counter;" + (counter-1);
     }
+
+    public Heading getRebootDirection() {
+        return rebootDirection;
+    }
+
+    public void setRebootDirection(Heading heading) {
+        if (heading == null) {
+            throw new IllegalArgumentException("Reboot direction cannot be null.");
+        }
+        this.rebootDirection = heading;
+    }
+
+    public Space getRebootSpace() {
+        return rebootSpace;
+    }
+
+    public void setRebootSpace(int x, int y) {
+        this.rebootSpace = getSpace(x, y);
+    }
+
+    public void addSpawnPoint(SpawnPoint spawnPoint) {
+        spawnPoints.add(spawnPoint);
+    }
+
+    public List<SpawnPoint> getSpawnPoints() {
+        return spawnPoints;
+    }
+
+    public boolean isSpawnPoint(Space space) {
+        for (SpawnPoint spawnPoint : spawnPoints) {
+            if (spawnPoint.x == space.getX() && spawnPoint.y == space.getY()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
 }

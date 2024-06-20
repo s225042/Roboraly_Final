@@ -24,6 +24,7 @@ package dk.dtu.compute.se.pisd.roborally.view;
 import dk.dtu.compute.se.pisd.designpatterns.observer.Subject;
 import dk.dtu.compute.se.pisd.roborally.controller.ConveyorBelt;
 import dk.dtu.compute.se.pisd.roborally.controller.FieldAction;
+import dk.dtu.compute.se.pisd.roborally.controller.PushPanel;
 import dk.dtu.compute.se.pisd.roborally.model.*;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
@@ -35,6 +36,11 @@ import javafx.scene.shape.Polygon;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.StrokeLineCap;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.HashSet;
+import java.util.Set;
+
+import static dk.dtu.compute.se.pisd.roborally.model.Heading.*;
 
 /**
  * ...
@@ -48,10 +54,11 @@ public class SpaceView extends StackPane implements ViewObserver {
     final public static int SPACE_WIDTH = 60; // 75;
 
     public final Space space;
+    private Set<Space> laserPositions = new HashSet<>();
 
     /**
-     * @author s225042 Rebecca Moss
      * @param space
+     * @author s225042 Rebecca Moss
      */
 
     public SpaceView(@NotNull Space space) {
@@ -84,8 +91,8 @@ public class SpaceView extends StackPane implements ViewObserver {
         String imagePath = null;
         ImageView imageView = new ImageView();
 
-        if (player != null){
-            switch (player.getColor()){
+        if (player != null) {
+            switch (player.getColor()) {
                 case "red":
                     imagePath = getClass().getResource("/images/r6.png").toExternalForm();
                     break;
@@ -101,7 +108,7 @@ public class SpaceView extends StackPane implements ViewObserver {
                 case "grey":
                     imagePath = getClass().getResource("/images/r1.png").toExternalForm();
                     break;
-                case  "magenta":
+                case "magenta":
                     imagePath = getClass().getResource("/images/r3.png").toExternalForm();
                     break;
             }
@@ -109,7 +116,7 @@ public class SpaceView extends StackPane implements ViewObserver {
             imageView.setImage(image);
             imageView.setFitWidth(SPACE_WIDTH);
             imageView.setFitHeight(SPACE_HEIGHT);
-            switch (player.getHeading()){
+            switch (player.getHeading()) {
                 case NORTH:
                     imageView.setRotate(180);
                     break;
@@ -136,11 +143,34 @@ public class SpaceView extends StackPane implements ViewObserver {
      * The belts are represented by arrows that point in the direction of the belt.
      */
 
-    private void updateFieldactions(){
+    private void updateFieldactions() {
         String imagePath = null;
         ImageView imageView = new ImageView();
 
-        if (space.getFieldAction() instanceof ConveyorBelt) {
+        Board board = space.getBoard();
+        Antenna antenna = board.getAntenna();
+
+        if (board.getRebootSpace() == space) {
+            imagePath = getClass().getResource("/images/respawn.png").toExternalForm();
+            imageView.setImage(new Image(imagePath));
+            Heading rebootDirection = board.getRebootDirection();
+            switch (rebootDirection) {
+                case NORTH:
+                    imageView.setRotate(0);
+                    break;
+                case EAST:
+                    imageView.setRotate(90);
+                    break;
+                case SOUTH:
+                    imageView.setRotate(180);
+                    break;
+                case WEST:
+                    imageView.setRotate(270);
+                    break;
+            }
+        } else if (antenna != null && antenna.x == space.x && antenna.y == space.y) {
+            imagePath = getClass().getResource("/images/antenna.png").toExternalForm();
+        } else if (space.getFieldAction() instanceof ConveyorBelt) {
             ConveyorBelt belt = (ConveyorBelt) space.getFieldAction();
             if (belt.getType() == ConveyorBelt.BeltType.GREEN) {
                 imagePath = getClass().getResource("/images/green.png").toExternalForm();
@@ -197,7 +227,36 @@ public class SpaceView extends StackPane implements ViewObserver {
             } else {
                 imagePath = getClass().getResource("/images/gearRight.png").toExternalForm();
             }
-        } else {
+        } else if (space.getFieldAction() instanceof Pit) {
+            Pit pit = (Pit) space.getFieldAction();
+            imagePath = getClass().getResource("/images/hole.png").toExternalForm();
+
+        } else if (space.getFieldAction() instanceof PushPanel){
+            PushPanel pushPanel = (PushPanel) space.getFieldAction();
+            imagePath = getClass().getResource("/images/pushpanel.png").toExternalForm();
+            Image pushImage = new Image(imagePath);
+            ImageView pushImageView = new ImageView(pushImage);
+            pushImageView.setFitWidth(SPACE_WIDTH);
+            pushImageView.setFitHeight(5);
+
+            switch (pushPanel.getHeading()) {
+                case NORTH:
+                    imageView.setRotate(0);
+                    break;
+                case EAST:
+                    imageView.setRotate(90);
+                    break;
+                case SOUTH:
+                    imageView.setRotate(180);
+                    break;
+                case WEST:
+                    imageView.setRotate(270);
+                    break;
+            }
+
+        }
+
+        else {
             imagePath = getClass().getResource("/images/empty.png").toExternalForm();
         }
 
@@ -218,11 +277,10 @@ public class SpaceView extends StackPane implements ViewObserver {
      */
     private void updateLaser() {
         if (space.getFieldAction() instanceof Laiser) {
-            Space currentSpace = space;
-            Space nextSpace = space;
             Laiser laise = (Laiser) space.getFieldAction();
+            Space currentSpace = space;
 
-            while (!space.getWalls().contains(laise.getHeading())) {
+            while (true) {
                 String imagePath = getClass().getResource("/images/laser.png").toExternalForm();
                 Image image = new Image(imagePath);
                 ImageView imageView = new ImageView(image);
@@ -230,16 +288,35 @@ public class SpaceView extends StackPane implements ViewObserver {
                 imageView.setFitWidth(SPACE_WIDTH);
                 imageView.setFitHeight(5);
 
-                if (laise.getHeading() == Heading.SOUTH || laise.getHeading() == Heading.NORTH) {
+                if (laise.getHeading() == SOUTH || laise.getHeading() == Heading.NORTH) {
                     imageView.setRotate(90);
+                } else {
+                    imageView.setRotate(0);
                 }
 
-                this.getChildren().add(imageView);
-
-                nextSpace = currentSpace.board.getNeighbour(currentSpace, laise.getHeading());
-                if (nextSpace == null) {
-                    break; // Exit if there is no neighbor in the given heading
+                // Add the laser image to the current space
+                if (!laserPositions.contains(currentSpace)) {
+                    this.getChildren().add(imageView);
+                    laserPositions.add(currentSpace);
+                } else {
+                    // Laser intersection detected, add another laser image to form a plus sign
+                    ImageView intersectImageView = new ImageView(image);
+                    intersectImageView.setFitWidth(SPACE_WIDTH);
+                    intersectImageView.setFitHeight(5);
+                    if (laise.getHeading() == SOUTH || laise.getHeading() == Heading.NORTH) {
+                        intersectImageView.setRotate(90);
+                    } else {
+                        intersectImageView.setRotate(0);
+                    }
+                    this.getChildren().add(intersectImageView);
                 }
+
+                // Move to the next space in the direction of the laser
+                Space nextSpace = currentSpace.board.getNeighbour(currentSpace, laise.getHeading());
+                if (nextSpace == null || nextSpace.getWalls().contains(laise.getHeading())) {
+                    break; // Exit if there is no neighbor or there's a wall blocking the laser
+                }
+
                 currentSpace = nextSpace;
             }
         }
@@ -293,18 +370,18 @@ public class SpaceView extends StackPane implements ViewObserver {
         }
     }
 
-    public void updateAntenna(){
-        Space space = this.space;
-        if(space != null && space.getAntenna() != null){
-            Antenna antenna = space.getAntenna();
-            String imagePath = getClass().getResource("/images/antenna.png").toExternalForm();
-            Image antennaImage = new Image(imagePath);
-            ImageView antennaImageView = new ImageView(antennaImage);
+    private void updateSpawnPoint() {
+        Board board = space.getBoard();
 
-            antennaImageView.setFitWidth(SPACE_WIDTH);
-            antennaImageView.setFitHeight(SPACE_HEIGHT);
+        if (board.isSpawnPoint(space)) {
+            String imagePath = getClass().getResource("/images/startField.png").toExternalForm(); // Make sure you have an appropriate spawn point image
+            Image image = new Image(imagePath);
+            ImageView imageView = new ImageView(image);
 
-            this.getChildren().add(antennaImageView);
+            imageView.setFitWidth(SPACE_WIDTH);
+            imageView.setFitHeight(SPACE_HEIGHT);
+
+            this.getChildren().add(imageView);
         }
     }
 
@@ -315,9 +392,8 @@ public class SpaceView extends StackPane implements ViewObserver {
             updateFieldactions();
             updateLaser();
             updateWalls();
+            updateSpawnPoint();
             updatePlayer();
-            updateAntenna();
-
         }
     }
 }

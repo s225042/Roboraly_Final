@@ -21,12 +21,10 @@ public class Laiser extends FieldAction {
         Space currentSpace = space;
         while (!space.getWalls().contains(heading)) {
             if (currentSpace.getPlayer() != null) {
-                //space.getPlayer(). shold give the plyer a dameg card whe dmeg card is implermentet
-                System.out.println("dameg");
+                Player player = currentSpace.getPlayer();
+                gameController.applyRandomDamage(player);
                 break;
-
             } else {
-
                 Space nextSpace = currentSpace.board.getNeighbour(currentSpace, heading);
                 if (nextSpace == null) {
                     break; // Exit if there is no neighbor in the given heading

@@ -32,6 +32,7 @@ import dk.dtu.compute.se.pisd.roborally.fileaccess.model.PlayerServer;
 import dk.dtu.compute.se.pisd.roborally.model.Board;
 import dk.dtu.compute.se.pisd.roborally.model.Player;
 
+import dk.dtu.compute.se.pisd.roborally.model.SpawnPoint;
 import javafx.application.Platform;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
@@ -63,7 +64,7 @@ public class AppController implements Observer {
     final private List<Integer> PLAYER_NUMBER_OPTIONS = Arrays.asList(2, 3, 4, 5, 6);
     final private List<String> PLAYER_COLORS = Arrays.asList("red", "green", "blue", "orange", "grey", "magenta");
 
-    final private List<String> Game_Bord = Arrays.asList("defaultboard", "STARTER COURSE: DIZZY HIGHWAY", "RISKY CROSSING", "HIGH OCTANE", "SPRINT CRAMP", "CORRIDOR BLITZ", "FRACTIONATION", "BURNOUT", "LOST BEARINGS", "PASSING LANE", "TWISTER", "DODGE THIS", "CHOP SHOP CHALLENGE", "UNDERTOW", "HEAVY MERGE AREA", "DEATH TRAP", "PILGRIMAGE", "GEAR STRIPPER", "EXTRA CRISPY", "BURN RUN");
+    final private List<String> Game_Bord = Arrays.asList("defaultboard", "STARTER COURSE DIZZY HIGHWAY", "RISKY CROSSING", "HIGH OCTANE", "SPRINT CRAMP", "CORRIDOR BLITZ", "FRACTIONATION", "BURNOUT", "LOST BEARINGS", "PASSING LANE", "TWISTER", "DODGE THIS", "CHOP SHOP CHALLENGE", "UNDERTOW", "HEAVY MERGE AREA", "DEATH TRAP", "PILGRIMAGE", "GEAR STRIPPER", "EXTRA CRISPY", "BURN RUN");
 
     private  List<String> Saved_Bord = new ArrayList<>();
 
@@ -82,13 +83,13 @@ public class AppController implements Observer {
     }
 
     public void newGame() {
-        ChoiceDialog<String> boards = new ChoiceDialog<>(Game_Bord.get(0),Game_Bord);
+        ChoiceDialog<String> boards = new ChoiceDialog<>(Game_Bord.get(0), Game_Bord);
         boards.setTitle("Table");
         boards.setHeaderText("select game table");
         Optional<String> boardname = boards.showAndWait();
         String boardsname = boardname.get();
 
-       ChoiceDialog<Integer> dialog = new ChoiceDialog<>(PLAYER_NUMBER_OPTIONS.get(0), PLAYER_NUMBER_OPTIONS);
+        ChoiceDialog<Integer> dialog = new ChoiceDialog<>(PLAYER_NUMBER_OPTIONS.get(0), PLAYER_NUMBER_OPTIONS);
         dialog.setTitle("Player number");
         dialog.setHeaderText("Select number of players");
         Optional<Integer> result = dialog.showAndWait();
@@ -134,6 +135,19 @@ public class AppController implements Observer {
                 }
             }
 
+            int no = result.get();
+            List<SpawnPoint> spawnPoints = board.getSpawnPoints();
+            for (int i = 0; i < no; i++) {
+                Player player = new Player(board, PLAYER_COLORS.get(i), "Player " + (i + 1));
+                board.addPlayer(player);
+
+                // Place the player on the spawn point
+                SpawnPoint spawnPoint = spawnPoints.get(i % spawnPoints.size());
+                player.setSpace(board.getSpace(spawnPoint.x, spawnPoint.y));
+            }
+
+            gameController.startProgrammingPhase();
+            roboRally.createBoardView(gameController);
             //WaitingRoom waitingRoom = new WaitingRoom(gameController.board.getGameId());
             //WaitingController waitingController = new WaitingController(waitingRoom, httpController);
             try {
