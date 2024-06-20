@@ -81,7 +81,7 @@ public class AppController implements Observer {
         this.roboRally = roboRally;
     }
 
-    public void newGame(){
+    public void newGame() {
         ChoiceDialog<String> boards = new ChoiceDialog<>(Game_Bord.get(0),Game_Bord);
         boards.setTitle("Table");
         boards.setHeaderText("select game table");
@@ -136,23 +136,16 @@ public class AppController implements Observer {
 
             //WaitingRoom waitingRoom = new WaitingRoom(gameController.board.getGameId());
             //WaitingController waitingController = new WaitingController(waitingRoom, httpController);
-
-            while (lobby.getPhase() == Lobby.Phase.WAITING) {
-                try {
-                    roboRally.createVatingRomeView(httpController.getByGameID(lobby.getID()));
-                }
-                catch (Exception e){
-                    throw new RuntimeException(e);
-                }
-            }
             try {
-                httpController.updateGameInfo(board.getGameId(), lobby);
+                {
+                    roboRally.createVatingRomeView(httpController.getByGameID(lobby.getID()));
+                    Polling.gameStart(lobby.getID());
+                }
             }
             catch (Exception e){
                 throw new RuntimeException(e);
             }
             this.startGame();
-
         }
     }
 

@@ -85,6 +85,7 @@ public class Polling {
             }
             if(playerServers.get(playerServers.size() -1) == playerServer){
                 programmingDone.cancel(false);
+
             }
         }
     }

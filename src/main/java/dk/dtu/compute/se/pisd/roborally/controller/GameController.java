@@ -21,6 +21,7 @@
  */
 package dk.dtu.compute.se.pisd.roborally.controller;
 
+import dk.dtu.compute.se.pisd.roborally.fileaccess.model.Lobby;
 import dk.dtu.compute.se.pisd.roborally.model.*;
 import org.jetbrains.annotations.NotNull;
 import javafx.scene.control.Alert;
@@ -188,6 +189,18 @@ public class GameController {
             board.setCurrentPlayer(board.getPlayerOrder().get(0));
         }
         board.setStep(0);
+
+        Lobby lobby;
+        try {
+            lobby = httpController.getByGameID(board.getGameId());
+        }
+        catch (Exception e){
+
+        }
+
+
+
+
     }
 
 

@@ -105,13 +105,13 @@ public class HttpController {
         }
     }
 
-    public boolean updatePlayer(PlayerServer p) throws Exception {
+    public boolean updatePlayer(int id, PlayerServer p) throws Exception {
         Gson gson = new Gson();
         String requestBody = gson.toJson(p);
 
         HttpRequest request = HttpRequest.newBuilder()
                 .PUT(HttpRequest.BodyPublishers.ofString(requestBody))
-                .uri(URI.create("http://localhost:8089/players/" + p.getPlayerID()))
+                .uri(URI.create("http://localhost:8089/players/" + id))
                 .header("Accept", "application/json")
                 .setHeader("Content-Type", "application/json")
                 .build();

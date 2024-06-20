@@ -1,6 +1,7 @@
 package dk.dtu.compute.se.pisd.roborally.view;
 
 import dk.dtu.compute.se.pisd.designpatterns.observer.Subject;
+import dk.dtu.compute.se.pisd.roborally.controller.HttpController;
 import dk.dtu.compute.se.pisd.roborally.fileaccess.model.Lobby;
 import dk.dtu.compute.se.pisd.roborally.fileaccess.model.PlayerServer;
 import javafx.geometry.Insets;
@@ -23,6 +24,8 @@ public class WhatingromeView extends VBox implements ViewObserver {
     private final HBox window;
     private List<PlayerServer> playerLabels;
 
+    private HttpController httpController = new HttpController();
+
 
     public WhatingromeView(Lobby lobby) {
         this.lobby = lobby;
@@ -32,7 +35,16 @@ public class WhatingromeView extends VBox implements ViewObserver {
 
         // Create the Start button
         Button startButton = new Button("Start");
-        startButton.setOnAction(e -> lobby.setPhase(Lobby.Phase.PROGRAMMING));
+        startButton.setOnAction(e -> {
+            try {
+                lobby.setPhase(Lobby.Phase.PROGRAMMING);
+                httpController.updateGameInfo(lobby.getID(), lobby);
+
+            }
+            catch (Exception er){
+                throw new RuntimeException(er);
+            }
+        });
 
         stage = new Stage();
         window = new HBox();
