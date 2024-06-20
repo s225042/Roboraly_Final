@@ -24,6 +24,7 @@ package dk.dtu.compute.se.pisd.roborally.model;
 import dk.dtu.compute.se.pisd.designpatterns.observer.Subject;
 import dk.dtu.compute.se.pisd.roborally.controller.ConveyorBelt;
 import dk.dtu.compute.se.pisd.roborally.controller.FieldAction;
+import dk.dtu.compute.se.pisd.roborally.controller.PushPanel;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -58,6 +59,8 @@ public class Board extends Subject {
     private List<Space> laisers = new ArrayList<>();
 
     private List<Space> chekpoints = new ArrayList<>();
+
+    private List<Space> pushPanels = new ArrayList<>();
 
     private List<SpawnPoint> spawnPoints = new ArrayList<>();
 
@@ -151,6 +154,10 @@ public class Board extends Subject {
 
                 if (space.getFieldAction() instanceof  Gear){
                     spacesGears.add(space);
+                }
+
+                if (space.getFieldAction() instanceof PushPanel){
+                    pushPanels.add(space);
                 }
 
                 if (space.getFieldAction() instanceof Laiser){
@@ -282,6 +289,10 @@ public class Board extends Subject {
 
     public List<Space> getChekpoints(){
         return chekpoints;
+    }
+
+    public List<Space> getPushPanels(){
+        return pushPanels;
     }
 
     /**

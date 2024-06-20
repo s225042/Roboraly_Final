@@ -439,29 +439,34 @@ public class GameController {
             }
             Space space = player.getSpace();
             FieldAction fieldAction = space.getFieldAction();
-            if (fieldAction instanceof ConveyorBelt) {
-                ConveyorBelt conveyorBelt = (ConveyorBelt) fieldAction;
-                conveyorBelt.doAction(this, space);
-
-            } else if (fieldAction instanceof Checkpoint) {
-                Checkpoint checkpoint = (Checkpoint) fieldAction;
-                checkpoint.doAction(this, space);
-
-            } else if (fieldAction instanceof Gear) {
-                Gear gear = (Gear) fieldAction;
-                gear.doAction(this, space);
-
-            } else if (fieldAction instanceof Pit) {
+            if (fieldAction instanceof Pit) {
                 Pit pit = (Pit) fieldAction;
                 pit.doAction(this, space);
-
-            } else if(fieldAction instanceof PushPanel){
-                PushPanel pushPanel = (PushPanel) fieldAction;
-                pushPanel.doAction(this, space);
-            } else if(fieldAction instanceof Laiser){
-                Laiser laiser = (Laiser) fieldAction;
-                laiser.doAction(this, space);
             }
+        }
+        for (Space space: board.getSpaceBLueConveyor()){
+            ConveyorBelt conveyorBelt = (ConveyorBelt) space.getFieldAction();
+            conveyorBelt.doAction(this, space);
+        }
+        for (Space space: board.getSpacesGreanConveyor()){
+            ConveyorBelt conveyorBelt = (ConveyorBelt) space.getFieldAction();
+            conveyorBelt.doAction(this, space);
+        }
+        for (Space space: board.getPushPanels()){
+            PushPanel pushPanel = (PushPanel) space.getFieldAction();
+            pushPanel.doAction(this, space);
+        }
+        for (Space space: board.getSpacesGears()){
+            Gear gear = (Gear) space.getFieldAction();
+            gear.doAction(this, space);
+        }
+        for (Space space: board.getLaisers()){
+            Laiser laiser = (Laiser) space.getFieldAction();
+            laiser.doAction(this, space);
+        }
+        for (Space space: board.getChekpoints()){
+            Checkpoint checkpoint = (Checkpoint) space.getFieldAction();
+            checkpoint.doAction(this, space);
         }
     }
 

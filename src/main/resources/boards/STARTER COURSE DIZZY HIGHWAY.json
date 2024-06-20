@@ -566,17 +566,6 @@
       {
         "CLASSNAME": "dk.dtu.compute.se.pisd.roborally.model.Laiser",
         "INSTANCE": {
-          "heading": "NORTH"
-        }
-      }
-    ],
-      "x": 6,
-      "y": 6
-    },
-    { "actions": [
-      {
-        "CLASSNAME": "dk.dtu.compute.se.pisd.roborally.model.Laiser",
-        "INSTANCE": {
           "heading": "SOUTH"
         }
       }
@@ -592,75 +581,10 @@
         }
       }
     ],
-      "x": 6,
-      "y": 4
-    },
-    { "actions": [
-      {
-        "CLASSNAME": "dk.dtu.compute.se.pisd.roborally.model.Laiser",
-        "INSTANCE": {
-          "heading": "SOUTH"
-        }
-      }
-    ],
-      "x": 6,
-      "y": 6
-    },
-    { "actions": [
-      {
-        "CLASSNAME": "dk.dtu.compute.se.pisd.roborally.model.Laiser",
-        "INSTANCE": {
-          "heading": "SOUTH"
-        }
-      }
-    ],
-      "x": 6,
-      "y": 5
-    },
-    { "actions": [
-      {
-        "CLASSNAME": "dk.dtu.compute.se.pisd.roborally.model.Laiser",
-        "INSTANCE": {
-          "heading": "SOUTH"
-        }
-      }
-    ],
       "x": 9,
       "y": 3
-    },
-    { "actions": [
-      {
-        "CLASSNAME": "dk.dtu.compute.se.pisd.roborally.model.Laiser",
-        "INSTANCE": {
-          "heading": "SOUTH"
-        }
-      }
-    ],
-      "x": 9,
-      "y": 5
-    },
-    { "actions": [
-      {
-        "CLASSNAME": "dk.dtu.compute.se.pisd.roborally.model.Laiser",
-        "INSTANCE": {
-          "heading": "SOUTH"
-        }
-      }
-    ],
-      "x": 9,
-      "y": 6
-    },
-    { "actions": [
-      {
-        "CLASSNAME": "dk.dtu.compute.se.pisd.roborally.model.Laiser",
-        "INSTANCE": {
-          "heading": "SOUTH"
-        }
-      }
-    ],
-      "x": 9,
-      "y": 4
     }
+
 
 
 
