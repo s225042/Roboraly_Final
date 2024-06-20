@@ -7,3 +7,6 @@
 /dataSources/
 /dataSources.local.xml
 /compiler.xml
+/encodings.xml
+/jarRepositories.xml
+/misc.xml
