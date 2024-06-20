@@ -273,11 +273,10 @@ public class SpaceView extends StackPane implements ViewObserver {
      */
     private void updateLaser() {
         if (space.getFieldAction() instanceof Laiser) {
-            Space currentSpace = space;
-            Space nextSpace = space;
             Laiser laise = (Laiser) space.getFieldAction();
+            Space currentSpace = space;
 
-            while (!space.getWalls().contains(laise.getHeading())) {
+            while (true) {
                 String imagePath = getClass().getResource("/images/laser.png").toExternalForm();
                 Image image = new Image(imagePath);
                 ImageView imageView = new ImageView(image);
@@ -291,10 +290,12 @@ public class SpaceView extends StackPane implements ViewObserver {
 
                 this.getChildren().add(imageView);
 
-                nextSpace = currentSpace.board.getNeighbour(currentSpace, laise.getHeading());
-                if (nextSpace == null) {
-                    break; // Exit if there is no neighbor in the given heading
+                // Move to the next space in the direction of the laser
+                Space nextSpace = currentSpace.board.getNeighbour(currentSpace, laise.getHeading());
+                if (nextSpace == null || nextSpace.getWalls().contains(laise.getHeading())) {
+                    break; // Exit if there is no neighbor or there's a wall blocking the laser
                 }
+
                 currentSpace = nextSpace;
             }
         }

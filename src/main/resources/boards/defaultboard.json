@@ -1,6 +1,6 @@
 {
-  "width": 8,
-  "height": 8,
+  "width": 10,
+  "height": 10,
   "antennaX": 0,
   "antennaY": 3,
   "rebootX": 3,
@@ -168,13 +168,13 @@
     },
     {
       "walls": [
-        "NORTH"
+        "SOUTH"
       ],
       "actions": [
         {
           "CLASSNAME": "dk.dtu.compute.se.pisd.roborally.model.Laiser",
           "INSTANCE": {
-            "heading": "SOUTH"
+            "heading": "NORTH"
           }
         }
       ],
