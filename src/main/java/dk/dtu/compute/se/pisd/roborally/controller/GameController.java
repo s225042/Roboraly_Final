@@ -295,7 +295,7 @@ public class GameController {
             }
         }
 
-        // Handle the field action if the space is valid
+        /* Handle the field action if the space is valid
         FieldAction fieldAction = space.getFieldAction();
         if (fieldAction instanceof ConveyorBelt) {
             ConveyorBelt conveyorBelt = (ConveyorBelt) fieldAction;
@@ -307,7 +307,7 @@ public class GameController {
                     return;
                 }
             }
-        }
+        }*/
 
         player.setSpace(space);
     }
