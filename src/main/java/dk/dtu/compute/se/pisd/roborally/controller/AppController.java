@@ -71,7 +71,7 @@ public class AppController implements Observer {
 
     final private HttpController httpController = new HttpController();
 
-    final private Polling polling = new Polling();
+    final private Polling polling = new Polling(this);
 
     private GameController gameController;
 
@@ -137,15 +137,12 @@ public class AppController implements Observer {
             //WaitingRoom waitingRoom = new WaitingRoom(gameController.board.getGameId());
             //WaitingController waitingController = new WaitingController(waitingRoom, httpController);
             try {
-                {
-                    roboRally.createVatingRomeView(httpController.getByGameID(lobby.getID()));
-                    Polling.gameStart(lobby.getID());
-                }
+                roboRally.createVatingRomeView(httpController.getByGameID(lobby.getID()));
+                Polling.gameStart(lobby.getID());
             }
             catch (Exception e){
                 throw new RuntimeException(e);
             }
-            this.startGame();
         }
     }
 
@@ -237,7 +234,6 @@ public class AppController implements Observer {
         }
         //shold getsomting from http that wil start the game*/
         Polling.gameStart(iResult);
-        startGame();
     }
 
     /**

@@ -2,6 +2,7 @@ package dk.dtu.compute.se.pisd.roborally.controller;
 
 import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
+import dk.dtu.compute.se.pisd.roborally.RoboRally;
 import dk.dtu.compute.se.pisd.roborally.fileaccess.model.Lobby;
 import dk.dtu.compute.se.pisd.roborally.fileaccess.model.PlayerServer;
 
@@ -18,8 +19,8 @@ import java.util.concurrent.*;
 
 public class Polling {
 
-
-    private static final ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);
+    private static AppController appController;
+    private static final ScheduledExecutorService executorService = Executors.newScheduledThreadPool(2);
     private static final int POLLING_INTERVAL_SECONDS = 2;
 
     private static ScheduledFuture<?> startGame;
@@ -49,6 +50,7 @@ public class Polling {
         }
         if (lobby.getPhase() == Lobby.Phase.PROGRAMMING){
             startGame.cancel(false);
+            appController.startGame();
         }
     }
 
@@ -57,7 +59,8 @@ public class Polling {
 
     private static HttpController httpController = new HttpController();
 
-    public Polling() {
+    public Polling(AppController appController) {
+        Polling.appController = appController;
         this.httpClient = HttpClient.newHttpClient();
     }
 

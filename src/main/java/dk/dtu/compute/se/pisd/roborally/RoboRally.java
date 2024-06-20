@@ -96,7 +96,7 @@ public class RoboRally extends Application {
 
         if (lobby != null) {
             // create and add view for new board
-            WhatingromeView whatingromeView = new WhatingromeView(lobby);
+            WhatingromeView whatingromeView = new WhatingromeView(lobby.getID());
             boardRoot.setCenter(whatingromeView);
         }
 

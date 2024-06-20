@@ -27,8 +27,13 @@ public class WhatingromeView extends VBox implements ViewObserver {
     private HttpController httpController = new HttpController();
 
 
-    public WhatingromeView(Lobby lobby) {
-        this.lobby = lobby;
+    public WhatingromeView(int id) {
+        try {
+            this.lobby = httpController.getByGameID(id);
+        }
+        catch (Exception er){
+            throw new RuntimeException(er);
+        }
 
         // list of players
         playerLabels = lobby.getPlayers();
