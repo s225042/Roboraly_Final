@@ -183,7 +183,8 @@ public class AppController implements Observer {
 
         gameController.startProgrammingPhase();
 
-        roboRally.createBoardView(gameController);
+        Platform.runLater(() -> roboRally.createBoardView(gameController));
+
     }
 
     public void joinGame(){

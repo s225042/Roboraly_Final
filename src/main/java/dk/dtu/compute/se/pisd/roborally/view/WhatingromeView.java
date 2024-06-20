@@ -20,22 +20,18 @@ import java.util.List;
 public class WhatingromeView extends VBox implements ViewObserver {
 
     private Lobby lobby;
-    private final Stage stage;
-    private final HBox window;
     private List<PlayerServer> playerLabels;
 
     private HttpController httpController = new HttpController();
 
-
     public WhatingromeView(int id) {
         try {
             this.lobby = httpController.getByGameID(id);
-        }
-        catch (Exception er){
+        } catch (Exception er) {
             throw new RuntimeException(er);
         }
 
-        // list of players
+        // List of players
         playerLabels = lobby.getPlayers();
 
         // Create the Start button
@@ -44,51 +40,29 @@ public class WhatingromeView extends VBox implements ViewObserver {
             try {
                 lobby.setPhase(Lobby.Phase.PROGRAMMING);
                 httpController.updateGameInfo(lobby.getID(), lobby);
-
-            }
-            catch (Exception er){
+            } catch (Exception er) {
                 throw new RuntimeException(er);
             }
         });
 
-        stage = new Stage();
-        window = new HBox();
-
-        //Making the lobbyLayout
-        this.setAlignment(Pos.CENTER);
-        this.setSpacing(10);
-        this.setPadding(new Insets(10));
-
-        window.getChildren().add(this);
-
-
-        // Add the Player label to the space
-        for (PlayerServer playerName: playerLabels){
+        // Add the Player labels
+        for (PlayerServer playerName : playerLabels) {
             Label playerLabel = new Label(playerName.getPlayerName());
             this.getChildren().add(playerLabel);
         }
-
-        // Add an empty HBox for spacing
-        HBox spacer = new HBox();
-        spacer.setMinWidth(500); // Adjust this width as needed
 
         // Add the Start button to the top right
         HBox startButtonContainer = new HBox();
         startButtonContainer.setAlignment(Pos.TOP_RIGHT);
         startButtonContainer.getChildren().add(startButton);
 
-        // Add the components to the top container
-        this.getChildren().addAll(spacer, startButtonContainer);
+        // Add the components to the VBox
+        this.getChildren().addAll(startButtonContainer);
     }
 
-
-
-    /**
-     * @param subject
-     */
     @Override
     public void updateView(Subject subject) {
-        if (subject == lobby){
+        if (subject == lobby) {
 
         }
     }
