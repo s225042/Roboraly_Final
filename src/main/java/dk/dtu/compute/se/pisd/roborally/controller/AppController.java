@@ -111,7 +111,6 @@ public class AppController implements Observer {
             Board board = loadBoard(boardsname);
             gameController = new GameController(board, httpController);
 
-
             //setGameID
             try {
                 board.setGameId(httpController.addGame(new Lobby(boardsname, 0)).getID());
@@ -131,7 +130,7 @@ public class AppController implements Observer {
                 try {
                     lobby = httpController.getByGameID(board.getGameId());
                     httpController.addPlayer(new PlayerServer(playerID.get(), lobby));
-                    playerName = playerID.get();
+                    gameController.playerName = playerID.get();
                 }
                 catch (Exception e1){
                     System.out.println(e1);
@@ -147,9 +146,6 @@ public class AppController implements Observer {
             catch (Exception e){
                 throw new RuntimeException(e);
             }
-
-
-
         }
     }
 
@@ -164,7 +160,23 @@ public class AppController implements Observer {
                 gameController.board.addPlayer(player);
                 player.setSpace(gameController.board.getSpace(i % gameController.board.width, i));
             }
-
+                    /*
+        int no = result.get();
+        for (int i = 0; i < no; i++) {
+            //player skal lave på en lidt anden måde
+            Player player = new Player(board, PLAYER_COLORS.get(i), "Player " + (i + 1));
+            board.addPlayer(player);
+            player.setSpace(board.getSpace(i % board.width, i));
+        }
+*/
+            // XXX: V2
+            // board.setCurrentPlayer(board.getPlayer(0));
+            for (int i = 0; i<gameController.board.getPlayers().size(); i++){
+                Player player = gameController.board.getPlayer(i);
+                if(player.getName().equals(playerName)){
+                    gameController.board.setCurrentPlayer(gameController.board.getPlayer(i));
+                }
+            }
 
         }
         catch (Exception e){
@@ -223,7 +235,7 @@ public class AppController implements Observer {
         if(playerID.isPresent()){
             try {
                 httpController.addPlayer(new PlayerServer(playerID.get(), lobby));
-                playerName = playerID.get();
+                gameController.playerName = playerID.get();
             }
             catch (Exception e1){
                 System.out.println(e1);

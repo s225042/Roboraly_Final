@@ -45,17 +45,15 @@ public class GameController {
     final private HttpController httpController;
 
     public boolean won = false;
+    public String playerName;
     private Queue<Player> rebootQueue = new LinkedList<>();
     private List<CommandCard> damageDeck = new ArrayList<>();
-
-
 
 
     public GameController(Board board, HttpController httpController) {
         this.board = board;
         this.httpController = httpController;
         initializeDamageDeck();
-
     }
 
 
@@ -599,11 +597,14 @@ public class GameController {
         return false;
     }
 
-
-
     public void startProgrammingPhase() {
         board.setPhase(Phase.PROGRAMMING);
-        board.setCurrentPlayer(board.getPlayer(0));
+        for (int i = 0; i<board.getPlayers().size(); i++){
+            Player player = board.getPlayer(i);
+            if(player.getName().equals(playerName)){
+                board.setCurrentPlayer(board.getPlayer(i));
+            }
+        }
         board.setStep(0);
 
         for (int i = 0; i < board.getPlayersNumber(); i++) {
