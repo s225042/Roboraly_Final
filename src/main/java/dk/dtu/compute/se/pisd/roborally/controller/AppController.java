@@ -61,6 +61,8 @@ import static dk.dtu.compute.se.pisd.roborally.fileaccess.LoadBoard.loadBoard;
  */
 public class AppController implements Observer {
 
+    private Optional <Integer> playerCountResult;
+
     final private List<Integer> PLAYER_NUMBER_OPTIONS = Arrays.asList(2, 3, 4, 5, 6);
     final private List<String> PLAYER_COLORS = Arrays.asList("red", "green", "blue", "orange", "grey", "magenta");
 
@@ -92,9 +94,9 @@ public class AppController implements Observer {
         ChoiceDialog<Integer> dialog = new ChoiceDialog<>(PLAYER_NUMBER_OPTIONS.get(0), PLAYER_NUMBER_OPTIONS);
         dialog.setTitle("Player number");
         dialog.setHeaderText("Select number of players");
-        Optional<Integer> result = dialog.showAndWait();
+        playerCountResult= dialog.showAndWait();
 
-        if (result.isPresent()) {
+        if (playerCountResult.isPresent()) {
             if (gameController != null) {
                 // The UI should not allow this, but in case this happens anyway.
                 // give the user the option to save the game or abort this operation!
@@ -108,6 +110,7 @@ public class AppController implements Observer {
             //     here we just create an empty board with the required number of players.
             Board board = loadBoard(boardsname);
             gameController = new GameController(board, httpController);
+
 
             //setGameID
             try {
@@ -144,6 +147,9 @@ public class AppController implements Observer {
             catch (Exception e){
                 throw new RuntimeException(e);
             }
+
+
+
         }
     }
 
@@ -158,27 +164,22 @@ public class AppController implements Observer {
                 gameController.board.addPlayer(player);
                 player.setSpace(gameController.board.getSpace(i % gameController.board.width, i));
             }
-                    /*
-        int no = result.get();
-        for (int i = 0; i < no; i++) {
-            //player skal lave på en lidt anden måde
-            Player player = new Player(board, PLAYER_COLORS.get(i), "Player " + (i + 1));
-            board.addPlayer(player);
-            player.setSpace(board.getSpace(i % board.width, i));
-        }
-*/
-            // XXX: V2
-            // board.setCurrentPlayer(board.getPlayer(0));
-            for (int i = 0; i<gameController.board.getPlayers().size(); i++){
-                Player player = gameController.board.getPlayer(i);
-                if(player.getName().equals(playerName)){
-                    gameController.board.setCurrentPlayer(gameController.board.getPlayer(i));
-                }
-            }
+
 
         }
         catch (Exception e){
             throw new RuntimeException(e);
+        }
+
+        int no = playerCountResult.get();
+        List<SpawnPoint> spawnPoints = gameController.board.getSpawnPoints();
+        for (int i = 0; i < no; i++) {
+            Player player = new Player(gameController.board, PLAYER_COLORS.get(i), "Player " + (i + 1));
+            gameController.board.addPlayer(player);
+
+            // Place the player on the spawn point
+            SpawnPoint spawnPoint = spawnPoints.get(i % spawnPoints.size());
+            player.setSpace(gameController.board.getSpace(spawnPoint.x, spawnPoint.y));
         }
 
         gameController.startProgrammingPhase();
