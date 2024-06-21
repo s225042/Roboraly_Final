@@ -78,6 +78,8 @@ public class AppController implements Observer {
 
     private GameController gameController;
 
+    private Lobby lobby = new Lobby(null, 0);
+
     private String playerName;
 
     public AppController(@NotNull RoboRally roboRally) {
@@ -113,7 +115,9 @@ public class AppController implements Observer {
 
             //setGameID
             try {
-                board.setGameId(httpController.addGame(new Lobby(boardsname, 0)).getID());
+                lobby.setBoard(boardsname);
+                lobby = httpController.addGame(lobby);
+                board.setGameId(lobby.getID());
             } catch (Exception e1) {
                 System.out.println(e1);
             }
@@ -123,12 +127,10 @@ public class AppController implements Observer {
             TextInputDialog dialog1 = new TextInputDialog();
             dialog1.setHeaderText("Enter Player name");
             dialog1.setContentText("Player name:");
-            Lobby lobby = null;
 
             Optional<String> playerID = dialog1.showAndWait();
             if(playerID.isPresent()){
                 try {
-                    lobby = httpController.getByGameID(board.getGameId());
                     httpController.addPlayer(new PlayerServer(playerID.get(), lobby));
                     gameController.playerName = playerID.get();
                 }
@@ -140,8 +142,8 @@ public class AppController implements Observer {
             //WaitingRoom waitingRoom = new WaitingRoom(gameController.board.getGameId());
             //WaitingController waitingController = new WaitingController(waitingRoom, httpController);
             try {
-                roboRally.createVatingRomeView(httpController.getByGameID(lobby.getID()));
-                Polling.gameStart(lobby.getID());
+                roboRally.createVatingRomeView(lobby);
+                Polling.gameStart(lobby);
             }
             catch (Exception e){
                 throw new RuntimeException(e);
@@ -152,8 +154,8 @@ public class AppController implements Observer {
     public void startGame(){
         //get the plaayers and plays them on the bord
         try {
-            Lobby gameInfo = httpController.getByGameID(gameController.board.getGameId());
-            List<PlayerServer> players = gameInfo.getPlayers();
+            lobby = httpController.getByGameID(gameController.board.getGameId());
+            List<PlayerServer> players = lobby.getPlayers();
 
             for (int i = 0; i<players.size(); i++){
                 Player player = new Player(gameController.board, PLAYER_COLORS.get(i), players.get(i).getPlayerName());
@@ -186,7 +188,6 @@ public class AppController implements Observer {
         TextInputDialog dialog = new TextInputDialog();
         dialog.setHeaderText("Enter GameID");
         dialog.setContentText("GameID:");
-        Lobby lobby;
 
         while (true) {
             try {
@@ -216,6 +217,7 @@ public class AppController implements Observer {
             try {
                 httpController.addPlayer(new PlayerServer(playerID.get(), lobby));
                 gameController.playerName = playerID.get();
+                lobby = httpController.getByGameID(lobby.getID());
             }
             catch (Exception e1){
                 System.out.println(e1);
@@ -228,8 +230,8 @@ public class AppController implements Observer {
         }
         //shold getsomting from http that wil start the game*/
         try {
-            roboRally.createVatingRomeView(httpController.getByGameID(lobby.getID()));
-            Polling.gameStart(iResult);
+            roboRally.createVatingRomeView(lobby);
+            Polling.gameStart(lobby);
         }
         catch (Exception e){
             throw new RuntimeException(e);
@@ -338,7 +340,12 @@ public class AppController implements Observer {
 
     @Override
     public void update(Subject subject) {
-        // XXX do nothing for now
+        if (subject == lobby){
+            update(lobby);
+        }
+        if (subject == gameController.board){
+            update(gameController.board);
+        }
     }
 
 }

@@ -5,6 +5,7 @@ import com.google.gson.Gson;
 import dk.dtu.compute.se.pisd.roborally.RoboRally;
 import dk.dtu.compute.se.pisd.roborally.fileaccess.model.Lobby;
 import dk.dtu.compute.se.pisd.roborally.fileaccess.model.PlayerServer;
+import dk.dtu.compute.se.pisd.roborally.view.WhatingromeView;
 
 import java.lang.reflect.Type;
 import java.net.HttpURLConnection;
@@ -29,8 +30,8 @@ public class Polling {
     private static ScheduledFuture<?> programmingDone;
     private static ScheduledFuture<?> roundDone;
 
-    public static void gameStart(int gameID) {
-        startGame = executorService.scheduleAtFixedRate(() -> gameStarted(gameID), 0, POLLING_INTERVAL_SECONDS, TimeUnit.SECONDS);
+    public static void gameStart(Lobby lobby) {
+        startGame = executorService.scheduleAtFixedRate(() -> gameStarted(lobby), 0, POLLING_INTERVAL_SECONDS, TimeUnit.SECONDS);
     }
 
     public static void finishProgramming(int gameID){
@@ -41,11 +42,10 @@ public class Polling {
         roundDone = executorService.scheduleAtFixedRate(() -> roundCompleted(gameID), 0, POLLING_INTERVAL_SECONDS, TimeUnit.SECONDS);
     }
 
-    private static void gameStarted(int gameID) {
-        Lobby lobby;
+    private static void gameStarted(Lobby lobby) {
 
         try {
-            lobby = httpController.getByGameID(gameID);
+            lobby = httpController.getByGameID(lobby.getID());
         }
         catch (Exception e){
             throw new RuntimeException(e);

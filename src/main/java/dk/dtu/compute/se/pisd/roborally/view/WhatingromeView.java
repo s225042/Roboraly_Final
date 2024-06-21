@@ -12,6 +12,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -24,15 +25,12 @@ public class WhatingromeView extends VBox implements ViewObserver {
 
     private HttpController httpController = new HttpController();
 
-    public WhatingromeView(int id) {
+    public WhatingromeView(Lobby lobby) {
         try {
-            this.lobby = httpController.getByGameID(id);
+            this.lobby = lobby;
         } catch (Exception er) {
             throw new RuntimeException(er);
         }
-
-        // List of players
-        playerLabels = lobby.getPlayers();
 
         // Create the Start button
         Button startButton = new Button("Start");
@@ -45,11 +43,7 @@ public class WhatingromeView extends VBox implements ViewObserver {
             }
         });
 
-        // Add the Player labels
-        for (PlayerServer playerName : playerLabels) {
-            Label playerLabel = new Label(playerName.getPlayerName());
-            this.getChildren().add(playerLabel);
-        }
+        playerLabels = new ArrayList<>();
 
         // Add the Start button to the top right
         HBox startButtonContainer = new HBox();
@@ -58,12 +52,30 @@ public class WhatingromeView extends VBox implements ViewObserver {
 
         // Add the components to the VBox
         this.getChildren().addAll(startButtonContainer);
+
+        lobby.attach(this);
+        update(lobby);
     }
 
     @Override
     public void updateView(Subject subject) {
         if (subject == lobby) {
+            try {
+                lobby = httpController.getByGameID(lobby.getID());
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
 
+            // Clear existing player labels
+            this.getChildren().removeAll(playerLabels);
+            playerLabels.clear();
+
+            // Add the updated Player labels
+            playerLabels.addAll(lobby.getPlayers());
+            for (PlayerServer playerName : playerLabels) {
+                Label playerLabel = new Label(playerName.getPlayerName());
+                this.getChildren().add(playerLabel);
+            }
         }
     }
 }
