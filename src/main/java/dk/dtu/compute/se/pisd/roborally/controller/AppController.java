@@ -168,23 +168,6 @@ public class AppController implements Observer {
                     player.setSpace(gameController.board.getSpace(spawnPoint.x, spawnPoint.y));
                 }
             }
-                    /*
-        int no = result.get();
-        for (int i = 0; i < no; i++) {
-            //player skal lave på en lidt anden måde
-            Player player = new Player(board, PLAYER_COLORS.get(i), "Player " + (i + 1));
-            board.addPlayer(player);
-            player.setSpace(board.getSpace(i % board.width, i));
-        }
-*/
-            // XXX: V2
-            // board.setCurrentPlayer(board.getPlayer(0));
-            for (int i = 0; i<gameController.board.getPlayers().size(); i++){
-                Player player = gameController.board.getPlayer(i);
-                if(player.getName().equals(playerName)){
-                    gameController.board.setCurrentPlayer(gameController.board.getPlayer(i));
-                }
-            }
 
         }
         catch (Exception e){
