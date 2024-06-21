@@ -362,19 +362,19 @@ public class GameController {
             PlayerServer playerServer = lobby.getPlayers().get(playernr);
             playerServer.setProgrammingDone(true);
 
-            playerServer.setProgram1(board.getPlayer(playernr).getProgramField(1).getCard().getName());
-            playerServer.setProgram2(board.getPlayer(playernr).getProgramField(2).getCard().getName());
-            playerServer.setProgram3(board.getPlayer(playernr).getProgramField(3).getCard().getName());
-            playerServer.setProgram4(board.getPlayer(playernr).getProgramField(4).getCard().getName());
-            playerServer.setProgram5(board.getPlayer(playernr).getProgramField(5).getCard().getName());
+            playerServer.setProgram1(board.getPlayer(playernr).getProgramField(0).getCard().getName());
+            playerServer.setProgram2(board.getPlayer(playernr).getProgramField(1).getCard().getName());
+            playerServer.setProgram3(board.getPlayer(playernr).getProgramField(2).getCard().getName());
+            playerServer.setProgram4(board.getPlayer(playernr).getProgramField(3).getCard().getName());
+            playerServer.setProgram5(board.getPlayer(playernr).getProgramField(4).getCard().getName());
 
             httpController.updatePlayer(playerServer.getPlayerID(), playerServer);
             Polling.finishProgramming(lobby.getID());
             lobby = httpController.getByGameID(board.getGameId());
             for (int i = 0; i<board.getPlayersNumber(); i++){
-                for (int j = 1; j<=5.; j++){
+                for (int j = 0; j<5.; j++){
                     switch (j){
-                        case 1:
+                        case 0:
                             for (Command command: Command.values()){
                                 if (command.displayName.equals(lobby.getPlayers().get(i).getProgram1())){
                                     board.getPlayer(i).getProgramField(j).setCard( new CommandCard(command));
@@ -383,28 +383,28 @@ public class GameController {
 
                             break;
 
-                        case 2:
+                        case 1:
                             for (Command command: Command.values()){
                                 if (command.displayName.equals(lobby.getPlayers().get(i).getProgram2())){
                                     board.getPlayer(i).getProgramField(j).setCard( new CommandCard(command));
                                 }
                             }
                             break;
-                        case 3:
+                        case 2:
                             for (Command command: Command.values()){
                                 if (command.displayName.equals(lobby.getPlayers().get(i).getProgram3())){
                                     board.getPlayer(i).getProgramField(j).setCard(new CommandCard(command));
                                 }
                             }
                             break;
-                        case 4:
+                        case 3:
                             for (Command command: Command.values()){
                                 if (command.displayName.equals(lobby.getPlayers().get(i).getProgram4())){
                                     board.getPlayer(i).getProgramField(j).setCard( new CommandCard(command));
                                 }
                             }
                             break;
-                        case 5:
+                        case 4:
                             for (Command command: Command.values()){
                                 if (command.displayName.equals(lobby.getPlayers().get(i).getProgram5())){
                                     board.getPlayer(i).getProgramField(j).setCard( new CommandCard(command));
