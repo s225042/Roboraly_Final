@@ -152,7 +152,7 @@ public class AppController implements Observer {
             //WaitingController waitingController = new WaitingController(waitingRoom, httpController);
             try {
                 roboRally.createVatingRomeView(httpController.getByGameID(lobby.getID()));
-                Polling.gameStart(lobby.getID());
+                gameController.getPolling().gameStart(lobby.getID()); // Modified to use polling from GameController
             }
             catch (Exception e){
                 throw new RuntimeException(e);
@@ -225,7 +225,16 @@ public class AppController implements Observer {
         //Shold macke the gamecontroler from the https nolegs
         Board board = loadBoard(bordName);
         board.setGameId(lobby.getID());
-        gameController = new GameController(board, httpController);
+        gameController = new GameController(board, httpController, this); // Modified to pass AppController to GameController
+        createPlayer(board, playerName);
+
+        try {
+            roboRally.createVatingRomeView(lobby);
+            gameController.getPolling().gameStart(gameId); // Modified to use polling from GameController
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
 
         //make the first player
         TextInputDialog dialog1 = new TextInputDialog();
@@ -249,7 +258,8 @@ public class AppController implements Observer {
         //shold getsomting from http that wil start the game*/
         try {
             roboRally.createVatingRomeView(httpController.getByGameID(lobby.getID()));
-            Polling.gameStart(iResult);
+            gameController.getPolling().gameStart(iResult); // Modified to use polling from GameController
+
         }
         catch (Exception e){
             throw new RuntimeException(e);
@@ -299,7 +309,8 @@ public class AppController implements Observer {
             String boardsname = boardname.get();
 
             Board board = loadBoard("games/" + boardsname);
-            gameController = new GameController(board, httpController);
+            gameController = new GameController(board, httpController, this);
+
 
             roboRally.createBoardView(gameController);
 

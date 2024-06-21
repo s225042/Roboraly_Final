@@ -5,6 +5,7 @@ import com.google.gson.Gson;
 import dk.dtu.compute.se.pisd.roborally.RoboRally;
 import dk.dtu.compute.se.pisd.roborally.fileaccess.model.Lobby;
 import dk.dtu.compute.se.pisd.roborally.fileaccess.model.PlayerServer;
+import javafx.application.Platform;
 
 import java.lang.reflect.Type;
 import java.net.HttpURLConnection;
@@ -19,19 +20,26 @@ import java.util.concurrent.*;
 
 public class Polling {
 
+
+    private static final GameController gameController;
     private static AppController appController;
+
     private static final ScheduledExecutorService executorService = Executors.newScheduledThreadPool(2);
     private static final int POLLING_INTERVAL_SECONDS = 2;
 
     private static ScheduledFuture<?> startGame;
     private static ScheduledFuture<?> programmingDone;
     private static ScheduledFuture<?> roundDone;
+    private final HttpClient httpClient;
+    private static HttpController httpController = new HttpController();
+
+
 
     public static void gameStart(int gameID) {
         startGame = executorService.scheduleAtFixedRate(() -> gameStarted(gameID), 0, POLLING_INTERVAL_SECONDS, TimeUnit.SECONDS);
     }
 
-    private static void finishProgramming(int gameID){
+    public void finishProgramming(int gameID){
         programmingDone = executorService.scheduleAtFixedRate(() -> programmingCompleted(gameID), 0, POLLING_INTERVAL_SECONDS, TimeUnit.SECONDS);
     }
 
@@ -51,16 +59,15 @@ public class Polling {
         if (lobby.getPhase() == Lobby.Phase.PROGRAMMING){
             startGame.cancel(false);
             appController.startGame();
+            Platform.runLater(() -> appController.startGame());
+
         }
     }
 
 
-    private final HttpClient httpClient;
-
-    private static HttpController httpController = new HttpController();
-
-    public Polling(AppController appController) {
-        Polling.appController = appController;
+    public Polling(AppController appController) { //constructur
+        this.appController = appController;
+        this.gameController = gameController;
         this.httpClient = HttpClient.newHttpClient();
     }
 
@@ -69,33 +76,30 @@ public class Polling {
         //Skal have og opdatere listen af spillere som er i lobbyen til spillet
 
     }
-
-    private static void programmingCompleted(int gameID){
-        //Tjekke om alle spillere med samme gameID har programmingDone = true
+    //Tjekke om alle spillere med samme gameID har programmingDone = true
+    private void programmingCompleted(int gameID) {
         List<PlayerServer> playerServers = new ArrayList<>();
         try {
             playerServers.addAll(httpController.getByGameID(gameID).getPlayers());
-        }
-        catch (Exception e){
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
 
-
-        for(int i = 0; i<playerServers.size(); i++) {
+        for (int i = 0; i < playerServers.size(); i++) {
             PlayerServer playerServer = playerServers.get(i);
-            if (!playerServer.isProgrammingDone()){
+            if (!playerServer.isProgrammingDone()) {
                 break;
             }
-            if(playerServers.get(playerServers.size() -1) == playerServer){
+            if (playerServers.get(playerServers.size() - 1) == playerServer) {
                 programmingDone.cancel(false);
-
+                Platform.runLater(() -> gameController.finishProgrammingPhase());
             }
         }
     }
-
     private static void roundCompleted(int gameID){
         //Når spillet er kørt igennem skal det rykkes tilbage til PROGRAMMING phase
         //Tjekke om alle spillere med samme gameID har programmingDone = false
+
         List<PlayerServer> playerServers = new ArrayList<>();
         try {
             playerServers.addAll(httpController.getByGameID(gameID).getPlayers());
@@ -110,6 +114,9 @@ public class Polling {
             }
             if(playerServers.get(playerServers.size() -1) != playerServer){
                 roundDone.cancel(false);
+                Platform.runLater(() -> gameController.startProgrammingPhase());
+
+
             }
         }
 

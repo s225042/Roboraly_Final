@@ -22,6 +22,7 @@
 package dk.dtu.compute.se.pisd.roborally.controller;
 
 import dk.dtu.compute.se.pisd.roborally.fileaccess.model.Lobby;
+import dk.dtu.compute.se.pisd.roborally.fileaccess.model.PlayerServer;
 import dk.dtu.compute.se.pisd.roborally.model.*;
 import org.jetbrains.annotations.NotNull;
 import javafx.scene.control.Alert;
@@ -42,6 +43,7 @@ public class GameController {
     final public Board board;
 
     final private HttpController httpController;
+    final private Polling polling; // Added to handle polling
 
     public boolean won = false;
     private Queue<Player> rebootQueue = new LinkedList<>();
@@ -49,13 +51,18 @@ public class GameController {
 
 
 
-
     public GameController(Board board, HttpController httpController) {
         this.board = board;
         this.httpController = httpController;
+        this.polling = new Polling(appController, this); // Initialize polling with AppController and GameController
         initializeDamageDeck();
-
     }
+    public Polling getPolling() {
+        return polling;
+    }
+
+
+
 
 
 
@@ -354,17 +361,14 @@ public class GameController {
         }
         board.setStep(0);
 
-        Lobby lobby;
         try {
-            lobby = httpController.getByGameID(board.getGameId());
+            Lobby lobby = httpController.getByGameID(board.getGameId());
+            lobby.setPhase(Lobby.Phase.ACTIVATION);
+            httpController.updateGameInfo(lobby.getID(), lobby);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-        catch (Exception e){
-
-        }
-
-
-
-
+        polling.finishRound(board.getGameId());
     }
 
 
@@ -607,7 +611,33 @@ public class GameController {
                 player.drawProgrammingCards(Player.NO_CARDS); // Draw cards for the player
             }
         }
+
+        try {
+            Lobby lobby = httpController.getByGameID(board.getGameId());
+            lobby.setPhase(Lobby.Phase.PROGRAMMING);
+            httpController.updateGameInfo(lobby.getID(), lobby);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        // Start polling for programming completion
+        polling.finishProgramming(board.getGameId());
     }
+    public void postPlayerCards(Player player) {
+        PlayerServer playerServer;
+        try {
+            playerServer = httpController.getPlayerByID(player.getName());
+            playerServer.setProgram1(player.getProgramField(0).getCard().toString());
+            playerServer.setProgram2(player.getProgramField(1).getCard().toString());
+            playerServer.setProgram3(player.getProgramField(2).toString());
+            playerServer.setProgram4(player.getProgramField(3).toString());
+            playerServer.setProgram5(player.getProgramField(4).toString());
+            playerServer.setProgrammingDone(true);
+            httpController.updatePlayer(playerServer.getPlayerID(), playerServer);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
 
 
     public void notImplemented() {
