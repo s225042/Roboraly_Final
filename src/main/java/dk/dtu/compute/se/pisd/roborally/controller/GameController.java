@@ -368,7 +368,12 @@ public class GameController {
                 for (int j = 1; j<=5.; j++){
                     switch (j){
                         case 1:
-                            board.getPlayer(i).getProgramField(j).setCard( new CommandCard(new Command(lobby.getPlayers().get(i).getProgram1())));
+                            for (Command command: Command.values()){
+                                if (command.displayName.equals(lobby.getPlayers().get(i).getProgram1());{
+                                    board.getPlayer(i).getProgramField(j).setCard( new CommandCard(command));
+                                }
+                            }
+
                             break;
 
                         case 2:
