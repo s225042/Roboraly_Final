@@ -20,7 +20,7 @@ import java.util.concurrent.*;
 public class Polling {
 
     private static AppController appController;
-    private static final ScheduledExecutorService executorService = Executors.newScheduledThreadPool(2);
+    private static final ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);
     private static final int POLLING_INTERVAL_SECONDS = 2;
     private static CountDownLatch latch = new CountDownLatch(1);
     private static CountDownLatch latch2 = new CountDownLatch(1);

@@ -24,6 +24,7 @@ package dk.dtu.compute.se.pisd.roborally.view;
 import dk.dtu.compute.se.pisd.designpatterns.observer.Subject;
 import dk.dtu.compute.se.pisd.roborally.controller.GameController;
 import dk.dtu.compute.se.pisd.roborally.model.Board;
+import dk.dtu.compute.se.pisd.roborally.model.Phase;
 import dk.dtu.compute.se.pisd.roborally.model.Player;
 import javafx.scene.control.TabPane;
 
@@ -59,10 +60,12 @@ public class PlayersView extends TabPane implements ViewObserver {
             Player current = board.getCurrentPlayer();
             this.getSelectionModel().select(board.getPlayerNumber(current));
 
-            int player = board.getPlayerNumber(current);
-            for (int i = 0; i<playerViews.length; i++){
-                if(i != player){
-                    playerViews[i].setDisable(true);
+            if (board.getPhase() == Phase.PROGRAMMING){
+                int player = board.getPlayerNumber(current);
+                for (int i = 0; i<playerViews.length; i++){
+                    if(i != player){
+                        playerViews[i].setDisable(true);
+                    }
                 }
             }
         }
