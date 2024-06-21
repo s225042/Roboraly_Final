@@ -22,6 +22,7 @@
 package dk.dtu.compute.se.pisd.roborally.controller;
 
 import dk.dtu.compute.se.pisd.roborally.fileaccess.model.Lobby;
+import dk.dtu.compute.se.pisd.roborally.fileaccess.model.PlayerServer;
 import dk.dtu.compute.se.pisd.roborally.model.*;
 import org.jetbrains.annotations.NotNull;
 import javafx.scene.control.Alert;
@@ -346,6 +347,9 @@ public class GameController {
 
     public void finishProgrammingPhase() {
         makeProgramFieldsInvisible();
+        Player player = board.getCurrentPlayer();
+        int playernr = board.getPlayerNumber(player);
+
         determinePlayerOrder();
         makeProgramFieldsVisible(0);
         board.setPhase(Phase.ACTIVATION);
@@ -357,12 +361,14 @@ public class GameController {
         Lobby lobby;
         try {
             lobby = httpController.getByGameID(board.getGameId());
+            PlayerServer playerServer = lobby.getPlayers().get(playernr);
+            playerServer.setProgrammingDone(true);
+            httpController.updatePlayer(playerServer.getPlayerID(), playerServer);
+            Polling.finishProgramming(lobby.getID());
         }
         catch (Exception e){
 
         }
-
-
 
 
     }

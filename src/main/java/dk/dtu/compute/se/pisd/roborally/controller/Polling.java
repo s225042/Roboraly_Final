@@ -31,11 +31,11 @@ public class Polling {
         startGame = executorService.scheduleAtFixedRate(() -> gameStarted(gameID), 0, POLLING_INTERVAL_SECONDS, TimeUnit.SECONDS);
     }
 
-    private static void finishProgramming(int gameID){
+    public static void finishProgramming(int gameID){
         programmingDone = executorService.scheduleAtFixedRate(() -> programmingCompleted(gameID), 0, POLLING_INTERVAL_SECONDS, TimeUnit.SECONDS);
     }
 
-    private static void finishRound(int gameID){
+    public static void finishRound(int gameID){
         roundDone = executorService.scheduleAtFixedRate(() -> roundCompleted(gameID), 0, POLLING_INTERVAL_SECONDS, TimeUnit.SECONDS);
     }
 
