@@ -128,7 +128,7 @@ public class AppController implements Observer {
                 try {
                     lobby = httpController.getByGameID(board.getGameId());
                     httpController.addPlayer(new PlayerServer(playerID.get(), lobby));
-                    playerName = playerID.get();
+                    gameController.playerName = playerID.get();
                 }
                 catch (Exception e1){
                     System.out.println(e1);
@@ -171,7 +171,7 @@ public class AppController implements Observer {
             // board.setCurrentPlayer(board.getPlayer(0));
             for (int i = 0; i<gameController.board.getPlayers().size(); i++){
                 Player player = gameController.board.getPlayer(i);
-                if(player.getName().equals(playerName)){
+                if(player.getName().equals(gameController.playerName)){
                     gameController.board.setCurrentPlayer(gameController.board.getPlayer(i));
                 }
             }
@@ -222,7 +222,7 @@ public class AppController implements Observer {
         if(playerID.isPresent()){
             try {
                 httpController.addPlayer(new PlayerServer(playerID.get(), lobby));
-                playerName = playerID.get();
+                gameController.playerName = playerID.get();
             }
             catch (Exception e1){
                 System.out.println(e1);
