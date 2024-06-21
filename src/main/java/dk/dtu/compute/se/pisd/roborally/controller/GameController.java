@@ -649,17 +649,33 @@ public class GameController {
     }
 
     public void startProgrammingPhase() {
+        Player player;
+
         board.setPhase(Phase.PROGRAMMING);
         for (int i = 0; i<board.getPlayers().size(); i++){
-            Player player = board.getPlayer(i);
+            player = board.getPlayer(i);
             if(player.getName().equals(playerName)){
                 board.setCurrentPlayer(board.getPlayer(i));
             }
         }
+        int playernr = board.getPlayerNumber(board.getCurrentPlayer());
+
+        Lobby lobby;
+        try {
+            lobby = httpController.getByGameID(board.getGameId());
+            PlayerServer playerServer = lobby.getPlayers().get(playernr);
+            playerServer.setProgrammingDone(false);
+            httpController.updatePlayer(playerServer.getPlayerID(), playerServer);
+        }
+        catch (Exception e){
+            throw new RuntimeException(e);
+        }
+        Polling.finishRound(lobby.getID());
+
         board.setStep(0);
 
         for (int i = 0; i < board.getPlayersNumber(); i++) {
-            Player player = board.getPlayer(i);
+            player = board.getPlayer(i);
             if (player != null) {
                 player.initializeProgrammingDeck(); // Initialize the deck if needed
                 for (int j = 0; j < Player.NO_REGISTERS; j++) {

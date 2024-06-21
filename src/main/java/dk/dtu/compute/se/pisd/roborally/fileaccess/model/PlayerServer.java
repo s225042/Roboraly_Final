@@ -4,7 +4,7 @@ import dk.dtu.compute.se.pisd.designpatterns.observer.Subject;
 
 public class PlayerServer extends Subject {
 
-    private int playerID;
+    private int id;
     private String playerName;
     private String program1;
     private String program2;
@@ -24,10 +24,6 @@ public class PlayerServer extends Subject {
 
     public String getPlayerName() {
         return playerName;
-    }
-
-    public void setPlayerID(String playerName) {
-        this.playerName = playerName;
     }
 
     public String getProgram1() {
@@ -78,12 +74,8 @@ public class PlayerServer extends Subject {
         this.gameInfo = gameInfo;
     }
 
-    public void setPlayerID(int playerID) {
-        this.playerID = playerID;
-    }
-
     public int getPlayerID(){
-        return playerID;
+        return id;
     }
 
     public boolean isProgrammingDone() {return programmingDone;}
