@@ -23,6 +23,7 @@ public class Polling {
     private static final ScheduledExecutorService executorService = Executors.newScheduledThreadPool(2);
     private static final int POLLING_INTERVAL_SECONDS = 2;
     private static CountDownLatch latch = new CountDownLatch(1);
+    private static CountDownLatch latch2 = new CountDownLatch(1);
 
     private static ScheduledFuture<?> startGame;
     private static ScheduledFuture<?> programmingDone;
@@ -115,14 +116,14 @@ public class Polling {
         for(PlayerServer playerServer : playerServers) {
             if (playerServer.isProgrammingDone()){
                 try {
-                    latch.await();
+                    latch2.await();
                 } catch (Exception e) {
                     throw new RuntimeException(e);
                 }
                 break;
             }
             if(playerServers.get(playerServers.size() -1) != playerServer){
-                latch.countDown();
+                latch2.countDown();
                 roundDone.cancel(false);
             }
         }
