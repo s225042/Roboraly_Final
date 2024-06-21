@@ -368,16 +368,41 @@ public class GameController {
                 for (int j = 1; j<=5.; j++){
                     switch (j){
                         case 1:
-                            board.getPlayer(i).getProgramField(j).setCard( new CommandCard(new Command(lobby.getPlayers().get(i).getProgram1())));
+                            for (Command command: Command.values()){
+                                if (command.displayName.equals(lobby.getPlayers().get(i).getProgram1())){
+                                    board.getPlayer(i).getProgramField(j).setCard( new CommandCard(command));
+                                }
+                            }
+
                             break;
 
                         case 2:
+                            for (Command command: Command.values()){
+                                if (command.displayName.equals(lobby.getPlayers().get(i).getProgram2())){
+                                    board.getPlayer(i).getProgramField(j).setCard( new CommandCard(command));
+                                }
+                            }
                             break;
                         case 3:
+                            for (Command command: Command.values()){
+                                if (command.displayName.equals(lobby.getPlayers().get(i).getProgram3())){
+                                    board.getPlayer(i).getProgramField(j).setCard(new CommandCard(command));
+                                }
+                            }
                             break;
                         case 4:
+                            for (Command command: Command.values()){
+                                if (command.displayName.equals(lobby.getPlayers().get(i).getProgram4())){
+                                    board.getPlayer(i).getProgramField(j).setCard( new CommandCard(command));
+                                }
+                            }
                             break;
                         case 5:
+                            for (Command command: Command.values()){
+                                if (command.displayName.equals(lobby.getPlayers().get(i).getProgram5())){
+                                    board.getPlayer(i).getProgramField(j).setCard( new CommandCard(command));
+                                }
+                            }
                             break;
                     }
                 }
