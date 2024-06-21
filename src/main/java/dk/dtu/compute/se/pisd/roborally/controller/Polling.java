@@ -114,9 +114,15 @@ public class Polling {
 
         for(PlayerServer playerServer : playerServers) {
             if (playerServer.isProgrammingDone()){
+                try {
+                    latch.await();
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
                 break;
             }
             if(playerServers.get(playerServers.size() -1) != playerServer){
+                latch.countDown();
                 roundDone.cancel(false);
             }
         }
