@@ -158,7 +158,15 @@ public class AppController implements Observer {
             for (int i = 0; i<players.size(); i++){
                 Player player = new Player(gameController.board, PLAYER_COLORS.get(i), players.get(i).getPlayerName());
                 gameController.board.addPlayer(player);
-                player.setSpace(gameController.board.getSpace(i % gameController.board.width, i));
+
+                int no = players.size();
+                List<SpawnPoint> spawnPoints = gameController.board.getSpawnPoints();
+                for (int j = 0; j < no; j++) {
+
+                    // Place the player on the spawn point
+                    SpawnPoint spawnPoint = spawnPoints.get(i % spawnPoints.size());
+                    player.setSpace(gameController.board.getSpace(spawnPoint.x, spawnPoint.y));
+                }
             }
                     /*
         int no = result.get();
@@ -181,17 +189,6 @@ public class AppController implements Observer {
         }
         catch (Exception e){
             throw new RuntimeException(e);
-        }
-
-        int no = playerCountResult.get();
-        List<SpawnPoint> spawnPoints = gameController.board.getSpawnPoints();
-        for (int i = 0; i < no; i++) {
-            Player player = new Player(gameController.board, PLAYER_COLORS.get(i), "Player " + (i + 1));
-            gameController.board.addPlayer(player);
-
-            // Place the player on the spawn point
-            SpawnPoint spawnPoint = spawnPoints.get(i % spawnPoints.size());
-            player.setSpace(gameController.board.getSpace(spawnPoint.x, spawnPoint.y));
         }
 
         gameController.startProgrammingPhase();
@@ -254,6 +251,7 @@ public class AppController implements Observer {
         catch (Exception e){
             throw new RuntimeException(e);
         }
+
     }
 
     /**

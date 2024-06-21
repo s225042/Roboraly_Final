@@ -361,6 +361,13 @@ public class GameController {
             lobby = httpController.getByGameID(board.getGameId());
             PlayerServer playerServer = lobby.getPlayers().get(playernr);
             playerServer.setProgrammingDone(true);
+
+            playerServer.setProgram1(board.getPlayer(playernr).getProgramField(1).getCard().getName());
+            playerServer.setProgram2(board.getPlayer(playernr).getProgramField(2).getCard().getName());
+            playerServer.setProgram3(board.getPlayer(playernr).getProgramField(3).getCard().getName());
+            playerServer.setProgram4(board.getPlayer(playernr).getProgramField(4).getCard().getName());
+            playerServer.setProgram5(board.getPlayer(playernr).getProgramField(5).getCard().getName());
+
             httpController.updatePlayer(playerServer.getPlayerID(), playerServer);
             Polling.finishProgramming(lobby.getID());
             lobby = httpController.getByGameID(board.getGameId());
