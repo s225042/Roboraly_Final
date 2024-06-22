@@ -25,7 +25,7 @@ public class Lobby extends Subject {
     }
 
     public void setBoard(String board) {
-        board = board;
+        this.board = board;
     }
 
     public int getTurnID() {
