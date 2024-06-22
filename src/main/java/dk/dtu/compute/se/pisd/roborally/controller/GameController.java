@@ -46,22 +46,25 @@ public class GameController {
 
     final private HttpController httpController;
     final private Polling polling; // Added to handle polling
+    final private AppController appController;
 
     public boolean won = false;
     private Queue<Player> rebootQueue = new LinkedList<>();
     private List<CommandCard> damageDeck = new ArrayList<>();
 
 
-    public GameController(Board board, HttpController httpController) {
+
+    public GameController(Board board, HttpController httpController, AppController appController) {
         this.board = board;
         this.httpController = httpController;
+        this.appController = appController; // Add this line
         this.polling = new Polling(this, httpController); // Initialize polling with GameController and HttpController
         initializeDamageDeck();
     }
+
     public Polling getPolling() {
         return polling;
     }
-
 
 
 

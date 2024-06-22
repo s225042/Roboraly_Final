@@ -25,6 +25,8 @@ public class Polling {
     private static  GameController gameController;
     private static AppController appController;
 
+    private static HttpController httpController;
+
     private static final ScheduledExecutorService executorService = Executors.newScheduledThreadPool(2);
     private static final int POLLING_INTERVAL_SECONDS = 2;
 
@@ -32,7 +34,8 @@ public class Polling {
     private static ScheduledFuture<?> programmingDone;
     private static ScheduledFuture<?> roundDone;
     private final HttpClient httpClient;
-    private static HttpController httpController = new HttpController();
+    //private static HttpController httpController = new HttpController();
+
 
 
 
@@ -69,8 +72,8 @@ public class Polling {
 
 
     public Polling(GameController gameController, HttpController httpController) {
-        this.gameController = gameController;
-        this.httpController = httpController;
+        Polling.gameController = gameController;
+        Polling.httpController = httpController;
         this.httpClient = HttpClient.newHttpClient();
     }
 

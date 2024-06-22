@@ -12,6 +12,7 @@ public class Lobby extends Subject {
     public enum Phase {WAITING, PROGRAMMING, ACTIVATION, EXECUTION};
     private Phase phase;
 
+
     private List<PlayerServer> players = new ArrayList<>();
 
     public Lobby(String board, int turnID){
@@ -19,6 +20,7 @@ public class Lobby extends Subject {
         this.turnID = turnID;
         this.phase = Phase.WAITING;
     }
+
 
     public String getBoard() {
         return board;

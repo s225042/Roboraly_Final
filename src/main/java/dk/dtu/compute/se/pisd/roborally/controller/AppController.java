@@ -66,16 +66,15 @@ public class AppController implements Observer {
 
     final private List<String> Game_Bord = Arrays.asList("defaultboard", "STARTER COURSE DIZZY HIGHWAY", "RISKY CROSSING", "HIGH OCTANE", "SPRINT CRAMP", "CORRIDOR BLITZ", "FRACTIONATION", "BURNOUT", "LOST BEARINGS", "PASSING LANE", "TWISTER", "DODGE THIS", "CHOP SHOP CHALLENGE", "UNDERTOW", "HEAVY MERGE AREA", "DEATH TRAP", "PILGRIMAGE", "GEAR STRIPPER", "EXTRA CRISPY", "BURN RUN");
 
-    private  List<String> Saved_Bord = new ArrayList<>();
+    private List<String> Saved_Bord = new ArrayList<>();
 
     final private RoboRally roboRally;
 
     final private HttpController httpController = new HttpController();
 
-    final private Polling polling = new Polling(this);
-
     private GameController gameController;
 
+    private Polling polling;
     private String playerName;
 
     public AppController(@NotNull RoboRally roboRally) {
@@ -85,8 +84,13 @@ public class AppController implements Observer {
     public void newGame() {
         ChoiceDialog<String> boards = new ChoiceDialog<>(Game_Bord.get(0), Game_Bord);
         boards.setTitle("Table");
-        boards.setHeaderText("select game table");
+        boards.setHeaderText("Select game table");
         Optional<String> boardname = boards.showAndWait();
+
+        if (!boardname.isPresent()) {
+            return;
+        }
+
         String boardsname = boardname.get();
 
         ChoiceDialog<Integer> dialog = new ChoiceDialog<>(PLAYER_NUMBER_OPTIONS.get(0), PLAYER_NUMBER_OPTIONS);
@@ -103,34 +107,31 @@ public class AppController implements Observer {
                 }
             }
 
-
             // XXX the board should eventually be created programmatically or loaded from a file
             //     here we just create an empty board with the required number of players.
             Board board = loadBoard(boardsname);
-            gameController = new GameController(board, httpController);
+            gameController = new GameController(board, httpController, this); // Only pass Board and HttpController
 
-            //setGameID
+            // Set GameID
             try {
                 board.setGameId(httpController.addGame(new Lobby(boardsname, 0)).getID());
             } catch (Exception e1) {
                 System.out.println(e1);
             }
 
-
-            //make the first player
+            // Make the first player
             TextInputDialog dialog1 = new TextInputDialog();
             dialog1.setHeaderText("Enter Player name");
             dialog1.setContentText("Player name:");
             Lobby lobby = null;
 
             Optional<String> playerID = dialog1.showAndWait();
-            if(playerID.isPresent()){
+            if (playerID.isPresent()) {
                 try {
                     lobby = httpController.getByGameID(board.getGameId());
                     httpController.addPlayer(new PlayerServer(playerID.get(), lobby));
                     playerName = playerID.get();
-                }
-                catch (Exception e1){
+                } catch (Exception e1) {
                     System.out.println(e1);
                 }
             }
@@ -148,56 +149,45 @@ public class AppController implements Observer {
 
             gameController.startProgrammingPhase();
             roboRally.createBoardView(gameController);
-            //WaitingRoom waitingRoom = new WaitingRoom(gameController.board.getGameId());
-            //WaitingController waitingController = new WaitingController(waitingRoom, httpController);
+
             try {
-                roboRally.createVatingRomeView(httpController.getByGameID(lobby.getID()));
-                gameController.getPolling().gameStart(lobby.getID()); // Modified to use polling from GameController
-            }
-            catch (Exception e){
+                if (lobby != null) {
+                    roboRally.createVatingRomeView(lobby);
+                    gameController.getPolling().gameStart(lobby.getID()); // Modified to use polling from GameController
+                }
+            } catch (Exception e) {
                 throw new RuntimeException(e);
             }
         }
     }
 
-    public void startGame(){
-        //get the plaayers and plays them on the bord
+
+
+    public void startGame() {
+        // Get the players and place them on the board
         try {
             Lobby gameInfo = httpController.getByGameID(gameController.board.getGameId());
             List<PlayerServer> players = gameInfo.getPlayers();
 
-            for (int i = 0; i<players.size(); i++){
+            for (int i = 0; i < players.size(); i++) {
                 Player player = new Player(gameController.board, PLAYER_COLORS.get(i), players.get(i).getPlayerName());
                 gameController.board.addPlayer(player);
                 player.setSpace(gameController.board.getSpace(i % gameController.board.width, i));
             }
-                    /*
-        int no = result.get();
-        for (int i = 0; i < no; i++) {
-            //player skal lave på en lidt anden måde
-            Player player = new Player(board, PLAYER_COLORS.get(i), "Player " + (i + 1));
-            board.addPlayer(player);
-            player.setSpace(board.getSpace(i % board.width, i));
-        }
-*/
-            // XXX: V2
-            // board.setCurrentPlayer(board.getPlayer(0));
-            for (int i = 0; i<gameController.board.getPlayers().size(); i++){
+
+            // Set the current player
+            for (int i = 0; i < gameController.board.getPlayers().size(); i++) {
                 Player player = gameController.board.getPlayer(i);
-                if(player.getName().equals(playerName)){
+                if (player.getName().equals(playerName)) {
                     gameController.board.setCurrentPlayer(gameController.board.getPlayer(i));
                 }
             }
-
-        }
-        catch (Exception e){
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
 
         gameController.startProgrammingPhase();
-
         Platform.runLater(() -> roboRally.createBoardView(gameController));
-
     }
 
 
