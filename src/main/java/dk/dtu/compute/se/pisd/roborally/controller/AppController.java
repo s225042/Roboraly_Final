@@ -200,13 +200,14 @@ public class AppController implements Observer {
 
     }
 
-    public void joinGame(){
+
+    public void joinGame() {
         String bordName;
         int iResult;
         TextInputDialog dialog = new TextInputDialog();
         dialog.setHeaderText("Enter GameID");
         dialog.setContentText("GameID:");
-        Lobby lobby;
+        Lobby lobby = null;
 
         while (true) {
             try {
@@ -215,14 +216,14 @@ public class AppController implements Observer {
                     iResult = Integer.valueOf(result.get());
                     lobby = httpController.getByGameID(iResult);
                     bordName = lobby.getBoard();
-                    playerName = result.get();
                     break;
                 }
             } catch (Exception e1) {
-
+                // Handle the exception or prompt the user again
             }
         }
-        //Shold macke the gamecontroler from the https nolegs
+
+        // Should make the gameController from the HTTP response
         Board board = loadBoard(bordName);
         board.setGameId(lobby.getID());
         gameController = new GameController(board, httpController, this); // Modified to pass AppController to GameController
@@ -230,40 +231,18 @@ public class AppController implements Observer {
 
         try {
             roboRally.createVatingRomeView(lobby);
-            gameController.getPolling().gameStart(gameId); // Modified to use polling from GameController
+            gameController.getPolling().gameStart(iResult); // Modified to use polling from GameController
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
 
-
-        //make the first player
-        TextInputDialog dialog1 = new TextInputDialog();
-        dialog1.setHeaderText("Enter PlayerID");
-        dialog1.setContentText("PlayerID:");
-
-        Optional<String> playerID = dialog1.showAndWait();
-        if(playerID.isPresent()){
-            try {
-                httpController.addPlayer(new PlayerServer(playerID.get(), lobby));
-            }
-            catch (Exception e1){
-                System.out.println(e1);
-            }
-        }
-
-        /*
-        while (!waitingController.starttingGame()) {
-            roboRally.createVatingRomeView(waitingController);
-        }
-        //shold getsomting from http that wil start the game*/
-        try {
-            roboRally.createVatingRomeView(httpController.getByGameID(lobby.getID()));
-            gameController.getPolling().gameStart(iResult); // Modified to use polling from GameController
-
-        }
-        catch (Exception e){
-            throw new RuntimeException(e);
-        }
+    public void createPlayer(Board board, String playerName) {
+        List<SpawnPoint> spawnPoints = board.getSpawnPoints();
+        Player player = new Player(board, PLAYER_COLORS.get(0), playerName); // Adjust the index as needed
+        board.addPlayer(player);
+        SpawnPoint spawnPoint = spawnPoints.get(0); // Adjust the index as needed
+        player.setSpace(board.getSpace(spawnPoint.x, spawnPoint.y));
     }
 
     /**
@@ -296,7 +275,7 @@ public class AppController implements Observer {
 
         try (DirectoryStream<Path> stream = Files.newDirectoryStream(dirktery)) {
 
-            //with forEach loop get all the path of files present in directory
+            //with forEach loop get all txhe path of files present in directory
             for (Path file : stream){
                 String fileString = file.getFileName().toString();
                 String fileName = fileString.substring(0, fileString.lastIndexOf("."));

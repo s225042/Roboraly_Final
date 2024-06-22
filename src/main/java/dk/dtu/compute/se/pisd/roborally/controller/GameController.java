@@ -28,6 +28,8 @@ import org.jetbrains.annotations.NotNull;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Alert.AlertType;
+import dk.dtu.compute.se.pisd.roborally.model.Phase;
+
 
 import java.util.*;
 import java.util.List;
@@ -50,11 +52,10 @@ public class GameController {
     private List<CommandCard> damageDeck = new ArrayList<>();
 
 
-
     public GameController(Board board, HttpController httpController) {
         this.board = board;
         this.httpController = httpController;
-        this.polling = new Polling(appController, this); // Initialize polling with AppController and GameController
+        this.polling = new Polling(this, httpController); // Initialize polling with GameController and HttpController
         initializeDamageDeck();
     }
     public Polling getPolling() {
@@ -64,6 +65,16 @@ public class GameController {
 
 
 
+    public void notifyProgrammingDone(Player player) {
+        try {
+            PlayerServer playerServer = httpController.getPlayerByID(player.getName());
+            playerServer.setProgrammingDone(true);
+            httpController.updatePlayer(playerServer.getPlayerID(), playerServer);
+            polling.finishProgramming(board.getGameId());
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
 
 
     public void determinePlayerOrder(){
@@ -369,6 +380,9 @@ public class GameController {
             e.printStackTrace();
         }
         polling.finishRound(board.getGameId());
+
+        // Start polling to check if all players have finished programming
+        Polling.finishProgramming(board.getGameId());
     }
 
 

@@ -9,7 +9,7 @@ public class Lobby extends Subject {
     private String board;
     private int turnID;
     private int id;
-    public enum Phase {WAITING, PROGRAMMING, EXECUTION};
+    public enum Phase {WAITING, PROGRAMMING, ACTIVATION, EXECUTION};
     private Phase phase;
 
     private List<PlayerServer> players = new ArrayList<>();

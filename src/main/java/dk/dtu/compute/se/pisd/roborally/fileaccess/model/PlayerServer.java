@@ -88,6 +88,8 @@ public class PlayerServer extends Subject {
 
     public boolean isProgrammingDone() {return programmingDone;}
 
+
+
     public void setProgrammingDone(boolean programmingDone) {this.programmingDone = programmingDone;}
 
     public void setPlayerName(String playerName) {

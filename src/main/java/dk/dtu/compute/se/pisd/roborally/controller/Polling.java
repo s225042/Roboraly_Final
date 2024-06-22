@@ -3,6 +3,7 @@ package dk.dtu.compute.se.pisd.roborally.controller;
 import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
 import dk.dtu.compute.se.pisd.roborally.RoboRally;
+import dk.dtu.compute.se.pisd.roborally.controller.GameController;
 import dk.dtu.compute.se.pisd.roborally.fileaccess.model.Lobby;
 import dk.dtu.compute.se.pisd.roborally.fileaccess.model.PlayerServer;
 import javafx.application.Platform;
@@ -21,7 +22,7 @@ import java.util.concurrent.*;
 public class Polling {
 
 
-    private static final GameController gameController;
+    private static  GameController gameController;
     private static AppController appController;
 
     private static final ScheduledExecutorService executorService = Executors.newScheduledThreadPool(2);
@@ -35,15 +36,17 @@ public class Polling {
 
 
 
+
+
     public static void gameStart(int gameID) {
         startGame = executorService.scheduleAtFixedRate(() -> gameStarted(gameID), 0, POLLING_INTERVAL_SECONDS, TimeUnit.SECONDS);
     }
 
-    public void finishProgramming(int gameID){
+    public static void finishProgramming(int gameID){
         programmingDone = executorService.scheduleAtFixedRate(() -> programmingCompleted(gameID), 0, POLLING_INTERVAL_SECONDS, TimeUnit.SECONDS);
     }
 
-    private static void finishRound(int gameID){
+    static void finishRound(int gameID){
         roundDone = executorService.scheduleAtFixedRate(() -> roundCompleted(gameID), 0, POLLING_INTERVAL_SECONDS, TimeUnit.SECONDS);
     }
 
@@ -65,9 +68,9 @@ public class Polling {
     }
 
 
-    public Polling(AppController appController) { //constructur
-        this.appController = appController;
+    public Polling(GameController gameController, HttpController httpController) {
         this.gameController = gameController;
+        this.httpController = httpController;
         this.httpClient = HttpClient.newHttpClient();
     }
 
@@ -77,7 +80,7 @@ public class Polling {
 
     }
     //Tjekke om alle spillere med samme gameID har programmingDone = true
-    private void programmingCompleted(int gameID) {
+    private static void programmingCompleted(int gameID) {
         List<PlayerServer> playerServers = new ArrayList<>();
         try {
             playerServers.addAll(httpController.getByGameID(gameID).getPlayers());
@@ -85,8 +88,7 @@ public class Polling {
             throw new RuntimeException(e);
         }
 
-        for (int i = 0; i < playerServers.size(); i++) {
-            PlayerServer playerServer = playerServers.get(i);
+        for (PlayerServer playerServer : playerServers) {
             if (!playerServer.isProgrammingDone()) {
                 break;
             }
@@ -96,32 +98,23 @@ public class Polling {
             }
         }
     }
-    private static void roundCompleted(int gameID){
-        //Når spillet er kørt igennem skal det rykkes tilbage til PROGRAMMING phase
-        //Tjekke om alle spillere med samme gameID har programmingDone = false
 
+    private static void roundCompleted(int gameID) {
         List<PlayerServer> playerServers = new ArrayList<>();
         try {
             playerServers.addAll(httpController.getByGameID(gameID).getPlayers());
-        }
-        catch (Exception e){
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
 
-        for(PlayerServer playerServer : playerServers) {
-            if (playerServer.isProgrammingDone()){
+        for (PlayerServer playerServer : playerServers) {
+            if (!playerServer.isProgrammingDone()) {
                 break;
             }
-            if(playerServers.get(playerServers.size() -1) != playerServer){
+            if (playerServers.get(playerServers.size() - 1) == playerServer) {
                 roundDone.cancel(false);
                 Platform.runLater(() -> gameController.startProgrammingPhase());
-
-
             }
         }
-
     }
-
-
-
 }
