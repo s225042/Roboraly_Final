@@ -369,8 +369,21 @@ public class GameController {
             playerServer.setProgram5(board.getPlayer(playernr).getProgramField(4).getCard().getName());
 
             httpController.updatePlayer(playerServer.getPlayerID(), playerServer);
-            Polling.finishProgramming(lobby.getID());
-            lobby = httpController.getByGameID(board.getGameId());
+            Polling.finishProgramming(lobby);
+            while (true){
+                boolean allPlayersDone = true;
+                lobby = httpController.getByGameID(board.getGameId());
+                for (PlayerServer playerServe : lobby.getPlayers()) {
+                    if (!playerServe.isProgrammingDone()) {
+                        // Retry logic (you can replace this with a non-blocking approach)
+                        allPlayersDone = false;
+                        break;
+                    }
+                }
+                if (allPlayersDone) {
+                    break;
+                }
+            }
             for (int i = 0; i<board.getPlayersNumber(); i++){
                 for (int j = 0; j<5.; j++){
                     switch (j){
@@ -671,6 +684,27 @@ public class GameController {
             throw new RuntimeException(e);
         }
         Polling.finishRound(lobby.getID());
+
+        while (true){
+            try {
+                lobby = httpController.getByGameID(board.getGameId());
+            }
+            catch (Exception e){
+                System.out.println(e);
+            }
+            boolean allPlayersDone = true;
+
+            for (PlayerServer playerServer : lobby.getPlayers()) {
+                if (playerServer.isProgrammingDone()) {
+                    // Retry logic (you can replace this with a non-blocking approach)
+                    allPlayersDone = false;
+                    break;
+                }
+            }
+            if (allPlayersDone) {
+                break;
+            }
+        }
 
         board.setStep(0);
 

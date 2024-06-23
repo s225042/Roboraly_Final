@@ -343,9 +343,6 @@ public class AppController implements Observer {
         if (subject == lobby){
             update(lobby);
         }
-        if (subject == gameController.board){
-            update(gameController.board);
-        }
     }
 
 }

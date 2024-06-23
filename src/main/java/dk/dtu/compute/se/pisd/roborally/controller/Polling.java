@@ -21,7 +21,9 @@ import java.util.concurrent.*;
 public class Polling {
 
     private static AppController appController;
-    private static final ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);
+    private static final ScheduledExecutorService executorService = Executors.newScheduledThreadPool(8);
+
+    private static CountDownLatch programmingLatch = new CountDownLatch(1);
     private static final int POLLING_INTERVAL_SECONDS = 2;
     private static CountDownLatch latch = new CountDownLatch(1);
     private static CountDownLatch latch2 = new CountDownLatch(1);
@@ -30,12 +32,22 @@ public class Polling {
     private static ScheduledFuture<?> programmingDone;
     private static ScheduledFuture<?> roundDone;
 
+    private final HttpClient httpClient;
+
+    private static HttpController httpController = new HttpController();
+
+    public Polling(AppController appController) {
+        Polling.appController = appController;
+        this.httpClient = HttpClient.newHttpClient();
+    }
+
+
     public static void gameStart(Lobby lobby) {
         startGame = executorService.scheduleAtFixedRate(() -> gameStarted(lobby), 0, POLLING_INTERVAL_SECONDS, TimeUnit.SECONDS);
     }
 
-    public static void finishProgramming(int gameID){
-        programmingDone = executorService.scheduleAtFixedRate(() -> programmingCompleted(gameID), 0, POLLING_INTERVAL_SECONDS, TimeUnit.SECONDS);
+    public static void finishProgramming(Lobby lobby){
+        programmingDone = executorService.scheduleAtFixedRate(() -> programmingCompleted(lobby), 0, POLLING_INTERVAL_SECONDS, TimeUnit.SECONDS);
     }
 
     public static void finishRound(int gameID){
@@ -56,51 +68,36 @@ public class Polling {
         }
     }
 
-
-    private final HttpClient httpClient;
-
-    private static HttpController httpController = new HttpController();
-
-    public Polling(AppController appController) {
-        Polling.appController = appController;
-        this.httpClient = HttpClient.newHttpClient();
-    }
-
     public void playerList(int gameID) throws Exception {
         //this.playerList = playerList;
         //Skal have og opdatere listen af spillere som er i lobbyen til spillet
 
     }
 
-    private static void programmingCompleted(int gameID){
-        //Tjekke om alle spillere med samme gameID har programmingDone = true
+        private static void programmingCompleted(Lobby lobby) {
         List<PlayerServer> playerServers = new ArrayList<>();
         try {
-            playerServers.addAll(httpController.getByGameID(gameID).getPlayers());
-        }
-        catch (Exception e){
+            lobby = httpController.getByGameID(lobby.getID());
+            playerServers.addAll(lobby.getPlayers());
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
-
-
-        for(int i = 0; i<playerServers.size(); i++) {
-
-            PlayerServer playerServer = playerServers.get(i);
-            if (!playerServer.isProgrammingDone()){
-                try {
-                    latch.await();
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
-                }
+        boolean allPlayersDone = true;
+            System.out.println("print 1");
+        for (PlayerServer playerServer : playerServers) {
+            if (!playerServer.isProgrammingDone()) {
+                // Retry logic (you can replace this with a non-blocking approach)
+                allPlayersDone = false;
                 break;
             }
-            if(playerServers.get(playerServers.size() -1) == playerServer){
-                latch.countDown();
-                programmingDone.cancel(false);
-
-            }
+        }
+        if (allPlayersDone) {
+            System.out.println("done");
+            programmingDone.cancel(false);
+            programmingLatch.countDown();
         }
     }
+
 
     private static void roundCompleted(int gameID){
         //Når spillet er kørt igennem skal det rykkes tilbage til PROGRAMMING phase
