@@ -47,13 +47,20 @@ public class WhatingromeView extends VBox implements ViewObserver {
 
         // Add the Start button to the top right
         HBox startButtonContainer = new HBox();
-        startButtonContainer.setAlignment(Pos.TOP_RIGHT);
+        startButtonContainer.setAlignment(Pos.BOTTOM_RIGHT);
         startButtonContainer.getChildren().add(startButton);
 
+        //
+        Label labelLobbynr = new Label("GameID: " + lobby.getID());
+        HBox lobynr = new HBox();
+        lobynr.setAlignment(Pos.TOP_CENTER);
+        lobynr.getChildren().addAll(labelLobbynr);
+
         // Add the components to the VBox
+        this.getChildren().addAll(lobynr);
         this.getChildren().addAll(startButtonContainer);
 
-        lobby.attach(this);
+        //lobby.attach(this);
         update(lobby);
     }
 
@@ -73,7 +80,7 @@ public class WhatingromeView extends VBox implements ViewObserver {
             // Add the updated Player labels
             playerLabels.addAll(lobby.getPlayers());
             for (PlayerServer playerName : playerLabels) {
-                Label playerLabel = new Label(playerName.getPlayerName());
+                Label playerLabel = new Label("Player name: " + playerName.getPlayerName());
                 this.getChildren().add(playerLabel);
             }
         }
