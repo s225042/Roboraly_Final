@@ -18,6 +18,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.*;
 
+/**
+ * @author Amalie Bojsen, s235119@dtu.dk, Rebecca Moss, s225042@dtu.dk
+ */
 public class Polling {
 
     private static AppController appController;
@@ -36,24 +39,43 @@ public class Polling {
 
     private static HttpController httpController = new HttpController();
 
+    /**
+     *
+     * @param appController
+     */
     public Polling(AppController appController) {
         Polling.appController = appController;
         this.httpClient = HttpClient.newHttpClient();
     }
 
-
+    /**
+     *
+     * @param lobby
+     */
     public static void gameStart(Lobby lobby) {
         startGame = executorService.scheduleAtFixedRate(() -> gameStarted(lobby), 0, POLLING_INTERVAL_SECONDS, TimeUnit.SECONDS);
     }
 
+    /**
+     *
+     * @param lobby
+     */
     public static void finishProgramming(Lobby lobby){
         programmingDone = executorService.scheduleAtFixedRate(() -> programmingCompleted(lobby), 0, POLLING_INTERVAL_SECONDS, TimeUnit.SECONDS);
     }
 
+    /**
+     *
+     * @param gameID
+     */
     public static void finishRound(int gameID){
         roundDone = executorService.scheduleAtFixedRate(() -> roundCompleted(gameID), 0, POLLING_INTERVAL_SECONDS, TimeUnit.SECONDS);
     }
 
+    /**
+     *
+     * @param lobby
+     */
     private static void gameStarted(Lobby lobby) {
 
         try {
@@ -68,13 +90,12 @@ public class Polling {
         }
     }
 
-    public void playerList(int gameID) throws Exception {
-        //this.playerList = playerList;
-        //Skal have og opdatere listen af spillere som er i lobbyen til spillet
 
-    }
-
-        private static void programmingCompleted(Lobby lobby) {
+    /**
+     *
+     * @param lobby
+     */
+    private static void programmingCompleted(Lobby lobby) {
         List<PlayerServer> playerServers = new ArrayList<>();
         try {
             lobby = httpController.getByGameID(lobby.getID());
@@ -98,7 +119,10 @@ public class Polling {
         }
     }
 
-
+    /**
+     *
+     * @param gameID
+     */
     private static void roundCompleted(int gameID){
         //Når spillet er kørt igennem skal det rykkes tilbage til PROGRAMMING phase
         //Tjekke om alle spillere med samme gameID har programmingDone = false
