@@ -41,7 +41,6 @@ public enum Command {
     U_TURN("U-Turn"),
     BACK_UP("Back Up"),
     AGAIN("Again"),
-    OPTION_LEFT_RIGHT("Left OR Right", LEFT, RIGHT),
     FAST_FAST_FORWARD("fast fast fwd"),
 
     SPAM ("SPAM"),

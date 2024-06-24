@@ -202,26 +202,6 @@ public class GameController {
         }
     }
 
-    public void leftOrRight(Player player) {
-        if (!won) {
-            Alert alert = new Alert(AlertType.CONFIRMATION);
-            alert.setTitle("Choose Direction");
-            alert.setHeaderText("Direction Choice");
-            alert.setContentText("Choose your direction:");
-
-            ButtonType buttonLeft = new ButtonType("Left");
-            ButtonType buttonRight = new ButtonType("Right");
-
-            alert.getButtonTypes().setAll(buttonLeft, buttonRight);
-
-            Optional<ButtonType> result = alert.showAndWait();
-            if (result.isPresent() && result.get() == buttonLeft) {
-                turnLeft(player);
-            } else if (result.isPresent() && result.get() == buttonRight) {
-                turnRight(player);
-            }
-        }
-    }
 
     /**
      * @Author s235074 Dennis Eren Dogulu
@@ -491,9 +471,6 @@ public class GameController {
                     break;
                 case FAST_FORWARD:
                     this.fastForward(player);
-                    break;
-                case OPTION_LEFT_RIGHT:
-                    this.leftOrRight(player);
                     break;
                 case U_TURN:
                     this.uTurn(player);
