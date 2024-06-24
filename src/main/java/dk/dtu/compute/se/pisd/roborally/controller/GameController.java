@@ -664,13 +664,13 @@ public class GameController {
     public void startProgrammingPhase() {
         Player player;
 
-        board.setPhase(Phase.PROGRAMMING);
         for (int i = 0; i<board.getPlayers().size(); i++){
             player = board.getPlayer(i);
             if(player.getName().equals(playerName)){
                 board.setCurrentPlayer(board.getPlayer(i));
             }
         }
+        board.setPhase(Phase.PROGRAMMING);
         int playernr = board.getPlayerNumber(board.getCurrentPlayer());
 
         Lobby lobby;
@@ -696,7 +696,6 @@ public class GameController {
 
             for (PlayerServer playerServer : lobby.getPlayers()) {
                 if (playerServer.isProgrammingDone()) {
-                    // Retry logic (you can replace this with a non-blocking approach)
                     allPlayersDone = false;
                     break;
                 }

@@ -68,6 +68,11 @@ public class PlayersView extends TabPane implements ViewObserver {
                     }
                 }
             }
+            else {
+                for (int i = 0; i <playerViews.length; i++){
+                    playerViews[i].setDisable(false);
+                }
+            }
         }
     }
 
