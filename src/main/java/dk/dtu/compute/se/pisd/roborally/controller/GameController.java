@@ -38,7 +38,11 @@ public class GameController {
         players.sort(Comparator.comparingInt(player -> board.getAntenna().calculateDistance(player)));
         board.setPlayerOrder(players);
     }
-
+    /**
+     * Initializes the damage deck with different types of damage cards.
+     *
+     * Authorship: Sarah, Aisha
+     */
     private void initializeDamageDeck() {
         int totalCards = 40; // Total number of damage cards in the deck
         int cardTypes = 4; // Number of different damage card types
@@ -67,6 +71,13 @@ public class GameController {
         Collections.shuffle(damageDeck);
     }
 
+    /**
+     * Draws a random damage card from the deck.
+     *
+     * Authorship: Sarah, Aisha
+     *
+     * @return A random damage card.
+     */
     public CommandCard drawRandomDamageCard() {
         if (damageDeck.isEmpty()) {
             initializeDamageDeck();
@@ -75,6 +86,13 @@ public class GameController {
         return damageDeck.remove(randomIndex);
     }
 
+    /**
+     * Applies the Trojan Horse damage effect to the specified player.
+     *
+     * Authorship: Sarah
+     *
+     * @param player The player to apply the damage to.
+     */
     public void applyTrojanHorseDamage(Player player) {
         System.out.println("Applying Trojan Horse damage.");
         player.takeDamage(new CommandCard(Command.SPAM));
@@ -82,18 +100,39 @@ public class GameController {
         showTrojanHorseMessage(player);
     }
 
+    /**
+     * Applies the WORM damage effect to the specified player.
+     *
+     * Authorship: Sarah
+     *
+     * @param player The player to apply the damage to.
+     */
     public void applyWormDamage(Player player) {
         System.out.println("Applying WORM damage.");
         rebootPlayer(player);
         showWormMessage(player);
     }
 
+    /**
+     * Applies the VIRUS damage effect to the specified player.
+     *
+     * Authorship: Aisha
+     *
+     * @param player The player to apply the damage to.
+     */
     public void applyVirusDamage(Player player) {
         System.out.println("Applying VIRUS damage.");
         player.setInfected(true); // Infect the player
         spreadVirus(player);
     }
 
+    /**
+     * Spreads the virus from the infected player to other players within a certain radius.
+     *
+     * Authorship: Aisha
+     *
+     * @param infectedPlayer The player spreading the virus.
+     */
     public void spreadVirus(Player infectedPlayer) {
         System.out.println("Spreading virus from player: " + infectedPlayer.getName());
         List<Player> playersWithinRadius = getPlayersWithinRadius(infectedPlayer);
@@ -108,6 +147,14 @@ public class GameController {
         }
     }
 
+    /**
+     * Gets the list of players within a certain radius of the source player.
+     *
+     * Authorship: Aisha
+     *
+     * @param sourcePlayer The source player.
+     * @return The list of players within the radius.
+     */
     public List<Player> getPlayersWithinRadius(Player sourcePlayer) {
         List<Player> playersWithinRadius = new ArrayList<>();
         for (Player player : board.getPlayers()) {
@@ -124,6 +171,13 @@ public class GameController {
         return Math.sqrt(dx * dx + dy * dy) <= radius;
     }
 
+    /**
+     * Applies a random damage effect to the specified player.
+     *
+     * Authorship: Sarah, Aisha
+     *
+     * @param player The player to apply the damage to.
+     */
     public void applyRandomDamage(Player player) {
         CommandCard damageCard = drawRandomDamageCard();
         switch (damageCard.command) {
@@ -142,6 +196,15 @@ public class GameController {
                 break;
         }
     }
+
+    /**
+     * Executes the action of a SPAM damage card.
+     *
+     * Authorship: Sarah
+     *
+     * @param player The player executing the SPAM card action.
+     * @param damageCard The SPAM damage card.
+     */
 
     public void executeSpamDamageCard(Player player, CommandCard damageCard) {
         if (damageCard.command == Command.SPAM) {
@@ -395,6 +458,15 @@ public class GameController {
             updateSpaceViewWithPowerUp(player);
         }
     }
+
+    /**
+     * Executes the specified command for the player.
+     *
+     * Authorship: Sarah, Aisha
+     *
+     * @param player The player executing the command.
+     * @param command The command to be executed.
+     */
 
     private void executeCommand(@NotNull Player player, Command command) {
         if (!won && player != null && player.board == board && command != null) {
