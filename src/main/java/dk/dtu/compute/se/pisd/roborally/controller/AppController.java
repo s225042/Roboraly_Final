@@ -86,6 +86,9 @@ public class AppController implements Observer {
         this.roboRally = roboRally;
     }
 
+    /**
+     * @author Rebecca Moss, s225042@dtu.dk
+     */
     public void newGame() {
         ChoiceDialog<String> boards = new ChoiceDialog<>(Game_Bord.get(0), Game_Bord);
         boards.setTitle("Table");
@@ -93,7 +96,7 @@ public class AppController implements Observer {
         Optional<String> boardname = boards.showAndWait();
         String boardsname = boardname.get();
 
-        ChoiceDialog<Integer> dialog = new ChoiceDialog<>(PLAYER_NUMBER_OPTIONS.get(0), PLAYER_NUMBER_OPTIONS);
+        /*ChoiceDialog<Integer> dialog = new ChoiceDialog<>(PLAYER_NUMBER_OPTIONS.get(0), PLAYER_NUMBER_OPTIONS);
         dialog.setTitle("Player number");
         dialog.setHeaderText("Select number of players");
         playerCountResult= dialog.showAndWait();
@@ -105,7 +108,7 @@ public class AppController implements Observer {
                 if (!stopGame()) {
                     return;
                 }
-            }
+            }*/
 
 
             // XXX the board should eventually be created programmatically or loaded from a file
@@ -148,9 +151,11 @@ public class AppController implements Observer {
             catch (Exception e){
                 throw new RuntimeException(e);
             }
-        }
     }
 
+    /**
+     * @author Amalie Bojsen, s235119@dtu.dk, Rebecca Moss, s225042@dtu.dk
+     */
     public void startGame(){
         //get the plaayers and plays them on the bord
         try {
@@ -182,6 +187,9 @@ public class AppController implements Observer {
 
     }
 
+    /**
+     * @author Rebecca Moss, s225042@dtu.dk
+     */
     public void joinGame(){
         String bordName;
         int iResult;

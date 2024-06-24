@@ -17,6 +17,7 @@ import java.util.List;
 
 /**
  * WhatingromeView is a placeholder for the actual view content.
+ * @author Rebecca Moss, s225042@dtu.dk
  */
 public class WhatingromeView extends VBox implements ViewObserver {
 
@@ -25,6 +26,10 @@ public class WhatingromeView extends VBox implements ViewObserver {
 
     private HttpController httpController = new HttpController();
 
+    /**
+     *
+     * @param lobby
+     */
     public WhatingromeView(Lobby lobby) {
         try {
             this.lobby = lobby;
@@ -64,6 +69,10 @@ public class WhatingromeView extends VBox implements ViewObserver {
         update(lobby);
     }
 
+    /**
+     *
+     * @param subject
+     */
     @Override
     public void updateView(Subject subject) {
         if (subject == lobby) {

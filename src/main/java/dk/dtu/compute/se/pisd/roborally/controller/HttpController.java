@@ -11,6 +11,11 @@ import java.net.http.HttpResponse;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * @author Amalie Bojsen, s235119@dtu.dk
+ * @author Rebecca Moss, s225042@dtu.dk
+ */
+
 public class HttpController {
 
     private HttpClient httpClient;
@@ -47,6 +52,12 @@ public class HttpController {
         return playerServer;
     }
 
+    /**
+     *
+     * @param gameID
+     * @return Lobby
+     * @throws Exception
+     */
     public Lobby getByGameID(int gameID) throws Exception {
         HttpRequest request = HttpRequest.newBuilder()
                 .GET()
@@ -63,6 +74,12 @@ public class HttpController {
         return lobby;
     }
 
+    /**
+     *
+     * @param lobby
+     * @return Lobby
+     * @throws Exception
+     */
     public Lobby addGame(Lobby lobby) throws Exception {
         Gson gson = new Gson();
         String requestBody = gson.toJson(lobby);
@@ -85,6 +102,12 @@ public class HttpController {
         }
     }
 
+    /**
+     *
+     * @param p
+     * @return boolean
+     * @throws Exception
+     */
     public boolean addPlayer(PlayerServer p) throws Exception {
         Gson gson = new Gson();
         String requestBody = gson.toJson(p);
@@ -105,6 +128,13 @@ public class HttpController {
         }
     }
 
+    /**
+     *
+     * @param id
+     * @param p
+     * @return boolean
+     * @throws Exception
+     */
     public boolean updatePlayer(int id, PlayerServer p) throws Exception {
         Gson gson = new Gson();
         String requestBody = gson.toJson(p);
@@ -125,6 +155,12 @@ public class HttpController {
         }
     }
 
+    /**
+     *
+     * @param id
+     * @param lobby
+     * @throws Exception
+     */
     public void updateGameInfo(int id, Lobby lobby) throws Exception {
         Gson gson = new Gson();
         String requestBody = gson.toJson(lobby);

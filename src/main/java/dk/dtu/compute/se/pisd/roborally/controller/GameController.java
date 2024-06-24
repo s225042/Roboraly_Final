@@ -343,6 +343,10 @@ public class GameController {
         }
     }
 
+    /**
+     * @author Amalie Bojsen, s235119@dtu.dk
+     * @author Rebecca Moss, s225042@dtu.dk
+     */
     public void finishProgrammingPhase() {
         makeProgramFieldsInvisible();
         Player player = board.getCurrentPlayer();
@@ -661,6 +665,9 @@ public class GameController {
         return false;
     }
 
+    /**
+     * @author Rebecca Moss, s225042@dtu.dk
+     */
     public void startProgrammingPhase() {
         Player player;
 
