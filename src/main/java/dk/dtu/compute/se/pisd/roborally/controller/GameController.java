@@ -472,11 +472,6 @@ public class GameController {
         }
     }
 
-    private void powerUp(@NotNull Player player) {
-        if (!won) {
-            player.addEnergyCube();
-        }
-    }
 
     private void executeCommand(@NotNull Player player, Command command) {
         if (!won && player != null && player.board == board && command != null) {
@@ -505,9 +500,6 @@ public class GameController {
                     break;
                 case BACK_UP:
                     this.backUp(player);
-                    break;
-                case POWER_UP:
-                    this.powerUp(player);
                     break;
                 case AGAIN:
                     this.executeAgain(player);

@@ -180,7 +180,6 @@ public class Player extends Subject {
             deckComposition.put(Command.FAST_FAST_FORWARD, 2);
             deckComposition.put(Command.U_TURN, 2);
             deckComposition.put(Command.BACK_UP, 2);
-            deckComposition.put(Command.POWER_UP, 2);
             deckComposition.put(Command.LEFT, 2);
             deckComposition.put(Command.RIGHT, 2);
 
