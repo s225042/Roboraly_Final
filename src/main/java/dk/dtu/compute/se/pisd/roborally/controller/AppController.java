@@ -154,7 +154,8 @@ public class AppController implements Observer {
     }
 
     /**
-     * @author Amalie Bojsen, s235119@dtu.dk, Rebecca Moss, s225042@dtu.dk
+     * @author Amalie Bojsen, s235119@dtu.dk
+     * @author Rebecca Moss, s225042@dtu.dk
      */
     public void startGame(){
         //get the plaayers and plays them on the bord

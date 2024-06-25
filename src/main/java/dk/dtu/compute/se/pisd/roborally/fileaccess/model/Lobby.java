@@ -50,6 +50,7 @@ public class Lobby extends Subject {
 
     public void addPlayer(PlayerServer playerServer){
         players.add(playerServer);
+        //notifyChange();
     }
 
     public Phase getPhase() {return phase;}

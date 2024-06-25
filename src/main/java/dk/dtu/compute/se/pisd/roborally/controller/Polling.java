@@ -77,14 +77,25 @@ public class Polling {
      * @param lobby
      */
     private static void gameStarted(Lobby lobby) {
-
         try {
-            lobby = httpController.getByGameID(lobby.getID());
+            int lobySize = lobby.getPlayers().size();
+            System.out.println("print 2");
+            Lobby lobby1 = httpController.getByGameID(lobby.getID());
+
+            for (int i = 0; i<lobby1.getPlayers().size(); i++){
+                if(i>=lobySize){
+                    lobby.addPlayer(lobby1.getPlayers().get(i));
+                }
+            }
+            lobby.setPhase(lobby1.getPhase());
         }
         catch (Exception e){
+            System.out.println(e);
             throw new RuntimeException(e);
         }
+        System.out.println("print 1");
         if (lobby.getPhase() == Lobby.Phase.PROGRAMMING){
+            System.out.println("done");
             startGame.cancel(false);
             appController.startGame();
         }
