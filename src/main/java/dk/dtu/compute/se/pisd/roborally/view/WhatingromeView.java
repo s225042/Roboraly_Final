@@ -38,6 +38,7 @@ public class WhatingromeView extends VBox implements ViewObserver {
         }
 
         // Create the Start button
+
         Button startButton = new Button("Start");
         startButton.setOnAction(e -> {
             try {
@@ -51,9 +52,17 @@ public class WhatingromeView extends VBox implements ViewObserver {
         playerLabels = new ArrayList<>();
 
         // Add the Start button to the top right
+
         HBox startButtonContainer = new HBox();
         startButtonContainer.setAlignment(Pos.BOTTOM_RIGHT);
         startButtonContainer.getChildren().add(startButton);
+
+        if(lobby.getPlayers().size() >=2){
+            startButton.setDisable(false);
+
+        } else {
+            startButton.setDisable(true);
+        }
 
         //
         Label labelLobbynr = new Label("GameID: " + lobby.getID());
