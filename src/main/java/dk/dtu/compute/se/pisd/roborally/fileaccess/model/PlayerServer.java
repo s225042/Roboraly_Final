@@ -2,6 +2,11 @@ package dk.dtu.compute.se.pisd.roborally.fileaccess.model;
 
 import dk.dtu.compute.se.pisd.designpatterns.observer.Subject;
 
+
+/**
+ * @author Amalie Bojsen, s235119@dtu.dk
+ * @author Rebecca Moss, s225042@dtu.dk
+ */
 public class PlayerServer extends Subject {
 
     private int id;
@@ -16,6 +21,11 @@ public class PlayerServer extends Subject {
 
     private boolean programmingDone;
 
+    /**
+     *
+     * @param playerName
+     * @param gameInfo
+     */
     public PlayerServer(String playerName, Lobby gameInfo){
         this.playerName = playerName;
         this.gameInfo = gameInfo;

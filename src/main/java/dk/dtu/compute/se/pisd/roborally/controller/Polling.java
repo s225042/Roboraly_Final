@@ -19,7 +19,8 @@ import java.util.List;
 import java.util.concurrent.*;
 
 /**
- * @author Amalie Bojsen, s235119@dtu.dk, Rebecca Moss, s225042@dtu.dk
+ * @author Amalie Bojsen, s235119@dtu.dk
+ * @author Rebecca Moss, s225042@dtu.dk
  */
 public class Polling {
 

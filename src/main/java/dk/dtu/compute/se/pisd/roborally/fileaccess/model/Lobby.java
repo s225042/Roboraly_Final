@@ -5,6 +5,10 @@ import dk.dtu.compute.se.pisd.designpatterns.observer.Subject;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * @author Amalie Bojsen, s235119@dtu.dk
+ * @author Rebecca Moss, s225042@dtu.dk
+ */
 public class Lobby extends Subject {
     private String board;
     private int turnID;
@@ -14,6 +18,11 @@ public class Lobby extends Subject {
 
     private List<PlayerServer> players = new ArrayList<>();
 
+    /**
+     *
+     * @param board
+     * @param turnID
+     */
     public Lobby(String board, int turnID){
         this.board = board;
         this.turnID = turnID;
