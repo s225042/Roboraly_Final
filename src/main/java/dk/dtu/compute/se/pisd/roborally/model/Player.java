@@ -175,12 +175,9 @@ public class Player extends Subject {
             Map<Command, Integer> deckComposition = new HashMap<>();
             deckComposition.put(Command.FORWARD, 2);
             deckComposition.put(Command.FAST_FORWARD, 2);
-            deckComposition.put(Command.OPTION_LEFT_RIGHT, 2);
-            deckComposition.put(Command.OPTION_LEFT_RIGHT, 2);
             deckComposition.put(Command.FAST_FAST_FORWARD, 2);
             deckComposition.put(Command.U_TURN, 2);
             deckComposition.put(Command.BACK_UP, 2);
-            deckComposition.put(Command.POWER_UP, 2);
             deckComposition.put(Command.LEFT, 2);
             deckComposition.put(Command.RIGHT, 2);
 

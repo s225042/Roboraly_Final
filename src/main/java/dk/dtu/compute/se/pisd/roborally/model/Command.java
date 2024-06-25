@@ -40,9 +40,7 @@ public enum Command {
     FAST_FORWARD("Fast Fwd"),
     U_TURN("U-Turn"),
     BACK_UP("Back Up"),
-    POWER_UP("Power Up"),
     AGAIN("Again"),
-    OPTION_LEFT_RIGHT("Left OR Right", LEFT, RIGHT),
     FAST_FAST_FORWARD("fast fast fwd"),
 
     SPAM ("SPAM"),

@@ -206,26 +206,6 @@ public class GameController {
         }
     }
 
-    public void leftOrRight(Player player) {
-        if (!won) {
-            Alert alert = new Alert(AlertType.CONFIRMATION);
-            alert.setTitle("Choose Direction");
-            alert.setHeaderText("Direction Choice");
-            alert.setContentText("Choose your direction:");
-
-            ButtonType buttonLeft = new ButtonType("Left");
-            ButtonType buttonRight = new ButtonType("Right");
-
-            alert.getButtonTypes().setAll(buttonLeft, buttonRight);
-
-            Optional<ButtonType> result = alert.showAndWait();
-            if (result.isPresent() && result.get() == buttonLeft) {
-                turnLeft(player);
-            } else if (result.isPresent() && result.get() == buttonRight) {
-                turnRight(player);
-            }
-        }
-    }
 
     /**
      * @Author s235074 Dennis Eren Dogulu
@@ -566,11 +546,6 @@ public class GameController {
         }
     }
 
-    private void powerUp(@NotNull Player player) {
-        if (!won) {
-            player.addEnergyCube();
-        }
-    }
 
     private void executeCommand(@NotNull Player player, Command command) {
         if (!won && player != null && player.board == board && command != null) {
@@ -591,17 +566,11 @@ public class GameController {
                 case FAST_FORWARD:
                     this.fastForward(player);
                     break;
-                case OPTION_LEFT_RIGHT:
-                    this.leftOrRight(player);
-                    break;
                 case U_TURN:
                     this.uTurn(player);
                     break;
                 case BACK_UP:
                     this.backUp(player);
-                    break;
-                case POWER_UP:
-                    this.powerUp(player);
                     break;
                 case AGAIN:
                     this.executeAgain(player);
