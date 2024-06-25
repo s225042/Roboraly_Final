@@ -47,16 +47,16 @@ public class GameController {
     public boolean won = false;
     public String playerName;
     private Queue<Player> rebootQueue = new LinkedList<>();
-    private List<CommandCard> damageDeck = new ArrayList<>();
+   // private List<CommandCard> damageDeck = new ArrayList<>();
+    private List<CommandCard> spamDeck = new ArrayList<>();
+    private List<CommandCard> otherDamageDeck = new ArrayList<>();
 
 
     public GameController(Board board, HttpController httpController) {
         this.board = board;
         this.httpController = httpController;
-        initializeDamageDeck();
+        initializeDamageDecks();
     }
-
-
 
     public void determinePlayerOrder(){
         List<Player> players = new ArrayList<>(board.getPlayers());
@@ -64,42 +64,59 @@ public class GameController {
         board.setPlayerOrder(players);
     }
 
-    private void initializeDamageDeck() {
+    public void initializeDamageDecks() {
         int totalCards = 40; // Total number of damage cards in the deck
-        int cardTypes = 4; // Number of different damage card types
-        int cardsPerType = totalCards / cardTypes; // Number of each type of damage card
+        int spamCardsCount = 10; // Number of SPAM cards
+        int otherCardsCount = totalCards - spamCardsCount; // Remaining cards count
+        int cardTypes = 3; // Number of different non-SPAM damage card types
+        int cardsPerType = otherCardsCount / cardTypes; // Number of each type of non-SPAM damage card
 
         // Add SPAM cards
-        for (int i = 0; i < cardsPerType; i++) {
-            damageDeck.add(new CommandCard(Command.SPAM));
+        for (int i = 0; i < spamCardsCount; i++) {
+            spamDeck.add(new CommandCard(Command.SPAM));
         }
 
         // Add TROJAN_HORSE cards
         for (int i = 0; i < cardsPerType; i++) {
-            damageDeck.add(new CommandCard(Command.TROJAN_HORSE));
+            otherDamageDeck.add(new CommandCard(Command.TROJAN_HORSE));
         }
 
         // Add WORM cards
         for (int i = 0; i < cardsPerType; i++) {
-            damageDeck.add(new CommandCard(Command.WORM));
+            otherDamageDeck.add(new CommandCard(Command.WORM));
         }
 
         // Add VIRUS cards
         for (int i = 0; i < cardsPerType; i++) {
-            damageDeck.add(new CommandCard(Command.VIRUS));
+            otherDamageDeck.add(new CommandCard(Command.VIRUS));
         }
 
-        Collections.shuffle(damageDeck);
+        Collections.shuffle(spamDeck);
+        Collections.shuffle(otherDamageDeck);
+    }
+
+    private CommandCard drawSpamCard() {
+        if (spamDeck.isEmpty()) {
+            return null;
+        }
+        return spamDeck.remove(spamDeck.size() - 1);
+    }
+
+    private CommandCard drawOtherDamageCard() {
+        if (otherDamageDeck.isEmpty()) {
+            initializeDamageDecks();
+        }
+        int randomIndex = new Random().nextInt(otherDamageDeck.size());
+        return otherDamageDeck.remove(randomIndex);
     }
 
     public CommandCard drawRandomDamageCard() {
-        if (damageDeck.isEmpty()) {
-            initializeDamageDeck();
+        CommandCard card = drawSpamCard();
+        if (card != null) {
+            return card;
         }
-        int randomIndex = new Random().nextInt(damageDeck.size());
-        return damageDeck.remove(randomIndex);
+        return drawOtherDamageCard();
     }
-
 
     public void applyTrojanHorseDamage(Player player) {
         System.out.println("Applying Trojan Horse damage.");
@@ -183,7 +200,6 @@ public class GameController {
             player.getDiscardPile().add(damageCard);
         }
     }
-
 
 
 
