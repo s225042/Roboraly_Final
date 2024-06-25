@@ -266,6 +266,9 @@ public class GameController {
                     rebootPlayer(other);
                     return;
                 }
+                else {
+                    moveToSpace(other, target, heading);
+                }
 
                 // Ensure the target is free now
                 assert target.getPlayer() == null : target;
