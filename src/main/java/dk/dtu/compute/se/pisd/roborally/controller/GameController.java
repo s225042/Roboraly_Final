@@ -58,6 +58,11 @@ public class GameController {
 
 
 
+    /**
+     * @Author s235074 Dennis Eren Dogulu
+     * Determine the order of the players based on the distance to the antenna
+     */
+
     public void determinePlayerOrder(){
         List<Player> players = new ArrayList<>(board.getPlayers());
         players.sort(Comparator.comparingInt(player -> board.getAntenna().calculateDistance(player)));
