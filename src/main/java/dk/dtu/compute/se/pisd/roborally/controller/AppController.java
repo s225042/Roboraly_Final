@@ -156,6 +156,7 @@ public class AppController implements Observer {
     /**
      * @author Amalie Bojsen, s235119@dtu.dk
      * @author Rebecca Moss, s225042@dtu.dk
+     *
      */
     public void startGame(){
         //get the plaayers and plays them on the bord
@@ -166,6 +167,11 @@ public class AppController implements Observer {
             for (int i = 0; i<players.size(); i++){
                 Player player = new Player(gameController.board, PLAYER_COLORS.get(i), players.get(i).getPlayerName());
                 gameController.board.addPlayer(player);
+
+                /**
+                 * @author s235112 Tobias Kolstrup Vittrup
+                 * Place the player on the spawn point
+                 */
 
                 int no = players.size();
                 List<SpawnPoint> spawnPoints = gameController.board.getSpawnPoints();

@@ -764,7 +764,7 @@ public class GameController {
 
 
     /**
-     * @Author s235112
+     * @Author s235112 Tobias Kolstrup Vittrup
      * Reboot the player and add it to the reboot queue
      * @param player
      */
