@@ -24,8 +24,12 @@ public class PushPanel extends FieldAction {
     }
 
 
-
-
+    /** Author s235074 Dennis Eren Dogulu
+     * Moves the player on the push panel.
+     * @param gameController
+     * @param space
+     * @return
+     */
 
     @Override
     public boolean doAction(GameController gameController, Space space) {

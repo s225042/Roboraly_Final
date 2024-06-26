@@ -181,6 +181,11 @@ public class Board extends Subject {
         }
     }
 
+
+    /** Author s235074 Dennis Eren Dogulu
+     * Method to get the size of the array of playersOrder list
+     * @return size of the playersOrder list which is the order of the players
+     */
     public int getPlayersNumber() {
         return playersOrder.size();
     }
@@ -227,6 +232,12 @@ public class Board extends Subject {
     }
 
 
+
+    /** Author s235074 Dennis Eren Dogulu
+     * Method to set the order of the players
+     * @param playersOrder list of players
+     */
+
     public void setPlayerOrder(List<Player> playersOrder) {
         this.playersOrder = playersOrder;
     }
@@ -267,6 +278,11 @@ public class Board extends Subject {
 
 
 
+
+    /** Author s235074 Dennis Eren Dogulu
+     * Method to get the order of the players
+     * @return list of players
+     */
     public List <Player> getPlayerOrder() {
         return playersOrder;
     }
