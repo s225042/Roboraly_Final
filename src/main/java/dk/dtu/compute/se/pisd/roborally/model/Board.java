@@ -351,9 +351,20 @@ public class Board extends Subject {
                 ", Counter;" + (counter-1);
     }
 
+    /**
+     * @author s235112 Tobias Kolstrup Vittrup
+     * Returns the reboot direction of the board.
+     * @return the reboot direction of the board
+     */
+
     public Heading getRebootDirection() {
         return rebootDirection;
     }
+    /**
+     * @author s235112 Tobias Kolstrup Vittrup
+     * Sets the reboot direction of the board.
+     * @param heading the reboot direction to be set
+     */
 
     public void setRebootDirection(Heading heading) {
         if (heading == null) {
@@ -362,21 +373,51 @@ public class Board extends Subject {
         this.rebootDirection = heading;
     }
 
+    /**
+     * @author s235112 Tobias Kolstrup Vittrup
+     * Returns the reboot space of the board.
+     * @return the reboot space of the board
+     */
+
     public Space getRebootSpace() {
         return rebootSpace;
     }
 
+    /**
+     * @author s235112 Tobias Kolstrup Vittrup
+     * Returns the reboot space of the board.
+     * @param x the x-coordinate of the reboot space
+     * @param y the y-coordinate of the reboot space
+     */
     public void setRebootSpace(int x, int y) {
         this.rebootSpace = getSpace(x, y);
     }
+
+    /**
+     * @author s235112 Tobias Kolstrup Vittrup
+     * Returns the reboot space of the board.
+     * @param spawnPoint the reboot space to be set
+     */
 
     public void addSpawnPoint(SpawnPoint spawnPoint) {
         spawnPoints.add(spawnPoint);
     }
 
+    /**
+     * @author s235112 Tobias Kolstrup Vittrup
+     * Returns the list of spawn points on the board.
+     * @return spawnPoints the list of spawn points on the board
+     */
     public List<SpawnPoint> getSpawnPoints() {
         return spawnPoints;
     }
+
+    /**
+     * @author s235112 Tobias Kolstrup Vittrup
+     * Returns the spawn point of the board.
+     * @param space the space to be checked
+     * @return true if the space is a spawn point, false otherwise
+     */
 
     public boolean isSpawnPoint(Space space) {
         for (SpawnPoint spawnPoint : spawnPoints) {
