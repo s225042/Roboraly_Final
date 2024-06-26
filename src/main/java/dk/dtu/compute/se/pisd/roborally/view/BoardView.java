@@ -78,6 +78,8 @@ public class BoardView extends VBox implements ViewObserver {
             }
         }
 
+
+
         board.attach(this);
         update(board);
     }

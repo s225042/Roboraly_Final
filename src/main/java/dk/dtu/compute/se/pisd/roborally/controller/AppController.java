@@ -27,9 +27,12 @@ import dk.dtu.compute.se.pisd.designpatterns.observer.Subject;
 import dk.dtu.compute.se.pisd.roborally.RoboRally;
 
 import dk.dtu.compute.se.pisd.roborally.fileaccess.LoadBoard;
+import dk.dtu.compute.se.pisd.roborally.fileaccess.model.Lobby;
+import dk.dtu.compute.se.pisd.roborally.fileaccess.model.PlayerServer;
 import dk.dtu.compute.se.pisd.roborally.model.Board;
 import dk.dtu.compute.se.pisd.roborally.model.Player;
 
+import dk.dtu.compute.se.pisd.roborally.model.SpawnPoint;
 import javafx.application.Platform;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
@@ -58,60 +61,197 @@ import static dk.dtu.compute.se.pisd.roborally.fileaccess.LoadBoard.loadBoard;
  */
 public class AppController implements Observer {
 
+    private Optional <Integer> playerCountResult;
+
     final private List<Integer> PLAYER_NUMBER_OPTIONS = Arrays.asList(2, 3, 4, 5, 6);
     final private List<String> PLAYER_COLORS = Arrays.asList("red", "green", "blue", "orange", "grey", "magenta");
 
-    final private List<String> Game_Bord = Arrays.asList("defaultboard", "STARTER COURSE: DIZZY HIGHWAY", "RISKY CROSSING", "HIGH OCTANE", "SPRINT CRAMP", "CORRIDOR BLITZ", "FRACTIONATION", "BURNOUT", "LOST BEARINGS", "PASSING LANE", "TWISTER", "DODGE THIS", "CHOP SHOP CHALLENGE", "UNDERTOW", "HEAVY MERGE AREA", "DEATH TRAP", "PILGRIMAGE", "GEAR STRIPPER", "EXTRA CRISPY", "BURN RUN");
+    final private List<String> Game_Bord = Arrays.asList("defaultboard", "STARTER COURSE DIZZY HIGHWAY", "RISKY CROSSING", "HIGH OCTANE", "SPRINT CRAMP", "CORRIDOR BLITZ", "FRACTIONATION", "BURNOUT", "LOST BEARINGS", "PASSING LANE", "TWISTER", "DODGE THIS", "CHOP SHOP CHALLENGE", "UNDERTOW", "HEAVY MERGE AREA", "DEATH TRAP", "PILGRIMAGE", "GEAR STRIPPER", "EXTRA CRISPY", "BURN RUN");
 
     private  List<String> Saved_Bord = new ArrayList<>();
 
     final private RoboRally roboRally;
 
+    final private HttpController httpController = new HttpController();
+
+    final private Polling polling = new Polling(this);
+
     private GameController gameController;
+
+    private Lobby lobby = new Lobby(null, 0);
+
+    private String playerName;
 
     public AppController(@NotNull RoboRally roboRally) {
         this.roboRally = roboRally;
     }
 
+    /**
+     * @author Rebecca Moss, s225042@dtu.dk
+     */
     public void newGame() {
-        ChoiceDialog<String> boards = new ChoiceDialog<>(Game_Bord.get(0),Game_Bord);
+        ChoiceDialog<String> boards = new ChoiceDialog<>(Game_Bord.get(0), Game_Bord);
         boards.setTitle("Table");
         boards.setHeaderText("select game table");
         Optional<String> boardname = boards.showAndWait();
         String boardsname = boardname.get();
 
-       ChoiceDialog<Integer> dialog = new ChoiceDialog<>(PLAYER_NUMBER_OPTIONS.get(0), PLAYER_NUMBER_OPTIONS);
+        /*ChoiceDialog<Integer> dialog = new ChoiceDialog<>(PLAYER_NUMBER_OPTIONS.get(0), PLAYER_NUMBER_OPTIONS);
         dialog.setTitle("Player number");
         dialog.setHeaderText("Select number of players");
-        Optional<Integer> result = dialog.showAndWait();
+        playerCountResult= dialog.showAndWait();
 
-        if (result.isPresent()) {
+        if (playerCountResult.isPresent()) {
             if (gameController != null) {
                 // The UI should not allow this, but in case this happens anyway.
                 // give the user the option to save the game or abort this operation!
                 if (!stopGame()) {
                     return;
                 }
-            }
+            }*/
+
 
             // XXX the board should eventually be created programmatically or loaded from a file
             //     here we just create an empty board with the required number of players.
             Board board = loadBoard(boardsname);
-            gameController = new GameController(board);
+            gameController = new GameController(board, httpController);
 
-            int no = result.get();
-            for (int i = 0; i < no; i++) {
-                Player player = new Player(board, PLAYER_COLORS.get(i), "Player " + (i + 1));
-                board.addPlayer(player);
-                player.setSpace(board.getSpace(i % board.width, i));
+            //setGameID
+            try {
+                lobby.setBoard(boardsname);
+                lobby = httpController.addGame(lobby);
+                board.setGameId(lobby.getID());
+            } catch (Exception e1) {
+                System.out.println(e1);
             }
 
-            // XXX: V2
-            // board.setCurrentPlayer(board.getPlayer(0));
-            gameController.startProgrammingPhase();
 
-            roboRally.createBoardView(gameController);
+            //make the first player
+            TextInputDialog dialog1 = new TextInputDialog();
+            dialog1.setHeaderText("Enter Player name");
+            dialog1.setContentText("Player name:");
+
+            Optional<String> playerID = dialog1.showAndWait();
+            if(playerID.isPresent()){
+                try {
+                    httpController.addPlayer(new PlayerServer(playerID.get(), lobby));
+                    gameController.playerName = playerID.get();
+                }
+                catch (Exception e1){
+                    System.out.println(e1);
+                }
+            }
+
+            //WaitingRoom waitingRoom = new WaitingRoom(gameController.board.getGameId());
+            //WaitingController waitingController = new WaitingController(waitingRoom, httpController);
+            try {
+                roboRally.createVatingRomeView(lobby);
+                Polling.gameStart(lobby);
+            }
+            catch (Exception e){
+                throw new RuntimeException(e);
+            }
+    }
+
+    /**
+     * @author Amalie Bojsen, s235119@dtu.dk
+     * @author Rebecca Moss, s225042@dtu.dk
+     *
+     */
+    public void startGame(){
+        //get the plaayers and plays them on the bord
+        try {
+            lobby = httpController.getByGameID(gameController.board.getGameId());
+            List<PlayerServer> players = lobby.getPlayers();
+
+            for (int i = 0; i<players.size(); i++){
+                Player player = new Player(gameController.board, PLAYER_COLORS.get(i), players.get(i).getPlayerName());
+                gameController.board.addPlayer(player);
+
+                /**
+                 * @author s235112 Tobias Kolstrup Vittrup
+                 * Place the player on the spawn point
+                 */
+
+                int no = players.size();
+                List<SpawnPoint> spawnPoints = gameController.board.getSpawnPoints();
+                for (int j = 0; j < no; j++) {
+
+                    // Place the player on the spawn point
+                    SpawnPoint spawnPoint = spawnPoints.get(i % spawnPoints.size());
+                    player.setSpace(gameController.board.getSpace(spawnPoint.x, spawnPoint.y));
+                }
+            }
+
         }
+        catch (Exception e){
+            throw new RuntimeException(e);
+        }
+
+        gameController.startProgrammingPhase();
+
+        Platform.runLater(() -> roboRally.createBoardView(gameController));
+
+    }
+
+    /**
+     * @author Rebecca Moss, s225042@dtu.dk
+     */
+    public void joinGame(){
+        String bordName;
+        int iResult;
+        TextInputDialog dialog = new TextInputDialog();
+        dialog.setHeaderText("Enter GameID");
+        dialog.setContentText("GameID:");
+
+        while (true) {
+            try {
+                Optional<String> result = dialog.showAndWait();
+                if (result.isPresent()) {
+                    iResult = Integer.valueOf(result.get());
+                    lobby = httpController.getByGameID(iResult);
+                    bordName = lobby.getBoard();
+                    break;
+                }
+            } catch (Exception e1) {
+
+            }
+        }
+        //Shold macke the gamecontroler from the https nolegs
+        Board board = loadBoard(bordName);
+        board.setGameId(lobby.getID());
+        gameController = new GameController(board, httpController);
+
+        //make the first player
+        TextInputDialog dialog1 = new TextInputDialog();
+        dialog1.setHeaderText("Enter PlayerID");
+        dialog1.setContentText("PlayerID:");
+
+        Optional<String> playerID = dialog1.showAndWait();
+        if(playerID.isPresent()){
+            try {
+                httpController.addPlayer(new PlayerServer(playerID.get(), lobby));
+                gameController.playerName = playerID.get();
+                lobby = httpController.getByGameID(lobby.getID());
+            }
+            catch (Exception e1){
+                System.out.println(e1);
+            }
+        }
+
+        /*
+        while (!waitingController.starttingGame()) {
+            roboRally.createVatingRomeView(waitingController);
+        }
+        //shold getsomting from http that wil start the game*/
+        try {
+            roboRally.createVatingRomeView(lobby);
+            Polling.gameStart(lobby);
+        }
+        catch (Exception e){
+            throw new RuntimeException(e);
+        }
+
     }
 
     /**
@@ -157,7 +297,7 @@ public class AppController implements Observer {
             String boardsname = boardname.get();
 
             Board board = loadBoard("games/" + boardsname);
-            gameController = new GameController(board);
+            gameController = new GameController(board, httpController);
 
             roboRally.createBoardView(gameController);
 
@@ -215,7 +355,9 @@ public class AppController implements Observer {
 
     @Override
     public void update(Subject subject) {
-        // XXX do nothing for now
+        if (subject == lobby){
+            update(lobby);
+        }
     }
 
 }

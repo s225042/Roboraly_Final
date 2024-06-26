@@ -23,8 +23,10 @@ package dk.dtu.compute.se.pisd.roborally;
 
 import dk.dtu.compute.se.pisd.roborally.controller.AppController;
 import dk.dtu.compute.se.pisd.roborally.controller.GameController;
+import dk.dtu.compute.se.pisd.roborally.fileaccess.model.Lobby;
 import dk.dtu.compute.se.pisd.roborally.view.BoardView;
 import dk.dtu.compute.se.pisd.roborally.view.RoboRallyMenuBar;
+import dk.dtu.compute.se.pisd.roborally.view.WhatingromeView;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.layout.BorderPane;
@@ -45,33 +47,23 @@ public class RoboRally extends Application {
     private BorderPane boardRoot;
 
     @Override
-    public void init() throws Exception {
-        super.init();
-    }
-
-    @Override
     public void start(Stage primaryStage) {
         stage = primaryStage;
+        stage.setResizable(true); // Allow stage to be resized by user
 
         AppController appController = new AppController(this);
 
-        // create the primary scene with the a menu bar and a pane for
-        // the board view (which initially is empty); it will be filled
-        // when the user creates a new game or loads a game
         RoboRallyMenuBar menuBar = new RoboRallyMenuBar(appController);
         boardRoot = new BorderPane();
         VBox vbox = new VBox(menuBar, boardRoot);
-        vbox.setMinWidth(MIN_APP_WIDTH);
         Scene primaryScene = new Scene(vbox);
 
         stage.setScene(primaryScene);
         stage.setTitle("RoboRally");
-        stage.setOnCloseRequest(
-                e -> {
-                    e.consume();
-                    appController.exit();} );
-        stage.setResizable(false);
-        stage.sizeToScene();
+        stage.setOnCloseRequest(e -> {
+            e.consume();
+            appController.exit();
+        });
         stage.show();
     }
 
@@ -83,6 +75,19 @@ public class RoboRally extends Application {
             // create and add view for new board
             BoardView boardView = new BoardView(gameController);
             boardRoot.setCenter(boardView);
+        }
+
+        stage.sizeToScene();
+    }
+
+    public void createVatingRomeView(Lobby lobby){
+        // if present, remove old content
+        boardRoot.getChildren().clear();
+
+        if (lobby != null) {
+            // create and add view for new board
+            WhatingromeView whatingromeView = new WhatingromeView(lobby);
+            boardRoot.setCenter(whatingromeView);
         }
 
         stage.sizeToScene();

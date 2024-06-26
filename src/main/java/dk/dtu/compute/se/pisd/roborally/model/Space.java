@@ -10,7 +10,7 @@
  *  the Free Software Foundation; version 2 of the License.
  *
  *  This project is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  but without any WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU General Public License for more details.
  *
@@ -24,7 +24,7 @@ package dk.dtu.compute.se.pisd.roborally.model;
 import dk.dtu.compute.se.pisd.designpatterns.observer.Subject;
 import dk.dtu.compute.se.pisd.roborally.controller.ConveyorBelt;
 import dk.dtu.compute.se.pisd.roborally.controller.FieldAction;
-import dk.dtu.compute.se.pisd.roborally.controller.Gear;
+import dk.dtu.compute.se.pisd.roborally.controller.PushPanel;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,7 +39,11 @@ public class Space extends Subject {
 
     private Player player;
 
+    private Antenna antenna;
+
     private List<Heading> walls = new ArrayList<>();
+
+    private List<Heading> pushPanel = new ArrayList<>();
     private List<FieldAction> actions = new ArrayList<>();
 
     public final Board board;
@@ -66,6 +70,10 @@ public class Space extends Subject {
         player = null;
     }
 
+    public Antenna getAntenna() {
+        return antenna;
+    }
+
     public Player getPlayer() {
         return player;
     }
@@ -88,6 +96,10 @@ public class Space extends Subject {
 
     public List<Heading> getWalls() {
         return walls;
+    }
+
+    public List<Heading> getPushPanel(){
+        return pushPanel;
     }
 
 
@@ -120,30 +132,31 @@ public class Space extends Subject {
      * This class is used to add a wall to the space.
      * @return belt
      */
-    public ConveyorBelt getConveyorBelt() {
+    public FieldAction getFieldAction() {
 
-        ConveyorBelt belt = null;
-
-        for (FieldAction action : this.actions) {
-            if (action instanceof ConveyorBelt && belt == null) {
-                belt = (ConveyorBelt) action;
-            }
-        }
-
-        return belt;
-
-    }
-
-    public Gear getGear() {
-        Gear gear = null;
+        FieldAction fieldAction = null;
 
         for (FieldAction action : this.actions) {
-            if (action instanceof Gear && gear == null) {
-                gear = (Gear) action;
+            if (action instanceof ConveyorBelt && fieldAction == null) {
+                fieldAction = (ConveyorBelt) action;
+            }
+            if (action instanceof  Checkpoint && fieldAction == null){
+                fieldAction = (Checkpoint) action;
+            }
+            if (action instanceof Gear && fieldAction == null){
+                fieldAction = (Gear) action;
+            }
+            if (action instanceof Laiser && fieldAction == null){
+                fieldAction = (Laiser) action;
+            }
+            if (action instanceof  Pit && fieldAction == null){
+                fieldAction = (Pit) action;
+            }
+            if(action instanceof PushPanel && fieldAction == null){
+                fieldAction = (PushPanel) action;
             }
         }
-
-        return gear;
+        return fieldAction;
     }
 
 }

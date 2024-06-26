@@ -1,10 +1,8 @@
-package dk.dtu.compute.se.pisd.roborally.controller;
+package dk.dtu.compute.se.pisd.roborally.model;
 
 import dk.dtu.compute.se.pisd.roborally.controller.FieldAction;
 import dk.dtu.compute.se.pisd.roborally.controller.GameController;
-import dk.dtu.compute.se.pisd.roborally.model.Direction;
-import dk.dtu.compute.se.pisd.roborally.model.Player;
-import dk.dtu.compute.se.pisd.roborally.model.Space;
+
 
 
 /**
@@ -15,23 +13,29 @@ import dk.dtu.compute.se.pisd.roborally.model.Space;
  */
 
 public class Gear extends FieldAction {
-    public Direction direction;
-
-    public void setDirection(Direction direction) {
-
-        this.direction = direction;
+    public enum GearType {
+        LEFT,  // Moves the robot one space
+        RIGHT    // Moves the robot two spaces
     }
 
-    public Direction getHeading() {
-        return this.direction;
+    public void setType(GearType type) {
+
+        this.type = type;
     }
 
-    public Gear(Direction direction) {
-        this.direction = direction;
+    private GearType type;
+
+
+    public Gear(GearType type) {
+        this.type = type;
+    }
+
+    public GearType getType(){
+        return type;
     }
 
     /**
-     * @Author s235074
+     * @Author s235074 Dennis Eren Dogulu
      * This method is used to turn the player in the direction of the gear.
      * @param gC GameController
      * @param space Space
@@ -41,22 +45,27 @@ public class Gear extends FieldAction {
     @Override
     public boolean doAction(GameController gC, Space space) {
         Player player = space.getPlayer();
-        if (player == null) {
-            System.err.println("Error: No player on the space to perform Gear action.");
-            return false; // No player to act upon
+
+        if (player == null){
+            return true;
         }
 
-        switch (direction) {
+        switch (type) {
+
+
             case LEFT:
                 gC.turnLeft(player);
                 break;
+
+
             case RIGHT:
                 gC.turnRight(player);
                 break;
+
         }
         return true;
-    }
 
+    }
 }
 
 

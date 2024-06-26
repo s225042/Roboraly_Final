@@ -21,13 +21,16 @@
  */
 package dk.dtu.compute.se.pisd.roborally.controller;
 
+import dk.dtu.compute.se.pisd.roborally.fileaccess.model.Lobby;
+import dk.dtu.compute.se.pisd.roborally.fileaccess.model.PlayerServer;
 import dk.dtu.compute.se.pisd.roborally.model.*;
 import org.jetbrains.annotations.NotNull;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Alert.AlertType;
 
-import java.util.Optional;
+import java.util.*;
+import java.util.List;
 
 /**
  * ...
@@ -39,132 +42,301 @@ public class GameController {
 
     final public Board board;
 
-    public GameController(Board board) {
+    final private HttpController httpController;
+
+    public boolean won = false;
+    public String playerName;
+    private Queue<Player> rebootQueue = new LinkedList<>();
+
+    private List<CommandCard> spamDeck = new ArrayList<>();
+    private List<CommandCard> otherDamageDeck = new ArrayList<>();
+
+
+
+    public GameController(Board board, HttpController httpController) {
         this.board = board;
+        this.httpController = httpController;
+        initializeDamageDecks();
     }
 
 
 
-    public void moveForward(@NotNull Player player) {
-        if (player.board == board) {
-            Space space = player.getSpace();
-            Heading heading = player.getHeading();
+    /**
+     * @Author s235074 Dennis Eren Dogulu
+     * Determine the order of the players based on the distance to the antenna
+     */
 
-            Space target = board.getNeighbour(space, heading);
-            if (target!= null) {
-                try {
-                    moveToSpace(player, target, heading);
-                } catch (ImpossibleMoveException e) {
-                    // we don't do anything here  for now; we just catch the
-                    // exception so that we do no pass it on to the caller
-                    // (which would be very bad style).
-                }
+    public void determinePlayerOrder(){
+        List<Player> players = new ArrayList<>(board.getPlayers());
+        players.sort(Comparator.comparingInt(player -> board.getAntenna().calculateDistance(player)));
+        board.setPlayerOrder(players);
+    }
+
+    private void initializeDamageDecks() {
+        int totalCards = 74; // Total number of damage cards in the deck
+        int spamCardsCount = 10; // Number of SPAM cards
+        int otherCardsCount = totalCards - spamCardsCount; // Remaining cards count
+        int cardTypes = 3; // Number of different non-SPAM damage card types
+        int cardsPerType = otherCardsCount / cardTypes; // Number of each type of non-SPAM damage card
+
+        // Add SPAM cards
+        for (int i = 0; i < spamCardsCount; i++) {
+            spamDeck.add(new CommandCard(Command.SPAM));
+        }
+
+        // Add TROJAN_HORSE cards
+        for (int i = 0; i < cardsPerType; i++) {
+            otherDamageDeck.add(new CommandCard(Command.TROJAN_HORSE));
+        }
+
+        // Add WORM cards
+        for (int i = 0; i < cardsPerType; i++) {
+            otherDamageDeck.add(new CommandCard(Command.WORM));
+        }
+
+        // Add VIRUS cards
+        for (int i = 0; i < cardsPerType; i++) {
+            otherDamageDeck.add(new CommandCard(Command.VIRUS));
+        }
+
+        Collections.shuffle(spamDeck);
+        Collections.shuffle(otherDamageDeck);
+    }
+
+    private CommandCard drawSpamCard() {
+        if (spamDeck.isEmpty()) {
+            return null;
+        }
+        return spamDeck.remove(spamDeck.size() - 1);
+    }
+
+    private CommandCard drawOtherDamageCard() {
+        if (otherDamageDeck.isEmpty()) {
+            initializeDamageDecks();
+        }
+        int randomIndex = new Random().nextInt(otherDamageDeck.size());
+        return otherDamageDeck.remove(randomIndex);
+    }
+
+    public CommandCard drawRandomDamageCard() {
+        CommandCard card = drawSpamCard();
+        if (card != null) {
+            return card;
+        }
+        return drawOtherDamageCard();
+    }
+
+
+    public void applyTrojanHorseDamage(Player player) {
+        System.out.println("Applying Trojan Horse damage.");
+        player.takeDamage(new CommandCard(Command.SPAM));
+        player.takeDamage(new CommandCard(Command.SPAM));
+        showTrojanHorseMessage(player);
+    }
+
+    public void applyWormDamage(Player player) {
+        System.out.println("Applying WORM damage.");
+        rebootPlayer(player);
+        showWormMessage(player);
+    }
+
+    public void applyVirusDamage(Player player) {
+        System.out.println("Applying VIRUS damage.");
+        player.setInfected(true); // Infect the player
+        spreadVirus(player);
+    }
+
+    public void spreadVirus(Player infectedPlayer) {
+        System.out.println("Spreading virus from player: " + infectedPlayer.getName());
+        List<Player> playersWithinRadius = getPlayersWithinRadius(infectedPlayer);
+        for (Player player : playersWithinRadius) {
+            if (!player.isInfected()) {
+                player.setInfected(true);
+                System.out.println("Player " + player.getName() + " is infected.");
+                // Each newly infected player draws a virus card
+                player.takeDamage(new CommandCard(Command.VIRUS));
+                showVirusCardMessage(player);
             }
         }
     }
 
-    public void leftOrRight(Player player) {
-        Alert alert = new Alert(AlertType.CONFIRMATION);
-        alert.setTitle("Choose Direction");
-        alert.setHeaderText("Direction Choice");
-        alert.setContentText("Choose your direction:");
+    public List<Player> getPlayersWithinRadius(Player sourcePlayer) {
+        List<Player> playersWithinRadius = new ArrayList<>();
+        for (Player player : board.getPlayers()) {
+            if (player != sourcePlayer && isWithinRadius(sourcePlayer.getSpace(), player.getSpace(), 6)) {
+                playersWithinRadius.add(player);
+            }
+        }
+        return playersWithinRadius;
+    }
 
-        ButtonType buttonLeft = new ButtonType("Left");
-        ButtonType buttonRight = new ButtonType("Right");
+    private boolean isWithinRadius(Space source, Space target, int radius) {
+        int dx = Math.abs(source.getX() - target.getX());
+        int dy = Math.abs(source.getY() - target.getY());
+        return Math.sqrt(dx * dx + dy * dy) <= radius;
+    }
 
-        alert.getButtonTypes().setAll(buttonLeft, buttonRight);
-
-        Optional<ButtonType> result = alert.showAndWait();
-        if (result.isPresent() && result.get() == buttonLeft) {
-            turnLeft(player);
-        } else if (result.isPresent() && result.get() == buttonRight) {
-            turnRight(player);
+    public void applyRandomDamage(Player player) {
+        CommandCard damageCard = drawRandomDamageCard();
+        switch (damageCard.command) {
+            case TROJAN_HORSE:
+                applyTrojanHorseDamage(player);
+                break;
+            case WORM:
+                applyWormDamage(player);
+                break;
+            case VIRUS:
+                applyVirusDamage(player);
+                break;
+            default:
+                player.takeDamage(damageCard);
+                showDamageMessage(player, damageCard);
+                break;
         }
     }
 
+    public void executeSpamDamageCard(Player player, CommandCard damageCard) {
+        if (damageCard.command == Command.SPAM) {
+            System.out.println("Executing SPAM card action");
+            CommandCard randomCard;
+            do {
+                randomCard = player.drawRandomProgrammingCard();
+            } while (randomCard != null && randomCard.command == Command.SPAM);
+
+            if (randomCard != null) {
+                executeCommand(player, randomCard.command);
+            }
+            player.getDiscardPile().add(damageCard);
+        }
+    }
+
+
+
+
+    public void moveForward(@NotNull Player player) {
+        if (!won && player.board == board) { // Check if game is won before moving
+            Space space = player.getSpace();
+            Heading heading = player.getHeading();
+
+            Space target = board.getNeighbour(space, heading);
+            if (target != null) {
+                try {
+                    moveToSpace(player, target, heading);
+                } catch (ImpossibleMoveException e) {
+                    // Handle the exception appropriately
+                }
+            } else {
+                // Reboot the player if moving out of bounds
+                rebootPlayer(player);
+            }
+        }
+    }
+
+
     /**
-     * Move the player two steps forward.
+     * @Author s235074 Dennis Eren Dogulu
+     * Move the player forward and check if the player is on the reboot space before it moves further
      * @param player
      */
 
-    // TODO Assignment A3
     public void fastForward(@NotNull Player player) {
         moveForward(player);
+        if(player.getSpace() != board.getRebootSpace())
         moveForward(player);
+
+        else;
     }
 
-    // TODO Assignment A3
     public void turnRight(@NotNull Player player) {
         player.setHeading(player.getHeading().prev());
     }
 
-    // TODO Assignment A3
     public void turnLeft(@NotNull Player player) {
         player.setHeading(player.getHeading().next());
     }
-// method to move forward 3 times
+
+    /**
+     * @Author s235074 Dennis Eren Dogulu
+     * Move the player and check if the player is on the reboot space before it moves further
+     * @param player
+     */
+
     public void fastFastForward(@NotNull Player player) {
         moveForward(player);
-        moveForward(player);
-        moveForward(player);
+        if(player.getSpace() != board.getRebootSpace()) {
+            moveForward(player);
+        }
+        if(player.getSpace() != board.getRebootSpace()) {
+            moveForward(player);
+        }
+
     }
 
     void moveToSpace(@NotNull Player player, @NotNull Space space, @NotNull Heading heading) throws ImpossibleMoveException {
         assert board.getNeighbour(player.getSpace(), heading) == space; // make sure the move to here is possible in principle
+
+        // Check if the space is within board boundaries
+        if (space.getX() < 0 || space.getX() >= board.getWidth() || space.getY() < 0 || space.getY() >= board.getHeight()) {
+            // Space is out of bounds, trigger a reboot
+            rebootPlayer(player);
+            return;
+        }
+
         Player other = space.getPlayer();
-        if (other!= null){
+        if (other != null) {
             Space target = board.getNeighbour(space, heading);
-            if (target!= null) {
-                moveToSpace(other, target, heading);
-                assert target.getPlayer() == null : target; // make sure target is free now
+            if (target != null) {
+                // Check if the target space is within board boundaries
+                if (target.getX() < 0 || target.getX() >= board.getWidth() || target.getY() < 0 || target.getY() >= board.getHeight()) {
+                    // Target space is out of bounds, trigger a reboot for the other player
+                    rebootPlayer(other);
+                    return;
+                }
+                else {
+                    moveToSpace(other, target, heading);
+                }
+
+                // Ensure the target is free now
+                assert target.getPlayer() == null : target;
             } else {
                 throw new ImpossibleMoveException(player, space, heading);
             }
         }
 
-        // Handle conveyor belts
-        ConveyorBelt belt = space.getConveyorBelt();
-        if (belt!= null) {
-            Heading beltHeading = belt.getHeading();
-            for (int i = 0; i < belt.getMovement(); i++) {
+        /* Handle the field action if the space is valid
+        FieldAction fieldAction = space.getFieldAction();
+        if (fieldAction instanceof ConveyorBelt) {
+            ConveyorBelt conveyorBelt = (ConveyorBelt) fieldAction;
+            Heading beltHeading = conveyorBelt.getHeading();
+            for (int i = 0; i < conveyorBelt.getMovement(); i++) {
                 space = board.getNeighbour(space, beltHeading);
-                if (space == null) {
-                    break;
+                if (space == null || space.getX() < 0 || space.getX() >= board.getWidth() || space.getY() < 0 || space.getY() >= board.getHeight()) {
+                    rebootPlayer(player);
+                    return;
                 }
             }
-        }
-
-        // Handle gear actions
-        Gear gear = space.getGear();
-        if (gear != null) {
-            gear.doAction(this, space);
-        }
+        }*/
 
         player.setSpace(space);
     }
 
-
     public void moveCurrentPlayerToSpace(Space space) {
-        // TODO: Import or Implement this method. This method is only for debugging purposes. Not useful for the game.
-        if(space.getPlayer() == null){
-            Player curent;
+        if (!won && space.getPlayer() == null) {
+            Player current;
             space.setPlayer(space.board.getCurrentPlayer());
-            int playerNumber = space.board.getPlayerNumber(space.board.getCurrentPlayer())+1;
-            if(playerNumber >= space.board.getPlayersNumber()){
-                curent = space.board.getPlayer(0);
+            int playerNumber = space.board.getPlayerNumber(space.board.getCurrentPlayer()) + 1;
+            if (playerNumber >= space.board.getPlayersNumber()) {
+                current = space.board.getPlayer(0);
+            } else {
+                current = space.board.getPlayer(playerNumber);
             }
-            else {
-                curent = space.board.getPlayer(playerNumber);
-            }
-            space.board.setCurrentPlayer(curent);
-
+            space.board.setCurrentPlayer(current);
         }
     }
 
     private void makeProgramFieldsVisible(int register) {
         if (register >= 0 && register < Player.NO_REGISTERS) {
-            for (int i = 0; i < board.getPlayersNumber(); i++) {
-                Player player = board.getPlayer(i);
+            for (Player player : board.getPlayerOrder()) {
                 CommandCardField field = player.getProgramField(register);
                 field.setVisible(true);
             }
@@ -172,8 +344,7 @@ public class GameController {
     }
 
     private void makeProgramFieldsInvisible() {
-        for (int i = 0; i < board.getPlayersNumber(); i++) {
-            Player player = board.getPlayer(i);
+        for (Player player : board.getPlayerOrder()) {
             for (int j = 0; j < Player.NO_REGISTERS; j++) {
                 CommandCardField field = player.getProgramField(j);
                 field.setVisible(false);
@@ -181,13 +352,102 @@ public class GameController {
         }
     }
 
+    /**
+     * @author Amalie Bojsen, s235119@dtu.dk
+     * @author Rebecca Moss, s225042@dtu.dk
+     */
     public void finishProgrammingPhase() {
         makeProgramFieldsInvisible();
+        Player player = board.getCurrentPlayer();
+        int playernr = board.getPlayerNumber(player);
+
+        determinePlayerOrder();
         makeProgramFieldsVisible(0);
         board.setPhase(Phase.ACTIVATION);
-        board.setCurrentPlayer(board.getPlayer(0));
+        if (!board.getPlayerOrder().isEmpty()) {
+            board.setCurrentPlayer(board.getPlayerOrder().get(0));
+        }
         board.setStep(0);
+
+        Lobby lobby;
+        try {
+            lobby = httpController.getByGameID(board.getGameId());
+            PlayerServer playerServer = lobby.getPlayers().get(playernr);
+            playerServer.setProgrammingDone(true);
+
+            playerServer.setProgram1(board.getPlayer(playernr).getProgramField(0).getCard().getName());
+            playerServer.setProgram2(board.getPlayer(playernr).getProgramField(1).getCard().getName());
+            playerServer.setProgram3(board.getPlayer(playernr).getProgramField(2).getCard().getName());
+            playerServer.setProgram4(board.getPlayer(playernr).getProgramField(3).getCard().getName());
+            playerServer.setProgram5(board.getPlayer(playernr).getProgramField(4).getCard().getName());
+
+            httpController.updatePlayer(playerServer.getPlayerID(), playerServer);
+            Polling.finishProgramming(lobby);
+            while (true){
+                boolean allPlayersDone = true;
+                lobby = httpController.getByGameID(board.getGameId());
+                for (PlayerServer playerServe : lobby.getPlayers()) {
+                    if (!playerServe.isProgrammingDone()) {
+                        // Retry logic (you can replace this with a non-blocking approach)
+                        allPlayersDone = false;
+                        break;
+                    }
+                }
+                if (allPlayersDone) {
+                    break;
+                }
+            }
+            for (int i = 0; i<board.getPlayersNumber(); i++){
+                for (int j = 0; j<5.; j++){
+                    switch (j){
+                        case 0:
+                            for (Command command: Command.values()){
+                                if (command.displayName.equals(lobby.getPlayers().get(i).getProgram1())){
+                                    board.getPlayer(i).getProgramField(j).setCard( new CommandCard(command));
+                                }
+                            }
+
+                            break;
+
+                        case 1:
+                            for (Command command: Command.values()){
+                                if (command.displayName.equals(lobby.getPlayers().get(i).getProgram2())){
+                                    board.getPlayer(i).getProgramField(j).setCard( new CommandCard(command));
+                                }
+                            }
+                            break;
+                        case 2:
+                            for (Command command: Command.values()){
+                                if (command.displayName.equals(lobby.getPlayers().get(i).getProgram3())){
+                                    board.getPlayer(i).getProgramField(j).setCard(new CommandCard(command));
+                                }
+                            }
+                            break;
+                        case 3:
+                            for (Command command: Command.values()){
+                                if (command.displayName.equals(lobby.getPlayers().get(i).getProgram4())){
+                                    board.getPlayer(i).getProgramField(j).setCard( new CommandCard(command));
+                                }
+                            }
+                            break;
+                        case 4:
+                            for (Command command: Command.values()){
+                                if (command.displayName.equals(lobby.getPlayers().get(i).getProgram5())){
+                                    board.getPlayer(i).getProgramField(j).setCard( new CommandCard(command));
+                                }
+                            }
+                            break;
+                    }
+                }
+            }
+        }
+        catch (Exception e){
+
+        }
+
+
     }
+
 
     public void executePrograms() {
         board.setStepMode(false);
@@ -203,9 +463,15 @@ public class GameController {
         do {
             executeNextStep();
         } while (board.getPhase() == Phase.ACTIVATION && !board.isStepMode());
+        spaceActions();
     }
 
-    private void executeNextStep() {
+
+    private boolean executeNextStep() {
+        if (won) {
+            return false;
+        }
+
         Player currentPlayer = board.getCurrentPlayer();
         if (board.getPhase() == Phase.ACTIVATION && currentPlayer != null) {
             int step = board.getStep();
@@ -215,60 +481,103 @@ public class GameController {
                     Command command = card.command;
                     executeCommand(currentPlayer, command);
                 }
-                int nextPlayerNumber = board.getPlayerNumber(currentPlayer) + 1;
-                if (nextPlayerNumber < board.getPlayersNumber()) {
-                    board.setCurrentPlayer(board.getPlayer(nextPlayerNumber));
+
+                int nextPlayerIndex = (board.getPlayerOrder().indexOf(currentPlayer) + 1) % board.getPlayersNumber();
+                if (nextPlayerIndex != 0) {
+                    board.setCurrentPlayer(board.getPlayerOrder().get(nextPlayerIndex));
+                    return false; // Not all players have finished this step
                 } else {
                     step++;
                     if (step < Player.NO_REGISTERS) {
                         makeProgramFieldsVisible(step);
                         board.setStep(step);
-                        board.setCurrentPlayer(board.getPlayer(0));
+                        board.setCurrentPlayer(board.getPlayerOrder().get(0)); // Set the first player for the next step
                     } else {
                         startProgrammingPhase();
                     }
+                    return true; // All players have finished the current step
                 }
             } else {
-                // this should not happen
-                assert false;
+                // This should not happen
+                return false;
             }
         } else {
-            // this should not happen
-            assert false;
+            // This should not happen
+            return false;
         }
     }
 
-    // U-Turn method
-    private void uTurn(@NotNull Player player) {
-        player.setHeading(player.getHeading().next().next());  // Rotate 180 degrees
+    /**
+     * s225042, Rebecca Moss
+     * This is the actions that hapens after eatch turn is taken for the spaces
+     */
+
+
+    private void spaceActions() {
+        for (Player player : board.getPlayers()) {
+            if (won) {
+                break;
+            }
+            Space space = player.getSpace();
+            FieldAction fieldAction = space.getFieldAction();
+            if (fieldAction instanceof Pit) {
+                Pit pit = (Pit) fieldAction;
+                pit.doAction(this, space);
+            }
+        }
+        for (Space space: board.getSpaceBLueConveyor()){
+            ConveyorBelt conveyorBelt = (ConveyorBelt) space.getFieldAction();
+            conveyorBelt.doAction(this, space);
+        }
+        for (Space space: board.getSpacesGreanConveyor()){
+            ConveyorBelt conveyorBelt = (ConveyorBelt) space.getFieldAction();
+            conveyorBelt.doAction(this, space);
+        }
+        for (Space space: board.getPushPanels()){
+            PushPanel pushPanel = (PushPanel) space.getFieldAction();
+            pushPanel.doAction(this, space);
+        }
+        for (Space space: board.getSpacesGears()){
+            Gear gear = (Gear) space.getFieldAction();
+            gear.doAction(this, space);
+        }
+        for (Space space: board.getLaisers()){
+            Laiser laiser = (Laiser) space.getFieldAction();
+            laiser.doAction(this, space);
+        }
+        for (Space space: board.getChekpoints()){
+            Checkpoint checkpoint = (Checkpoint) space.getFieldAction();
+            checkpoint.doAction(this, space);
+        }
     }
 
-    // Method to move the player one space back without changing direction
-    private void backUp(@NotNull Player player) {
-        Space currentSpace = player.getSpace();
-        Heading oppositeHeading = player.getHeading().prev().prev(); // 180 degrees to move back
-        Space targetSpace = board.getNeighbour(currentSpace, oppositeHeading);
 
-        if (targetSpace != null && !targetSpace.getWalls().contains(oppositeHeading)) {
-            try {
-                moveToSpace(player, targetSpace, oppositeHeading);
-            } catch (ImpossibleMoveException e) {
-                // Handle exception if the move is not possible
+    private void uTurn(@NotNull Player player) {
+        player.setHeading(player.getHeading().next().next());
+    }
+
+    public void backUp(@NotNull Player player) {
+        if (!won) {
+            Space currentSpace = player.getSpace();
+            Heading oppositeHeading = player.getHeading().prev().prev();
+            Space targetSpace = board.getNeighbour(currentSpace, oppositeHeading);
+
+            if (targetSpace != null && !targetSpace.getWalls().contains(oppositeHeading)) {
+                try {
+                    moveToSpace(player, targetSpace, oppositeHeading);
+                } catch (ImpossibleMoveException e) {
+                    // Handle the exception appropriately
+                }
+            } else {
+                // Reboot the player if moving out of bounds
+                rebootPlayer(player);
             }
         }
     }
 
-    // Method to add one energy cube to the player's mat
-    private void powerUp(@NotNull Player player) {
-        player.addEnergyCube();  // Increment the energy cubes
-    }
 
     private void executeCommand(@NotNull Player player, Command command) {
-        Gear gear = null;
-        if (player != null && player.board == board && command != null) {
-            // XXX This is a very simplistic way of dealing with some basic cards and
-            //     their execution. This should eventually be done in a more elegant way
-            //     (this concerns the way cards are modelled as well as the way they are executed).
+        if (!won && player != null && player.board == board && command != null) {
             if (command != Command.AGAIN) {
                 player.setLastCommand(command);
             }
@@ -286,49 +595,39 @@ public class GameController {
                 case FAST_FORWARD:
                     this.fastForward(player);
                     break;
-                case OPTION_LEFT_RIGHT:
-                    this.leftOrRight(player);
-                    break;
                 case U_TURN:
                     this.uTurn(player);
                     break;
                 case BACK_UP:
                     this.backUp(player);
                     break;
-                case POWER_UP:
-                    this.powerUp(player);
-                    break;
                 case AGAIN:
                     this.executeAgain(player);
                     break;
                 case FAST_FAST_FORWARD:
                     this.fastFastForward(player);
+                    break;
+                case SPAM:
+                    this.executeSpamDamageCard(player, new CommandCard(Command.SPAM));
+                    break;
+                case TROJAN_HORSE:
+                    this.applyTrojanHorseDamage(player);
+                    break;
+                case WORM:
+                    this.applyWormDamage(player);
+                    break;
+                case VIRUS:
+                    this.applyVirusDamage(player);
+                    break;
                 default:
-                    // DO NOTHING (for now)
+                    break;
             }
-
-            // Check if the player is on a conveyor belt
-            Space space = player.getSpace();
-            ConveyorBelt belt = space.getConveyorBelt();
-            if (belt != null) {
-                // Move the player along the conveyor belt
-                // Use the conveyor belt's heading to determine the direction
-                Heading beltHeading = belt.getHeading();
-                this.moveForwardInDirection(player, beltHeading);
-            }
-
-            gear = space.getGear();
-        }
-        if (gear != null) {
-            gear.doAction(this, player.getSpace());
         }
     }
 
     private void moveForwardInDirection(Player player, Heading heading) {
-        // Similar to the moveForward method, but moves the player in the specified heading
-        if (player.board == board) {
+        if (!won && player.board == board) {
             Space space = player.getSpace();
-
             Space target = board.getNeighbour(space, heading);
             if (target != null) {
                 try {
@@ -341,143 +640,96 @@ public class GameController {
     }
 
     private void executeAgain(@NotNull Player player) {
-        Command lastCommand = player.getLastCommand();
-        if (lastCommand != null) {
-            executeCommand(player, lastCommand);
-        } else {
-            System.out.println("No previous command to repeat or not allowed!");
+        if (!won) {
+            Command lastCommand = player.getLastCommand();
+            if (lastCommand != null) {
+                executeCommand(player, lastCommand);
+            } else {
+                System.out.println("No previous command to repeat or not allowed!");
+            }
         }
     }
 
     public boolean moveCards(@NotNull CommandCardField source, @NotNull CommandCardField target) {
-        CommandCard sourceCard = source.getCard();
-        CommandCard targetCard = target.getCard();
-        if (sourceCard != null && targetCard == null) {
-            target.setCard(sourceCard);
-            source.setCard(null);
-            return true;
-        } else {
-            return false;
+        if (!won) {
+            CommandCard sourceCard = source.getCard();
+            CommandCard targetCard = target.getCard();
+            if (sourceCard != null && targetCard == null) {
+                target.setCard(sourceCard);
+                source.setCard(null);
+                return true;
+            }
         }
+        return false;
     }
 
-
+    /**
+     * @author Rebecca Moss, s225042@dtu.dk
+     */
     public void startProgrammingPhase() {
+        Player player;
+
+        for (int i = 0; i<board.getPlayers().size(); i++){
+            player = board.getPlayer(i);
+            if(player.getName().equals(playerName)){
+                board.setCurrentPlayer(board.getPlayer(i));
+            }
+        }
         board.setPhase(Phase.PROGRAMMING);
-        board.setCurrentPlayer(board.getPlayer(0));
+        int playernr = board.getPlayerNumber(board.getCurrentPlayer());
+
+        Lobby lobby;
+        try {
+            lobby = httpController.getByGameID(board.getGameId());
+            PlayerServer playerServer = lobby.getPlayers().get(playernr);
+            playerServer.setProgrammingDone(false);
+            httpController.updatePlayer(playerServer.getPlayerID(), playerServer);
+        }
+        catch (Exception e){
+            throw new RuntimeException(e);
+        }
+        Polling.finishRound(lobby.getID());
+
+        while (true){
+            try {
+                lobby = httpController.getByGameID(board.getGameId());
+            }
+            catch (Exception e){
+                System.out.println(e);
+            }
+            boolean allPlayersDone = true;
+
+            for (PlayerServer playerServer : lobby.getPlayers()) {
+                if (playerServer.isProgrammingDone()) {
+                    allPlayersDone = false;
+                    break;
+                }
+            }
+            if (allPlayersDone) {
+                break;
+            }
+        }
+
         board.setStep(0);
 
         for (int i = 0; i < board.getPlayersNumber(); i++) {
-            Player player = board.getPlayer(i);
+            player = board.getPlayer(i);
             if (player != null) {
+                player.initializeProgrammingDeck(); // Initialize the deck if needed
                 for (int j = 0; j < Player.NO_REGISTERS; j++) {
                     CommandCardField field = player.getProgramField(j);
                     field.setCard(null);
                     field.setVisible(true);
                 }
-                for (int j = 0; j < Player.NO_CARDS; j++) {
-                    CommandCardField field = player.getCardField(j);
-                    field.setCard(generateRandomCommandCard());
-                    field.setVisible(true);
-                }
+                player.drawProgrammingCards(Player.NO_CARDS); // Draw cards for the player
             }
         }
     }
 
-    private CommandCard generateRandomCommandCard() {
-        Command[] commands = Command.values();
-        int random = (int) (Math.random() * commands.length);
-        return new CommandCard(commands[random]);
-    }
-    /**
-     * Applies damage effects to the current player based on the specified damage type.
-     * This method handles different types of damage that can affect game strategy and player progress.
-     *
-     * @param currentPlayer The player currently affected by the damage effect.
-     * @param damageType The type of damage to apply, which determines the effect executed.
-     * @author Aisha Farah, student ID: 235123
-     */
-    public void applyDamageEffects(@NotNull Player currentPlayer, DamageType damageType) {
-        System.out.println("Applying effects to " + currentPlayer.getName());
-        switch (damageType) {
-            case SPAM:
-                System.out.println("Applying SPAM damage to " + currentPlayer.getName());
-                break;
-            case WORM:
-                rebootPlayer(currentPlayer);
-                break;
-            case TROJAN_HORSE:
-                giveAdditionalDamageCards(currentPlayer, DamageType.SPAM);
-                break;
-            case VIRUS:
-                spreadVirusDamage(currentPlayer);
-                break;
-        }
-    }
 
-    /**
-     * Resets the player's position to the starting point on the game board.
-     *
-     * @param player The player whose position needs to be reset.
-     * @author Aisha Farah, student ID: 235123
-     */
-    private void rebootPlayer(Player player) {
-        player.setSpace(board.getPlayerStartingPoint());
-        System.out.println("Player " + player.getName() + " is rebooted to starting position.");
-    }
-
-    /**
-     * Adds a specific type of damage cards to the player's discard pile.
-     *
-     * @param player The player who will receive the additional damage cards.
-     * @param type The type of damage card to add.
-     * @author Aisha Farah, student ID: 235123
-     */
-    private void giveAdditionalDamageCards(Player player, DamageType type) {
-        for (int i = 0; i < 2; i++) {
-            player.getDiscardPile().add(new DamageCard(type));
-        }
-    }
-
-    /**
-     * Spreads virus damage to all players within a specified radius of the source player.
-     *
-     * @param source The player from whom the virus originates.
-     * @author Aisha Farah, student ID: 235123
-     */
-    private void spreadVirusDamage(Player source) {
-        for (Player player : board.getPlayers()) {
-            if (player != source && isWithinRadius(source.getSpace(), player.getSpace(), 6)) {
-                player.getDiscardPile().add(new DamageCard(DamageType.VIRUS));
-            }
-        }
-    }
-
-    /**
-     * Checks if a target space is within a specified radius of a source space.
-     * This method is used to determine the proximity of one space to another, typically for area-of-effect damage.
-     *
-     * @param source The source space from which to measure.
-     * @param target The target space to check against the source.
-     * @param radius The radius within which the target must fall to be considered within range.
-     * @return true if the target is within the specified radius of the source, false otherwise.
-     */
-    private boolean isWithinRadius(Space source, Space target, int radius) {
-        int dx = Math.abs(source.getX() - target.getX());
-        int dy = Math.abs(source.getY() - target.getY());
-        return Math.sqrt(dx * dx + dy * dy) <= radius;
-    }
-
-
-    /**
-     * A method called when no corresponding controller operation is implemented yet. This
-     * should eventually be removed.
-     */
     public void notImplemented() {
-        // XXX just for now to indicate that the actual method is not yet implemented
         assert false;
     }
-
 
     class ImpossibleMoveException extends Exception {
 
@@ -493,4 +745,57 @@ public class GameController {
         }
     }
 
+    public void showWinningMessage(Player player) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Game Over");
+        alert.setHeaderText("Congratulations!");
+        alert.setContentText(player.getName() + " has won the game!");
+        this.won = true;
+
+        alert.showAndWait();
+    }
+
+    private void showDamageMessage(Player player, CommandCard damageCard) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Damage Taken");
+        alert.setHeaderText("Robot hit by laser!");
+        alert.setContentText(player.getName() + " has drawn a " + damageCard.command + " card.");
+        alert.showAndWait();
+    }
+
+    private void showTrojanHorseMessage(Player player) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Damage Taken");
+        alert.setHeaderText("Trojan Horse Activated!");
+        alert.setContentText(player.getName() + " has drawn two SPAM cards.");
+        alert.showAndWait();
+    }
+
+    private void showWormMessage(Player player) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Damage Taken");
+        alert.setHeaderText("WORM Activated!");
+        alert.setContentText(player.getName() + " has been rebooted.");
+        alert.showAndWait();
+    }
+
+    private void showVirusCardMessage(Player player) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Virus Card");
+        alert.setHeaderText("Virus Activated!");
+        alert.setContentText(player.getName() + " is now infected and spreads the virus to nearby players.");
+        alert.showAndWait();
+    }
+
+
+
+    /**
+     * @Author s235112 Tobias Kolstrup Vittrup
+     * Reboot the player and add it to the reboot queue
+     * @param player
+     */
+    // Reboot player
+    public void rebootPlayer(@NotNull Player player) {
+        player.reboot();
+    }
 }

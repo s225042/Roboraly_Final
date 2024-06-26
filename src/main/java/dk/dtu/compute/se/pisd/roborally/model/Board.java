@@ -22,7 +22,9 @@
 package dk.dtu.compute.se.pisd.roborally.model;
 
 import dk.dtu.compute.se.pisd.designpatterns.observer.Subject;
+import dk.dtu.compute.se.pisd.roborally.controller.ConveyorBelt;
 import dk.dtu.compute.se.pisd.roborally.controller.FieldAction;
+import dk.dtu.compute.se.pisd.roborally.controller.PushPanel;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -48,15 +50,40 @@ public class Board extends Subject {
 
     private final List<Player> players = new ArrayList<>();
 
+    private List<Space> spaceBLueConveyor = new ArrayList<>();
+
+    private List<Space> spacesGreanConveyor = new ArrayList<>();
+
+    private List<Space> spacesGears = new ArrayList<>();
+
+    private List<Space> laisers = new ArrayList<>();
+
+    private List<Space> chekpoints = new ArrayList<>();
+
+    private List<Space> pushPanels = new ArrayList<>();
+
+    private List<SpawnPoint> spawnPoints = new ArrayList<>();
+
     private Player current;
 
     private Phase phase = INITIALISATION;
 
     private int step = 0;
 
+    private int counter = 0;
+
+    private int maxNumberofChekpoints;
+
     private boolean stepMode;
 
-    public Board(int width, int height) {
+    private final Antenna antenna;
+
+    private List<Player> playersOrder = new ArrayList<>();
+
+    private Space rebootSpace; // Assuming there is a single reboot space
+    private Heading rebootDirection; // Default direction indicated by the arrow on the reboot token
+
+    public Board(int width, int height, int antennaX, int antennaY) {
         this.width = width;
         this.height = height;
         spaces = new Space[width][height];
@@ -66,7 +93,13 @@ public class Board extends Subject {
                 spaces[x][y] = space;
             }
         }
+        this.antenna = new Antenna(this, antennaX, antennaY);
         this.stepMode = false;
+    }
+
+
+    public Antenna getAntenna() {
+        return antenna;
     }
 
     public Integer getGameId() {
@@ -91,6 +124,54 @@ public class Board extends Subject {
         return height;
     }
 
+    public int getCounter() {return counter;}
+
+    public void setCounter(int counter){
+        this.counter = counter;
+    }
+
+    /**
+     * @author Rebecca Moss, s225042@dtu.dk
+     * @return int
+     */
+    public int getMaxNumberofChekpoints(){return maxNumberofChekpoints;}
+
+    public void setMaxNumberofChekpoints(){
+        for (int x = 0; x < width; x++) {
+            for(int y = 0; y < height; y++) {
+                Space space =  getSpace(x, y);
+                spaces[x][y] = space;
+
+                if (space.getFieldAction() instanceof ConveyorBelt){
+                    ConveyorBelt conveyorBelt = (ConveyorBelt) space.getFieldAction();
+                    if(conveyorBelt.getType() == ConveyorBelt.BeltType.BLUE){
+                        spaceBLueConveyor.add(space);
+                    }
+                    else {
+                        spacesGreanConveyor.add(space);
+                    }
+                }
+
+                if (space.getFieldAction() instanceof  Gear){
+                    spacesGears.add(space);
+                }
+
+                if (space.getFieldAction() instanceof PushPanel){
+                    pushPanels.add(space);
+                }
+
+                if (space.getFieldAction() instanceof Laiser){
+                    laisers.add(space);
+                }
+
+                if(space.getFieldAction() instanceof Checkpoint){
+                    chekpoints.add(space);
+                }
+            }
+        }
+        maxNumberofChekpoints = chekpoints.size();
+    }
+
     public Space getSpace(int x, int y) {
         if (x >= 0 && x < width &&
                 y >= 0 && y < height) {
@@ -100,20 +181,26 @@ public class Board extends Subject {
         }
     }
 
+
+    /** Author s235074 Dennis Eren Dogulu
+     * Method to get the size of the array of playersOrder list
+     * @return size of the playersOrder list which is the order of the players
+     */
     public int getPlayersNumber() {
-        return players.size();
+        return playersOrder.size();
     }
 
     public void addPlayer(@NotNull Player player) {
         if (player.board == this && !players.contains(player)) {
             players.add(player);
+            playersOrder.add(player);
             notifyChange();
         }
     }
 
     public Player getPlayer(int i) {
-        if (i >= 0 && i < players.size()) {
-            return players.get(i);
+        if (i >= 0 && i < playersOrder.size()) {
+            return playersOrder.get(i);
         } else {
             return null;
         }
@@ -128,6 +215,7 @@ public class Board extends Subject {
     public void setCurrentPlayer(Player player) {
         if (player != this.current && players.contains(player)) {
             this.current = player;
+            counter ++;
             notifyChange();
         }
     }
@@ -141,6 +229,17 @@ public class Board extends Subject {
             this.phase = phase;
             notifyChange();
         }
+    }
+
+
+
+    /** Author s235074 Dennis Eren Dogulu
+     * Method to set the order of the players
+     * @param playersOrder list of players
+     */
+
+    public void setPlayerOrder(List<Player> playersOrder) {
+        this.playersOrder = playersOrder;
     }
 
     public int getStep() {
@@ -177,6 +276,41 @@ public class Board extends Subject {
         return players;
     }
 
+
+
+
+    /** Author s235074 Dennis Eren Dogulu
+     * Method to get the order of the players
+     * @return list of players
+     */
+    public List <Player> getPlayerOrder() {
+        return playersOrder;
+    }
+
+    public List<Space> getSpaceBLueConveyor(){
+        return spaceBLueConveyor;
+    }
+
+    public List<Space> getSpacesGreanConveyor(){
+        return spacesGreanConveyor;
+    }
+
+    public List<Space> getSpacesGears(){
+        return spacesGears;
+    }
+
+    public List<Space> getLaisers(){
+        return laisers;
+    }
+
+    public List<Space> getChekpoints(){
+        return chekpoints;
+    }
+
+    public List<Space> getPushPanels(){
+        return pushPanels;
+    }
+
     /**
      * Returns the neighbour of the given space of the board in the given heading.
      * The neighbour is returned only, if it can be reached from the given space
@@ -188,60 +322,126 @@ public class Board extends Subject {
      * @return the space in the given direction; null if there is no (reachable) neighbour
      */
     public Space getNeighbour(@NotNull Space space, @NotNull Heading heading) {
-        if (space.getWalls().contains(heading)) {
-            return null;
-        }
-        // TODO needs to be implemented based on the actual spaces
-        //      and obstacles and walls placed there. For now it,
-        //      just calculates the next space in the respective
-        //      direction in a cyclic way.
-
-        // XXX an other option (not for now) would be that null represents a hole
-        //     or the edge of the board in which the players can fall
-
         int x = space.x;
         int y = space.y;
+
         switch (heading) {
             case SOUTH:
-                y = (y + 1) % height;
+                y = y + 1;
                 break;
             case WEST:
-                x = (x + width - 1) % width;
+                x = x - 1;
                 break;
             case NORTH:
-                y = (y + height - 1) % height;
+                y = y - 1;
                 break;
             case EAST:
-                x = (x + 1) % width;
+                x = x + 1;
                 break;
         }
-        Heading reverse = Heading.values()[(heading.ordinal() + 2)% Heading.values().length];
+
+        // Check if the new coordinates are out of bounds
+        if (x < 0 || x >= width || y < 0 || y >= height) {
+            return null;
+        }
+
         Space result = getSpace(x, y);
         if (result != null) {
-            if (result.getWalls().contains(reverse)) {
-                return null;
+            Heading reverse = Heading.values()[(heading.ordinal() + 2) % Heading.values().length];
+            if (space.getWalls().contains(heading) || result.getWalls().contains(reverse)) {
+                return space; // Returning the current space if there's a wall in the way
             }
         }
+
         return result;
     }
 
+
+
     public String getStatusMessage() {
 
-        return "";
+        return "Phase: " + getPhase().name() +
+                ", Player = " + getCurrentPlayer().getName() +
+                ", checkpoint tokens = " + getCurrentPlayer().getCheckpoint() +
+                ", Step: " + getStep() +
+                ", Counter;" + (counter-1);
+    }
+
+    /**
+     * @author s235112 Tobias Kolstrup Vittrup
+     * Returns the reboot direction of the board.
+     * @return the reboot direction of the board
+     */
+
+    public Heading getRebootDirection() {
+        return rebootDirection;
     }
     /**
-     * Retrieves the starting point for the player.
-     *
-     * @return The Space object representing the player's starting point, or null if not found.
-     * @author Aisha Farah (S235123)
+     * @author s235112 Tobias Kolstrup Vittrup
+     * Sets the reboot direction of the board.
+     * @param heading the reboot direction to be set
      */
-    public Space getPlayerStartingPoint() {
-        for (int x = 0; x < width; x++) {
-            for (int y = 0; y < height; y++) {
-                Space space = spaces[x][y];
 
+    public void setRebootDirection(Heading heading) {
+        if (heading == null) {
+            throw new IllegalArgumentException("Reboot direction cannot be null.");
+        }
+        this.rebootDirection = heading;
+    }
+
+    /**
+     * @author s235112 Tobias Kolstrup Vittrup
+     * Returns the reboot space of the board.
+     * @return the reboot space of the board
+     */
+
+    public Space getRebootSpace() {
+        return rebootSpace;
+    }
+
+    /**
+     * @author s235112 Tobias Kolstrup Vittrup
+     * Returns the reboot space of the board.
+     * @param x the x-coordinate of the reboot space
+     * @param y the y-coordinate of the reboot space
+     */
+    public void setRebootSpace(int x, int y) {
+        this.rebootSpace = getSpace(x, y);
+    }
+
+    /**
+     * @author s235112 Tobias Kolstrup Vittrup
+     * Returns the reboot space of the board.
+     * @param spawnPoint the reboot space to be set
+     */
+
+    public void addSpawnPoint(SpawnPoint spawnPoint) {
+        spawnPoints.add(spawnPoint);
+    }
+
+    /**
+     * @author s235112 Tobias Kolstrup Vittrup
+     * Returns the list of spawn points on the board.
+     * @return spawnPoints the list of spawn points on the board
+     */
+    public List<SpawnPoint> getSpawnPoints() {
+        return spawnPoints;
+    }
+
+    /**
+     * @author s235112 Tobias Kolstrup Vittrup
+     * Returns the spawn point of the board.
+     * @param space the space to be checked
+     * @return true if the space is a spawn point, false otherwise
+     */
+
+    public boolean isSpawnPoint(Space space) {
+        for (SpawnPoint spawnPoint : spawnPoints) {
+            if (spawnPoint.x == space.getX() && spawnPoint.y == space.getY()) {
+                return true;
             }
         }
-        return null; // Player's starting point not found
+        return false;
     }
+
 }
