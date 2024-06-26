@@ -65,9 +65,9 @@ public class GameController {
     }
 
     public void initializeDamageDecks() {
-        int totalCards = 40; // Total number of damage cards in the deck
-        int spamCardsCount = 10; // Number of SPAM cards
-        int otherCardsCount = totalCards - spamCardsCount; // Remaining cards count
+        int totalCards = 74; // Total number of damage cards in the deck
+        int spamCardsCount = 5; // Number of SPAM cards
+        int otherCardsCount = totalCards - spamCardsCount; // Remaining cards‰¢ count
         int cardTypes = 3; // Number of different non-SPAM damage card types
         int cardsPerType = otherCardsCount / cardTypes; // Number of each type of non-SPAM damage card
 
