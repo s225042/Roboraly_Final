@@ -10,6 +10,13 @@ import dk.dtu.compute.se.pisd.roborally.controller.GameController;
  * When a player steps on a pit, the player is rebooted.
  */
 public class Pit extends FieldAction {
+
+
+
+    /** @Author s235074 Dennis Eren Dogulu
+     * This method uses the reboot method to reboot a player when they land on the pit field
+     */
+
     @Override
     public boolean doAction(GameController gameController, Space space) {
         gameController.rebootPlayer(space.getPlayer());

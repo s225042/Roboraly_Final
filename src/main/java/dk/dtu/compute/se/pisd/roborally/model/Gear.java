@@ -35,7 +35,7 @@ public class Gear extends FieldAction {
     }
 
     /**
-     * @Author s235074
+     * @Author s235074 Dennis Eren Dogulu
      * This method is used to turn the player in the direction of the gear.
      * @param gC GameController
      * @param space Space
